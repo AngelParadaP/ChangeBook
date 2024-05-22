@@ -1,0 +1,25 @@
+body {
+    background: linear-gradient(to bottom, #ffffff 49%, #a87bc7 50%);
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto; /* Ajustar automáticamente la altura */
+    overflow: auto; /* Agregar scroll si el contenido desborda */
+}
+
+.left-panel {
+    background-color: white; /* Color para el panel izquierdo */
+    padding: 20px;
+    border: 1px solid whitesmoke;
+    width: 70vw; /* Ancho relativo al 70% del ancho de la ventana */
+    max-width: 800px; /* Ancho máximo para el panel */
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+    height: 75%;
+    border-radius: 10px;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    text-align: center;
+}

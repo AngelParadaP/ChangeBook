@@ -1,0 +1,21 @@
+/* Estilos para navegadores WebKit (Chrome, Safari) */
+#masLeidos {
+  overflow-y: auto; /* Habilita el desplazamiento vertical */
+}
+
+#masLeidos::-webkit-scrollbar {
+  width: 8px; /* Ancho de la scrollbar */
+}
+
+#masLeidos::-webkit-scrollbar-track {
+  background: lightgray; /* Color de fondo de la scrollbar */
+}
+
+#masLeidos::-webkit-scrollbar-thumb {
+  background: #a87bc7; /* Color del thumb (control de deslizamiento) */
+  border-radius: 8px; /* Redondea la barra de desplazamiento */
+}
+
+#masLeidos::-webkit-scrollbar-thumb:hover {
+  background: #734a91; /* Color del thumb al pasar el mouse sobre él */
+}

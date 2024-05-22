@@ -1,0 +1,291 @@
+.email-field-child {
+    width: 505px;
+    height: 623px;
+    position: relative;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.25);
+    border-radius: var(--br-xl) 0 0 var(--br-xl);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    box-sizing: border-box;
+    display: none;
+    max-width: 100%;
+  }
+  .iniciar-sesion {
+    margin: 0;
+    position: relative;
+    font-size: inherit;
+    font-weight: 700;
+    font-family: inherit;
+    z-index: 2;
+  }
+  .password-field {
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .correo-institucional {
+    position: relative;
+    font-size: var(--font-size-base);
+    display: none;
+    font-family: var(--font-nunito);
+    color: var(--color-black);
+    text-align: center;
+  }
+  .frame-inner {
+    height: 49px;
+    width: 403px;
+    position: relative;
+    border-radius: var(--br-3xs);
+    background-color: var(--color-whitesmoke);
+    display: none;
+    max-width: 100%;
+    z-index: 0;
+  }
+  .correo-institucional1 {
+    width: 146px;
+    border: 0;
+    outline: 0;
+    display: inline-block;
+    font-family: var(--font-nunito);
+    font-size: var(--font-size-base);
+    background-color: transparent;
+    height: 22px;
+    position: relative;
+    font-weight: 700;
+    color: var(--color-gray-100);
+    text-align: left;
+    padding: 0;
+    z-index: 4;
+  }
+  .frame-icon {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    margin: 0 !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+    z-index: 6;
+  }
+  .frame-icon1 {
+    height: 314px;
+    width: 24px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    z-index: 7;
+  }
+  .frame-parent {
+    margin: 0 !important;
+    position: absolute;
+    bottom: -350px;
+    left: 7px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: var(--padding-54xl) 0 0;
+  }
+  .rectangle-group,
+  .username-input-child {
+    position: relative;
+    border-radius: var(--br-3xs);
+    background-color: var(--color-whitesmoke);
+    max-width: 100%;
+  }
+  .rectangle-group {
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: var(--padding-smi) var(--padding-17xl) var(--padding-sm);
+    box-sizing: border-box;
+  }
+  .username-input-child {
+    height: 49px;
+    width: 403px;
+    display: none;
+    z-index: 0;
+  }
+  .contrasea {
+    width: 85px;
+    border: 0;
+    outline: 0;
+    display: inline-block;
+    font-family: var(--font-nunito);
+    font-size: var(--font-size-base);
+    background-color: transparent;
+    height: 22px;
+    position: relative;
+    font-weight: 700;
+    color: var(--color-gray-100);
+    text-align: left;
+    padding: 0;
+    z-index: 4;
+  }
+  .access-button-icon {
+    height: 312px;
+    width: 20px;
+    position: absolute;
+    margin: 0 !important;
+    right: 9px;
+    bottom: -278px;
+    overflow: hidden;
+    flex-shrink: 0;
+    z-index: 6;
+  }
+  .rectangle-div,
+  .username-input {
+    position: relative;
+    border-radius: var(--br-3xs);
+  }
+  .username-input {
+    align-self: stretch;
+    background-color: var(--color-whitesmoke);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: var(--padding-smi) var(--padding-16xl) var(--padding-sm);
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+  .rectangle-div {
+    height: 49px;
+    width: 163px;
+    background-color: var(--color-mediumpurple-100);
+    display: none;
+  }
+  .acceder {
+    position: relative;
+    font-size: var(--font-size-4xl);
+    display: inline-block;
+    font-family: var(--font-nunito);
+    color: var(--color-white);
+    text-align: left;
+    min-width: 86px;
+    z-index: 5;
+  }
+  .frame3,
+  .rectangle-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .rectangle-container {
+    cursor: pointer;
+    border: 0;
+    padding: var(--padding-4xs) var(--padding-19xl) var(--padding-4xs)
+      var(--padding-20xl);
+    background-color: var(--color-mediumpurple-100);
+    border-radius: var(--br-3xs);
+  }
+  .rectangle-container:hover {
+    background-color: var(--color-mediumpurple-200);
+  }
+  .frame3 {
+    position: absolute;
+    top: 0;
+    left: 120px;
+    overflow: hidden;
+    padding: 0 0 var(--padding-146xl);
+    z-index: 4;
+  }
+  .no-tienes-una {
+    color: var(--color-gray-100);
+    white-space: pre-wrap;
+  }
+  .registrarse {
+    color: var(--color-darkslateblue);
+  }
+  .no-tienes-una-container {
+    position: absolute;
+    top: 152px;
+    left: 0;
+    font-size: var(--font-size-base);
+    display: inline-block;
+    font-family: var(--font-nunito);
+    text-align: left;
+    width: 404px;
+    z-index: 5;
+  }
+  .register-link {
+    align-self: stretch;
+    height: 214px;
+    position: relative;
+  }
+  .email-field,
+  .frame1,
+  .frame2,
+  .welcome-message {
+    display: flex;
+    justify-content: flex-start;
+    max-width: 100%;
+  }
+  .frame2 {
+    flex: 1;
+    overflow: hidden;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--gap-45xl);
+    z-index: 2;
+  }
+  .email-field,
+  .frame1,
+  .welcome-message {
+    align-items: flex-start;
+  }
+  .welcome-message {
+    align-self: stretch;
+    flex-direction: row;
+    padding: 0 0 0 var(--padding-12xs);
+    box-sizing: border-box;
+  }
+  .email-field,
+  .frame1 {
+    flex-direction: column;
+  }
+  .frame1 {
+    margin: 0;
+    align-self: stretch;
+    overflow: hidden;
+    gap: var(--gap-4xl);
+    z-index: 3;
+  }
+  .email-field {
+    flex: 0.9527;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.25);
+    border-radius: var(--br-xl) 0 0 var(--br-xl);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    box-sizing: border-box;
+    padding: var(--padding-90xl) var(--padding-31xl) 0;
+    gap: var(--gap-46xl);
+    min-width: 328px;
+    z-index: 1;
+    text-align: center;
+    font-size: var(--font-size-16xl);
+    color: var(--color-gray-100);
+    font-family: var(--font-nunito);
+  }
+  @media screen and (max-width: 800px) {
+    .iniciar-sesion {
+      font-size: var(--font-size-9xl);
+    }
+    .email-field {
+      flex: 1;
+    }
+  }
+  @media screen and (max-width: 450px) {
+    .iniciar-sesion {
+      font-size: var(--font-size-2xl);
+    }
+}
