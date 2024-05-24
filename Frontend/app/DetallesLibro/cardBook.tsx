@@ -3,7 +3,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import ReviewModal from "./ReviewModal";
 import ReactStars from "react-stars";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 interface BookCardProps {
   idLibro: string;
   titulo: string;
@@ -56,9 +57,13 @@ const BookCard: React.FC<BookCardProps> = ({
         mensaje: `Agregaste el libro '${titulo}' a tu lista de deseos`,
       });
 
-      alert("Libro añadido a la lista de deseos.");
+       toast.success("Libro añadido a la lista de deseos.", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+      });
     } catch (error) {
-      alert("El libro ya está en tu lista de deseos");
+       toast.warn("Libro añadido a la lista de deseos.", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+      });
     }
   };
 
@@ -74,6 +79,7 @@ const BookCard: React.FC<BookCardProps> = ({
 
   return (
     <div className="bg-white rounded-md p-4 h-full flex">
+      <ToastContainer/>
       <div className="flex-1">
         <h2 className="text-3xl font-bold font-cbookF">{titulo}</h2>
         <p className="text-2xl text-cbookC-600 font-cbookF font-bold">

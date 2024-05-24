@@ -1,4 +1,6 @@
+"use client"
 import React from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
@@ -34,6 +36,8 @@ const BookCard: React.FC<BookCardProps> = ({
   fetchWishList,
 }) => {
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
+
   const usuarioCodigo =
     typeof window !== "undefined"
       ? localStorage.getItem("codigoUsuario")
@@ -48,30 +52,34 @@ const BookCard: React.FC<BookCardProps> = ({
   };
 
   const handleRemoveFromWishList = async () => {
-    const confirmDelete = window.confirm("¿Deseas eliminar este libro?");
-    if (confirmDelete) {
-      try {
-        await axios.delete(`/api/wishlist/borrarLibro`, {
-          data: {
-            idLibro,
-            codigo: usuarioCodigo,
-          },
-        });
-        try {
-          await axios.post(`/api/notificaciones/agregarPara`, {
-            codigoUsuario: usuarioCodigo,
-            mensaje: `Se elimino el libro '${titulo}' de tu wishlist`,
-          });
-        } catch (error) {
-          console.error("Error mandando la notificacion", error);
-        }
+    setShowModal(true);
+  };
 
-        alert("Libro eliminado de la lista de deseos.");
-        window.location.reload();
+  const handleConfirmDelete = async () => {
+    try {
+      await axios.delete(`/api/wishlist/borrarLibro`, {
+        data: {
+          idLibro,
+          codigo: usuarioCodigo,
+        },
+      });
+      try {
+        await axios.post(`/api/notificaciones/agregarPara`, {
+          codigoUsuario: usuarioCodigo,
+          mensaje: `Se eliminó el libro '${titulo}' de tu lista de deseos`,
+        });
       } catch (error) {
-        console.error("Error eliminando libro de la lista de deseos:", error);
+        console.error("Error mandando la notificacion", error);
       }
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error eliminando libro de la lista de deseos:", error);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setShowModal(false);
   };
 
   return (
@@ -117,6 +125,28 @@ const BookCard: React.FC<BookCardProps> = ({
       >
         Eliminar
       </button>
+
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-4 rounded-lg">
+            <p>¿Estás seguro de que deseas eliminar este libro?</p>
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={handleCancelDelete}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

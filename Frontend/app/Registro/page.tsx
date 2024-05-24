@@ -4,7 +4,8 @@ import Link from "@/node_modules/next/link";
 import { useState,useEffect } from "react";
 import React, { FunctionComponent } from "react";
 import "./Registro.css";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { FontAwesomeIcon } from "@/node_modules/@fortawesome/react-fontawesome/index";
 import {
   faEye,
@@ -74,14 +75,16 @@ const Registro: FunctionComponent = () => {
     event.preventDefault();
 
     // Validación: Verificar si todos los campos están completados
-    if (!username || !studentCode || !password || !email) {
-      alert("Completa todos los campos");
-      return;
+    if (!username || !studentCode || !password || !email || !credentialImage) {
+      toast.warn("Completa todos los campos", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+      });      return;
     }
 
     if (!termsChecked) {
-      alert("Acepta los términos y condiciones para continuar");
-      return;
+      toast.warn("Acepta los terminos y condiciones para continuar", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+      });      return;
     }
 
     try {
@@ -113,17 +116,19 @@ const Registro: FunctionComponent = () => {
           });
 
           if (userResponse.ok) {
-            alert("¡Registro exitoso!");
-            // Aquí redirigir al usuario a la página principal
-          } else {
-            alert("Error al crear el usuario.");
-          }
+      toast.success("Registro exitoso", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+      });          } else {
+      toast.error("Error al crear el usuario", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+      });          }
         }
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error al procesar la solicitud");
-    }
+      toast.success("Error al procesar la solicitud", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+      });    }
   };
 
 
@@ -133,6 +138,7 @@ const Registro: FunctionComponent = () => {
 
   return (
     <div className="container">
+      <ToastContainer/>
       <div className="left-panel">
         <h2 className="title">Registro</h2>
         <form onSubmit={handleSubmit}>

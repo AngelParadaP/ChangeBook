@@ -211,22 +211,29 @@ const Chat = () => {
     router.push(`/Perfil?codigoUsuario=${books[0].codigoUsuario}`);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (input && socketRef.current) {
-      try {
-        await axios.post("http://localhost:3500/chat/message", {
-          message: input,
-          username: localStorage.getItem("nombreUsuario"),
-          room: roomId,
-        });
-        setInput("");
-        window.location.reload();
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  if (input && socketRef.current) {
+    try {
+      await axios.post("http://localhost:3500/chat/message", {
+        message: input,
+        username: localStorage.getItem("nombreUsuario"),
+        room: roomId,
+      });
+      
+      // Create notification for the other user
+      await axios.post("/api/notificaciones/agregarPara", {
+        codigoUsuario: otherCodigoUsuario,
+        mensaje: `Tienes un mensaje de ${localStorage.getItem("nombreUsuario")}`,
+      });
+
+      setInput("");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
-  };
+  }
+};
 
   useEffect(() => {
     if (chatContainerRef.current) {

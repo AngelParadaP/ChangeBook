@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface AddBookFormProps {
   closeModal: () => void;
@@ -40,7 +42,7 @@ const AddBookForm: React.FC<AddBookFormProps> = (props) => {
     }
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const codigoUsuario = localStorage.getItem("codigoUsuario");
 
@@ -56,8 +58,9 @@ const AddBookForm: React.FC<AddBookFormProps> = (props) => {
       formDataWithImage.append("file", image); // Añadir la imagen solo si existe
     }
 
-    try {
-      await axios.post(`/api/books`, formDataWithImage, {
+    try {                    
+  
+        await axios.post(`/api/books`, formDataWithImage, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -66,7 +69,14 @@ const AddBookForm: React.FC<AddBookFormProps> = (props) => {
         codigoUsuario,
         mensaje: `Agregaste el libro '${formData.titulo}'`,
       });
-      alert("Libro agregado exitosamente");
+
+      toast.success("Libro Publicado", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+      });
+      setTimeout(() => {
+        props.closeModal();
+      }, 1500);
+
       setFormData({
         titulo: "",
         autor: "",
@@ -77,17 +87,19 @@ const AddBookForm: React.FC<AddBookFormProps> = (props) => {
       });
       setImage(null);
       setImagePreview(null);
-      props.closeModal();
     } catch (error) {
-      console.error("Error al agregar libro:", error);
-      alert(
-        "Hubo un error al agregar el libro. Por favor, intenta nuevamente."
-      );
+      console.error("Error al publicar libro:", error);
+      toast.error("Lo sentimos, error inesperado", {
+        autoClose: 1000  // Duración de 1500 ms (1.5 segundos)
+      });
     }
-  };
+};
+
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col h-full">
+            <ToastContainer />
+
       <div className="flex flex-1 overflow-auto">
         <div className="w-3/5 p-4">
           <div>

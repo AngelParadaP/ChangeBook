@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 interface EditarPerfilProps {
   closeModal: () => void;
 }
@@ -61,8 +62,12 @@ const EditarPerfil: React.FC<EditarPerfilProps> = ({ closeModal }) => {
         });
       }
 
-      alert("Perfil actualizado exitosamente.");
-      window.location.reload();
+     toast.success("Perfil Actualizado", {
+        autoClose: false  // Duración de 1000 ms (1 segundo)
+      });
+      setTimeout(() => {
+         window.location.reload();
+      }, 1000);     
     } catch (error) {
       console.error("Error al actualizar el perfil:", error);
       alert("Hubo un error al actualizar el perfil.");
@@ -71,7 +76,10 @@ const EditarPerfil: React.FC<EditarPerfilProps> = ({ closeModal }) => {
 
   return (
     <form onSubmit={handleSubmit} className="text-center">
+                  <ToastContainer />
+
       <div>
+        
         <input
           type="text"
           placeholder="Nuevo nombre de usuario"
