@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { deleteBook, updateBookAvailability } from "./libro.service";
 import { useRouter } from "next/navigation";
 import "./styles.css";
@@ -25,16 +26,16 @@ interface BookCardProps {
 }
 
 const BookCard: React.FC<BookCardProps> = ({ book, onDelete }) => {
+
   const handleDelete = async () => {
-    const confirmDelete = window.confirm("¿Deseas eliminar este libro?");
-    if (confirmDelete) {
+
       try {
         await deleteBook(book.idLibro, book.titulo);
         onDelete(book.idLibro);
       } catch (error) {
         console.error("Error deleting book:", error);
       }
-    }
+    
   };
   const router = useRouter();
 
@@ -51,6 +52,18 @@ const BookCard: React.FC<BookCardProps> = ({ book, onDelete }) => {
     } catch (error) {
       console.error("Error updating book availability:", error);
     }
+  };
+
+    const [showModal, setShowModal] = useState(false);
+
+
+  const handleRemoveFromUser = async () => {
+    setShowModal(true);
+  };
+
+
+  const handleCancelDelete = () => {
+    setShowModal(false);
   };
 
   return (
@@ -81,12 +94,34 @@ const BookCard: React.FC<BookCardProps> = ({ book, onDelete }) => {
         </div>
         {/* Botones de acciones */}
         <div className="flex flex-row-reverse mt-4 w-full justify-start">
-          <button
-            onClick={handleDelete}
+               <button
+        onClick={handleRemoveFromUser}
             className="bg-red-500 hover:bg-red-400 text-white font-cbookF font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline ml-2"
-          >
-            Eliminar
-          </button>
+      >
+        Eliminar
+      </button>
+
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-4 rounded-lg">
+            <p>¿Estás seguro de que deseas eliminar este libro?</p>
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={handleCancelDelete}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDelete}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
           <button
             onClick={handleCardClick}
             className="bg-cbookC-500 hover:bg-cbookC-400 text-white font-cbookF font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline ml-2"

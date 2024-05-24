@@ -1,0 +1,8 @@
+{
+  "/WishList/page": "app/WishList/page.js",
+  "/DetallesLibro/page": "app/DetallesLibro/page.js",
+  "/chat/page": "app/chat/page.js",
+  "/Home/page": "app/Home/page.js",
+  "/InicioSesion/page": "app/InicioSesion/page.js",
+  "/Perfil/page": "app/Perfil/page.js"
+}
