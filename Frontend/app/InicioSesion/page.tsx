@@ -64,7 +64,8 @@ const InicioDeSesin: FunctionComponent = () => {
     }
 
     try {
-      toast.info("Cargando...", {  autoClose: 1500, closeButton: false });
+      toast.info("Cargando...", {  autoClose: 1500, closeButton: false ,        position: "top-center",
+});
 
       const response = await fetch(`/api/credenciales/login`, {
         method: "POST",
@@ -81,6 +82,8 @@ const InicioDeSesin: FunctionComponent = () => {
         handleAuth();
         toast.success("Inicio de sesión exitoso", {
            autoClose: 1000,
+                   position: "top-center",
+
           onClose: () => {
             codigo === '000000000' ? router.push("/AdminDashboard/Admit") : router.push("/Home");
           }

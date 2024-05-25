@@ -20,6 +20,7 @@ export const deleteBook = async (idLibro: string, tituloLibro: string) => {
     await axios.post(`/api/notificaciones/agregarPara`, {
       codigoUsuario,
       mensaje: `Borraste el libro '${tituloLibro}'`,
+      roomId:"1"
     });
     return response.data;
   } catch (error) {

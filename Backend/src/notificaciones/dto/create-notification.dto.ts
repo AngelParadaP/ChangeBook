@@ -8,4 +8,9 @@ export class CreateNotificationDto {
   @IsString()
   @IsNotEmpty()
   mensaje: string;
+
+  @IsString()
+@IsNotEmpty()
+roomId: string;
+
 }

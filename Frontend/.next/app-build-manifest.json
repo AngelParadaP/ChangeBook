@@ -17,48 +17,6 @@
       "static/chunks/main-app.js",
       "static/css/app/Home/page.css",
       "static/chunks/app/Home/page.js"
-    ],
-    "/DetallesLibro/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/DetallesLibro/page.css",
-      "static/chunks/app/DetallesLibro/page.js"
-    ],
-    "/WishList/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/WishList/page.css",
-      "static/chunks/app/WishList/page.js"
-    ],
-    "/InicioSesion/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/InicioSesion/page.css",
-      "static/chunks/app/InicioSesion/page.js"
-    ],
-    "/Registro/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/Registro/page.css",
-      "static/chunks/app/Registro/page.js"
-    ],
-    "/PerfilUsuario/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/PerfilUsuario/page.css",
-      "static/chunks/app/PerfilUsuario/page.js"
-    ],
-    "/Perfil/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/Perfil/page.css",
-      "static/chunks/app/Perfil/page.js"
-    ],
-    "/chat/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/chat/page.css",
-      "static/chunks/app/chat/page.js"
     ]
   }
 }

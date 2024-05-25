@@ -68,6 +68,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
       await axios.post("/api/notificaciones/agregarPara", {
         codigoUsuario,
         mensaje: `Agregaste el libro '${formData.titulo}'`,
+        roomId: "1"
       });
 
       toast.success("Libro Publicado", {

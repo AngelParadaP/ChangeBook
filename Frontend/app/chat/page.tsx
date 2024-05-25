@@ -44,6 +44,7 @@ interface Notificacion {
   mensaje: string;
   resuelto: boolean;
   fecha: Date;
+  roomId:string;
 }
 
 interface PerfilUsuario {
@@ -82,6 +83,11 @@ const Chat = () => {
     creadoEn: string;
   } | null>(null);
 
+  const handleNotificationClick = (roomId: string) => {
+  // Redirigir al usuario al chat con la sala específica
+  router.push(`/chat?roomId=${roomId}`);
+};
+
   useEffect(() => {
     if (!otherCodigoUsuario) return;
 
@@ -101,7 +107,7 @@ const Chat = () => {
     null
   );
 
-  //MANEJO DE LAS NOTIFICACIONES EN MENU
+//MANEJO DE LAS NOTIFICACIONES EN MENU
   //OCUPAS INFO DE PERFIL DEL USUARIO
   const [notificacionModal, setNotificacionModal] = useState(false);
   const notificacionModalShow = () => {
@@ -132,6 +138,7 @@ const Chat = () => {
   const handleModalClose = () => {
     setShowModal(false);
   };
+
 
   useEffect(() => {
     const codigoUsuario = localStorage.getItem("codigoUsuario");
@@ -212,28 +219,31 @@ const Chat = () => {
   };
 
 const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  if (input && socketRef.current) {
-    try {
-      await axios.post("http://localhost:3500/chat/message", {
-        message: input,
-        username: localStorage.getItem("nombreUsuario"),
-        room: roomId,
-      });
-      
-      // Create notification for the other user
-      await axios.post("/api/notificaciones/agregarPara", {
-        codigoUsuario: otherCodigoUsuario,
-        mensaje: `Tienes un mensaje de ${localStorage.getItem("nombreUsuario")}`,
-      });
+    e.preventDefault();
+    if (input && socketRef.current) {
+      try {
+        await axios.post("http://localhost:3500/chat/message", {
+          message: input,
+          username: localStorage.getItem("nombreUsuario"),
+          room: roomId,
+        });
 
-      setInput("");
-      window.location.reload();
-    } catch (error) {
-      console.error("Error sending message:", error);
+        // Create notification for the other user
+        await axios.post("/api/notificaciones/agregarPara", {
+          codigoUsuario: otherCodigoUsuario,
+          mensaje: `Tienes un mensaje de ${localStorage.getItem(
+            "nombreUsuario"
+          )}`,
+          roomId: roomId,
+        });
+
+        setInput("");
+        window.location.reload();
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
-  }
-};
+  };
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -377,7 +387,6 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           alt="Libro"
         />
       </div>
-      {/* CHAT */}
       <div className="flex flex-col items-center justify-center bg-gradient-to-r from-cbookC-500 via-cbookC-700 to-cbookC-600 rounded-2xl shadow-xl col-span-6 row-span-9 mb-3 overflow-hidden">
         <h1 className="text-2xl font-bold font-cbookF text-cbookC-200 mb-4 mt-4">
           Chateando con: {otherUser?.nombre || "Cargando..."}
@@ -518,6 +527,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     <div
                       key={notificacion.idNotificacion}
                       className="border border-cbookC-500 rounded-md flex items-center justify-between p-2 mb-2"
+                      onClick={() => handleNotificationClick(notificacion.roomId)}
                     >
                       <p className="flex-1">{notificacion.mensaje}</p>
                       <button
@@ -532,11 +542,11 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                   ))
                 ) : (
                   <div className="text-center">
-                    No hay notificaciones por mostrar
+                    No tienes notificaciones pendientes.
                   </div>
                 )
               ) : (
-                <></>
+                <div className="text-center">Cargando...</div>
               )}
             </div>
           </div>

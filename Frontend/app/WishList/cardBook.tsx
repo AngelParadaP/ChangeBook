@@ -67,6 +67,7 @@ const BookCard: React.FC<BookCardProps> = ({
         await axios.post(`/api/notificaciones/agregarPara`, {
           codigoUsuario: usuarioCodigo,
           mensaje: `Se eliminó el libro '${titulo}' de tu lista de deseos`,
+          roomId:"1"
         });
       } catch (error) {
         console.error("Error mandando la notificacion", error);

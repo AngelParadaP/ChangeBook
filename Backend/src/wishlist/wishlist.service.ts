@@ -102,6 +102,8 @@ export class WishlistService {
         const noti: CreateNotificationDto = {
           codigoUsuario: elemento.codigoUsuario,
           mensaje: `El libro ${libro.titulo} está disponible`,
+          roomId: '1', // Asegúrate de proporcionar el roomId adecuado
+
         };
         await this.notificacionesService.create(noti);
       });
