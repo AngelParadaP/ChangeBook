@@ -71,7 +71,9 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
       });
 
       toast.success("Libro Publicado", {
-        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+        autoClose: 1000 , // Duración de 1000 ms (1 segundo)
+        hideProgressBar: true,
+        position: "top-center",
       });
       setTimeout(() => {
         props.closeModal();
@@ -90,7 +92,9 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     } catch (error) {
       console.error("Error al publicar libro:", error);
       toast.error("Lo sentimos, error inesperado", {
-        autoClose: 1000  // Duración de 1500 ms (1.5 segundos)
+        autoClose: 1000,  // Duración de 1500 ms (1.5 segundos)
+                hideProgressBar: true,
+        position: "top-center",
       });
     }
 };

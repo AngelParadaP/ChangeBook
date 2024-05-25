@@ -8,7 +8,7 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { User } from './entities';
 import { UploadService } from 'src/upload/upload.service';
 import { UserImageInsertDto } from './dto/image-insert.dto';
@@ -219,6 +219,24 @@ export class UsersService {
       return this.userRepository.save(user);
     } catch (err) {
       throw new InternalServerErrorException('Server failed to add a strike');
+    }
+  }
+
+ async findByName(name: string): Promise<User[]> {
+    try {
+      const users = await this.userRepository.find({
+        where: {
+          nombre: ILike(`%${name}%`), // Busca el nombre que contenga la cadena, ignorando mayúsculas y minúsculas
+        },
+      });
+
+      if (users.length === 0) {
+        throw new NotFoundException('No users found with the provided name');
+      }
+
+      return users;
+    } catch (error) {
+      throw new InternalServerErrorException('Server failed to search for users', error);
     }
   }
 }

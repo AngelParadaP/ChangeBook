@@ -64,14 +64,19 @@ const EditarPerfil: React.FC<EditarPerfilProps> = ({ closeModal }) => {
 
      toast.success("Perfil Actualizado", {
         autoClose: false  // Duración de 1000 ms (1 segundo)
+                        ,hideProgressBar: true,
+        position: "top-center",
       });
       setTimeout(() => {
          window.location.reload();
       }, 1000);     
     } catch (error) {
       console.error("Error al actualizar el perfil:", error);
-      alert("Hubo un error al actualizar el perfil.");
-    }
+     toast.error("Perfil Actualizado", {
+        autoClose: false  // Duración de 1000 ms (1 segundo)
+                        ,hideProgressBar: true,
+        position: "top-center",
+      });    }
   };
 
   return (

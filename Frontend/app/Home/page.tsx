@@ -1,6 +1,7 @@
 "use client";
 import BookCard from "./cardBook";
-import { fetchBooks, ratedBooks } from "./libro.service";
+import UserCard from "./userCard";
+import { fetchBooks, ratedBooks, fetchUsers} from "./libro.service";
 
 import React, { useState, useEffect } from "react";
 import SearchInput from "./search";
@@ -61,6 +62,8 @@ function Home() {
     useState(""); /* Representa la lista de espera */
   const [searchText, setSearchText] = useState("Los más leídos");
   const [books, setBooks] = useState<Book[]>([]);
+  const [users, setUsers] = useState<PerfilUsuario[]>([]);
+
   const [searchResults, setSearchResults] = useState<Book[]>([]); // Estado para los resultados de búsqueda
   const [perfilUsuario, setPerfilUsuario] = useState<PerfilUsuario | null>(
     null
@@ -156,24 +159,40 @@ function Home() {
     redirect("/inicioSesion");
   };
 
-  const handleSearch = async (query: string) => {
+const handleSearch = async (query: string) => {
     try {
-      const fetchedBooks = await fetchBooks(query);
-      if (fetchedBooks.length === 0) {
-        setSearchText(
-          `No se encontraron resultados para tu búsqueda: ${query}`
-        );
-        setBooks([]);
-      } else {
-        setSearchText(`Resultados de búsqueda: ${query}`);
-        setBooks(fetchedBooks);
-      }
+        // Obtener usuarios
+        // Obtener libros
+        const fetchedBooks = await fetchBooks(query);
+        // Si se encontraron libros, establecer el estado de los libros y mostrarlos
+            setBooks(fetchedBooks);
+            setSearchText(`Resultados de búsqueda: ${query}`);
+
+        // Si se encontraron usuarios, establecer el estado de los usuarios
     } catch (error) {
-      console.error("Error fetching books:", error);
-      setSearchText(`No se encontraron resultados para tu búsqueda`);
-      setBooks([]);
+        console.error("Error fetching results:", error);
+                  setSearchText(`No se encontraron resultados para tu búsqueda:${query} `);
+
+        setBooks([]);
     }
-  };
+
+        try {
+        // Obtener usuarios
+        // Obtener libros
+        const fetchedUsers = await fetchUsers(query);
+        // Si se encontraron libros, establecer el estado de los libros y mostrarlos
+            setUsers(fetchedUsers);
+           setSearchText(`Resultados de búsqueda: ${query}`);
+
+        // Si se encontraron usuarios, establecer el estado de los usuarios
+    } catch (error) {
+        console.error("Error fetching results:", error);
+
+        setUsers([]);
+    }
+};
+
+
 
   return (
     <div className="grid grid-cols-9 grid-rows-10 gap-3 bg-gray-50 w-screen h-screen ">
@@ -366,6 +385,14 @@ function Home() {
         </div>
         <div className="ml-4 mr-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           {/* Mostrar los resultados de búsqueda si hay resultados, de lo contrario, mostrar los libros más leídos */}
+                     {users.map((user) => (
+                <UserCard key={user.codigo} {...user} />
+              ))}
+                {/* Insertar un separador si hay usuarios y libros */}
+  {users.length > 0 && books.length > 0 && (
+    <div className="col-span-full">
+    </div>
+  )}
           {books.map((book) => (
             <BookCard key={book.idLibro} {...book} />
           ))}

@@ -10,6 +10,8 @@ import {
   UploadedFile,
   ParseFilePipe,
   MaxFileSizeValidator,
+  NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -55,6 +57,19 @@ export class UsersController {
     return this.usersService.getNoActive();
   }
 
+ @Get('search/:name')
+  async findByName(@Param('name') name: string): Promise<User[]> {
+    try {
+      return await this.usersService.findByName(name);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new InternalServerErrorException(error.message);
+      }
+    }
+  }
+
   @Patch('patch/:codigo')
   update(
     @Param('codigo') codigo: string,
@@ -87,8 +102,3 @@ export class UsersController {
     return this.usersService.addStrike(codigo);
   }
 }
-
-// SELECT *
-// FROM users
-// INNER JOIN credenciales ON users.codigo = credenciales.codigo
-// WHERE credenciales.habilitado = false;

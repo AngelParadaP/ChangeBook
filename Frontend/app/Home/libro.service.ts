@@ -17,6 +17,16 @@ export const fetchBooks = async (query: string) => {
     }
 };
 
+export const fetchUsers = async (query: string) => {
+    try {
+        const response = await axios.get(`api/user/search/${query}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+    }
+};
+
 export const ratedBooks = async () => {
   try {
     const response = await axios.get(`api/books`);

@@ -57,7 +57,9 @@ const InicioDeSesin: FunctionComponent = () => {
 
     if (!codigo || !password) {
       toast.warn("Porfavor complete todos los campos", {
-        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)              
+                  ,hideProgressBar: true,
+        position: "top-center",
       });      return;
     }
 
@@ -78,7 +80,7 @@ const InicioDeSesin: FunctionComponent = () => {
       if (data.success) {
         handleAuth();
         toast.success("Inicio de sesión exitoso", {
-           autoClose: 1500,
+           autoClose: 1000,
           onClose: () => {
             codigo === '000000000' ? router.push("/AdminDashboard/Admit") : router.push("/Home");
           }
@@ -87,12 +89,16 @@ const InicioDeSesin: FunctionComponent = () => {
         toast.warn("Lo sentimos, cuenta no verificada, espera a que un administrador lo haga",
         {
           autoClose: 1500  // Duración de 1500 ms (1.5 segundos)
+                           ,hideProgressBar: true,
+        position: "top-center",
         });
       }
     } catch (error) {
       console.error("Error:", error);
      toast.error("Lo sentimos, error inesperado", {
           autoClose: 1500  // Duración de 1500 ms (1.5 segundos)
+                           ,hideProgressBar: true,
+        position: "top-center",
         });
 
     }
