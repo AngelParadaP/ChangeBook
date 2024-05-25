@@ -1,4 +1,4 @@
-// File: /Users/angelparada/Desktop/BackendNew/ChangeBook/Frontend/app/Registro/page.tsx
+// File: /Users/angelparada/Desktop/CBook/ChangeBook/Frontend/app/Registro/page.tsx
 import * as entry from '../../../../app/Registro/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

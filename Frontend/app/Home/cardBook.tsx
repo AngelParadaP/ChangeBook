@@ -53,13 +53,21 @@ const BookCard: React.FC<BookCardProps> = ({
         idLibro,
         codigo: usuarioCodigo,
       });
+            await axios.post(`/api/notificaciones/agregarPara`, {
+        codigoUsuario: usuarioCodigo,
+        mensaje: `Agregaste el libro '${titulo}' a tu lista de deseos`,
+      });
         toast.success("Libro añadido a la lista de deseos.", {
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                                   ,hideProgressBar: true,
+        position: "top-center",
       });
     } catch (error) {
       console.error("Error añadiendo libro a la lista de deseos:", error);
-        toast.warn("El libro ya se encuentra en tu lista de deseos.", {
+        toast.info("El libro ya se encuentra en tu lista de deseos.", {
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                                   ,hideProgressBar: true,
+        position: "top-center",
       });
     }
   };

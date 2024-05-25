@@ -78,12 +78,16 @@ const Registro: FunctionComponent = () => {
     if (!username || !studentCode || !password || !email || !credentialImage) {
       toast.warn("Completa todos los campos", {
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                ,hideProgressBar: true,
+        position: "top-center",
       });      return;
     }
 
     if (!termsChecked) {
       toast.warn("Acepta los terminos y condiciones para continuar", {
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                        ,hideProgressBar: true,
+        position: "top-center",
       });      return;
     }
 
@@ -118,9 +122,13 @@ const Registro: FunctionComponent = () => {
           if (userResponse.ok) {
       toast.success("Registro exitoso", {
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                        ,hideProgressBar: true,
+        position: "top-center",
       });          } else {
       toast.error("Error al crear el usuario", {
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                        ,hideProgressBar: true,
+        position: "top-center",
       });          }
         }
       }
@@ -128,6 +136,8 @@ const Registro: FunctionComponent = () => {
       console.error("Error:", error);
       toast.success("Error al procesar la solicitud", {
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                        ,hideProgressBar: true,
+        position: "top-center",
       });    }
   };
 

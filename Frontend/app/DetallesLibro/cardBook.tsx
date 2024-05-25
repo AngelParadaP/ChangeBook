@@ -59,10 +59,14 @@ const BookCard: React.FC<BookCardProps> = ({
 
        toast.success("Libro añadido a la lista de deseos.", {
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                                   ,hideProgressBar: true,
+        position: "top-center",
       });
     } catch (error) {
-       toast.warn("Libro añadido a la lista de deseos.", {
+       toast.info("El libro ya se encuentra lista de deseos.", {
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                                   ,hideProgressBar: true,
+        position: "top-center",
       });
     }
   };

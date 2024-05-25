@@ -1,6 +1,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 interface Book {
   idLibro: string;
   titulo: string;
@@ -32,8 +34,11 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
         idLibro: book.idLibro,
         codigo: usuarioCodigo,
       });
-      alert("Libro añadido a la lista de deseos.");
-    } catch (error) {
+      toast.info("El libro ya se encuentra en tu lista de deseos.", {
+        autoClose: 1500, // Duración de 1000 ms (1 segundo)
+        hideProgressBar: true,
+        position: "top-center",
+      });    } catch (error) {
       console.error("Error añadiendo libro a la lista de deseos:", error);
     }
   };
@@ -46,6 +51,7 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden" onClick={handleCardClick}  style={{ cursor: 'pointer' }} >
+      <ToastContainer/>
       <div className="p-4">
         <img src={book.imagen} alt={book.titulo} className="w-full h-48 object-cover rounded-md" />
         <h2 className="font-bold text-lg">{book.titulo}</h2>
