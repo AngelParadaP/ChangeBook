@@ -62,10 +62,12 @@ export class CredencialesService {
         throw new NotFoundException('Credentials not found in database');
       }
       user.habilitado = habilitar;
-      const payload = {
-        codigoUsuario: user.codigo,
-        mensaje: 'Fuiste verificado! - Disfruta de la aplicacion'
-      }
+const payload: CreateNotificationDto = {
+  codigoUsuario: user.codigo,
+  mensaje: 'Fuiste verificado! - Disfruta de la aplicacion',
+  roomId: '1', // Asegúrate de proporcionar el roomId adecuado
+};
+await this.addComent(payload);
       this.addComent(payload)
       return await this.credencialesRepository.save(user);
     } catch (err) {

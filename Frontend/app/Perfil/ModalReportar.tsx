@@ -2,7 +2,8 @@
 
 import axios from "axios";
 import { useState } from "react";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 interface Props {
     codigo: string | null
     onButtonClick: () => void;
@@ -18,17 +19,24 @@ export const ModalReportar = ({ codigo, onButtonClick }: Props) => {
         e.preventDefault();
         try {
             const response = await axios.post(`/api/report/to/${codigo}`, { descripcion, codigo_remitente });
-            setMessage('Comentario enviado con éxito');
-
+      toast.success("Reporte enviado con exito", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                        ,hideProgressBar: true,
+        position: "top-center",
+      }); 
         } catch (error) {
             console.error('Error al enviar el formulario:', error);
-            setMessage('Error al enviar el formulario');
-        }
+      toast.error("Fallo de envio del reporte", {
+        autoClose: 1000  // Duración de 1000 ms (1 segundo)
+                        ,hideProgressBar: true,
+        position: "top-center",
+      });         }
         console.log(message)
     };
 
     return (
         <div>
+            <ToastContainer/>
             {/* Black background */}
             <div
                 className="fixed top-0 left-0 w-screen h-screen z-10 bg-black opacity-30"

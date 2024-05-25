@@ -51,6 +51,7 @@ const EditarPerfil: React.FC<EditarPerfilProps> = ({ closeModal }) => {
         await axios.post(`/api/notificaciones/agregarPara`, {
           codigoUsuario,
           mensaje: "Se modificó tu imagen",
+          roomId:"1"
         });
       }
 
@@ -59,6 +60,8 @@ const EditarPerfil: React.FC<EditarPerfilProps> = ({ closeModal }) => {
         await axios.post(`/api/notificaciones/agregarPara`, {
           codigoUsuario,
           mensaje: "Se modificó tu nombre",
+                    roomId:"1"
+
         });
       }
 

@@ -54,9 +54,22 @@ interface Notificacion {
   mensaje: string;
   resuelto: boolean;
   fecha: Date;
+  roomId:string | null
 }
 
 const DetallesLibro = () => {
+  const handleNotificationClick = (roomId: string | null) => {
+  // Verificar si roomId es nulo o indefinido
+  if (roomId==="1") {
+    // Aquí puedes manejar la lógica para las notificaciones normales
+    console.log("Notificación normal");
+    return;
+  }
+
+  // Redirigir al usuario al chat con la sala específica
+  
+  router.push(`/chat?roomId=${roomId}`);
+};
   const searchParams = useSearchParams();
   const idLibro = searchParams.get("idLibro");
   const [navOption, setNavOption] = useState("");
@@ -391,7 +404,7 @@ const DetallesLibro = () => {
         </div>
       )}
 
-           {notificacionModal && (
+         {notificacionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-3/5 max-w-screen-2xl h-3/6 flex flex-col relative">
@@ -415,28 +428,30 @@ const DetallesLibro = () => {
               {perfilUsuario ? (
                 perfilUsuario?.notificaciones.length !== 0 ? (
                   perfilUsuario.notificaciones.map((notificacion) => (
-                    <div
-                      key={notificacion.idNotificacion}
-                      className="border border-cbookC-500 rounded-md flex items-center justify-between p-2 mb-2"
-                    >
-                      <p className="flex-1">{notificacion.mensaje}</p>
-                      <button
-                        className="ml-4 p-2 rounded-xl bg-cbookC-500 text-cbookC-200 hover:text-white"
-                        onClick={() =>
-                          solveNotification(notificacion.idNotificacion)
-                        }
-                      >
-                        Descartar
-                      </button>
-                    </div>
+<div
+  className={`border border-cbookC-500 rounded-md flex items-center justify-between p-2 mb-2 ${
+    notificacion.roomId && notificacion.roomId !== "1" ? "cursor-pointer hover:bg-gray-100" : ""
+  }`}
+>
+  <p   onClick={() => handleNotificationClick(notificacion.roomId)}
+className="flex-1">{notificacion.mensaje}</p>
+  {notificacion.roomId && (
+    <button
+      className="ml-4 p-2 rounded-xl bg-cbookC-500 text-cbookC-200 hover:text-white"
+      onClick={() => solveNotification(notificacion.idNotificacion)}
+    >
+      Descartar
+    </button>
+  )}
+</div>
                   ))
                 ) : (
                   <div className="text-center">
-                    No hay notificaciones por mostrar
+                    No tienes notificaciones pendientes.
                   </div>
                 )
               ) : (
-                <></>
+                <div className="text-center">Cargando...</div>
               )}
             </div>
           </div>

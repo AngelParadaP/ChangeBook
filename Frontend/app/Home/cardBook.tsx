@@ -47,30 +47,33 @@ const BookCard: React.FC<BookCardProps> = ({
     router.push(`/Perfil?codigoUsuario=${codigoUsuario}`);
   };
 
-  const handleWishListClick = async () => {
-    try {
-      await axios.post(`/api/wishlist/anadirLibro`, {
-        idLibro,
-        codigo: usuarioCodigo,
-      });
-            await axios.post(`/api/notificaciones/agregarPara`, {
-        codigoUsuario: usuarioCodigo,
-        mensaje: `Agregaste el libro '${titulo}' a tu lista de deseos`,
-      });
-        toast.success("Libro añadido a la lista de deseos.", {
-        autoClose: 1000  // Duración de 1000 ms (1 segundo)
-                                   ,hideProgressBar: true,
-        position: "top-center",
-      });
-    } catch (error) {
-      console.error("Error añadiendo libro a la lista de deseos:", error);
-        toast.info("El libro ya se encuentra en tu lista de deseos.", {
-        autoClose: 1000  // Duración de 1000 ms (1 segundo)
-                                   ,hideProgressBar: true,
-        position: "top-center",
-      });
-    }
-  };
+const handleWishListClick = async () => {
+  try {
+    await axios.post(`/api/wishlist/anadirLibro`, {
+      idLibro,
+      codigo: usuarioCodigo,
+    });
+    await axios.post(`/api/notificaciones/agregarPara`, {
+      codigoUsuario: usuarioCodigo,
+      mensaje: `Agregaste el libro '${titulo}' a tu lista de deseos`,
+      roomId: '1'
+    
+    });
+    toast.success("Libro añadido a la lista de deseos.", {
+      autoClose: 1000,
+      hideProgressBar: true,
+      position: "top-center",
+    });
+  } catch (error) {
+    console.error("Error añadiendo libro a la lista de deseos:", error);
+        toast.info("El libro ya se encuentra en la lista de deseos.", {
+      autoClose: 1000,
+      hideProgressBar: true,
+      position: "top-center",
+    });
+  }
+};
+
 
   const handleRemoveFromWishList = async () => {
     try {

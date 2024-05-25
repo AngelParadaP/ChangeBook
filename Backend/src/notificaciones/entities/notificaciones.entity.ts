@@ -23,4 +23,8 @@ export class Notification {
 
   @ManyToOne(() => User, (user) => user.notificaciones)
   user: User;
+
+@Column({ nullable: true })
+roomId: string;
+
 }

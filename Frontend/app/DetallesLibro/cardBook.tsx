@@ -55,6 +55,7 @@ const BookCard: React.FC<BookCardProps> = ({
       await axios.post(`/api/notificaciones/agregarPara`, {
         codigoUsuario: usuarioCodigo,
         mensaje: `Agregaste el libro '${titulo}' a tu lista de deseos`,
+        roomId:"1"
       });
 
        toast.success("Libro añadido a la lista de deseos.", {

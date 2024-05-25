@@ -15,8 +15,9 @@ export class NotificacionesService {
   ) {}
 
   async create(createNotificationDto: CreateNotificationDto) {
-    const { codigoUsuario, mensaje } = createNotificationDto;
+    const { codigoUsuario, mensaje, roomId } = createNotificationDto;
     const usuario = await this.userService.findOne(codigoUsuario);
+
 
     if (!usuario) {
       throw new NotFoundException('User not found in database');
@@ -25,6 +26,8 @@ export class NotificacionesService {
     const notification = new Notification();
     notification.mensaje = mensaje;
     notification.user = usuario;
+    notification.roomId = roomId;
+
 
     return await this.notificacionesRepository.save(notification);
   }
