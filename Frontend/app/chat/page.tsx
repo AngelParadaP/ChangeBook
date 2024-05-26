@@ -656,3 +656,4 @@ onClick={() => solveNotification(notificacion.idNotificacion)}
 
 
 export default Chat;
+

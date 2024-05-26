@@ -63,7 +63,7 @@ function Home() {
     setShowChatModal(false);
   };
 
-const handleNotificationClick = (roomId: string | null) => {
+const handleNotificationClick = (roomId: string | null, idNotificacion: string) => {
   // Verificar si roomId es nulo o indefinido
   if (roomId==="1" || roomId===null) {
     // Aquí puedes manejar la lógica para las notificaciones normales
@@ -72,8 +72,21 @@ const handleNotificationClick = (roomId: string | null) => {
   }
 
   // Redirigir al usuario al chat con la sala específica
-  
-  router.push(`/chat?roomId=${roomId}`);
+      if (perfilUsuario) {
+      axios.delete(`api/notificaciones/borrar/${idNotificacion}`);
+      const nuevasNotificaciones = perfilUsuario.notificaciones.filter(
+        (notificacion) => notificacion.idNotificacion !== idNotificacion
+      );
+      // Crear un nuevo objeto de perfil de usuario con las notificaciones actualizadas
+      const nuevoPerfilUsuario: PerfilUsuario = {
+        ...perfilUsuario,
+        notificaciones: nuevasNotificaciones,
+      };
+      setPerfilUsuario(nuevoPerfilUsuario); // Aquí deberías usar setPerfilUsuario en lugar de setPerfil
+          setNotificacionModal(false);
+        router.push(`/chat?roomId=${roomId}`);
+
+    }
 };
 
   const router = useRouter();
@@ -509,7 +522,7 @@ const handleSearch = async (query: string) => {
     notificacion.roomId && notificacion.roomId !== "1" ? "cursor-pointer hover:bg-gray-100" : ""
   }`}
 >
-  <p onClick={() => handleNotificationClick(notificacion.roomId)}className="flex-1">{notificacion.mensaje}</p>
+  <p onClick={() => handleNotificationClick(notificacion.roomId,notificacion.idNotificacion)}className="flex-1">{notificacion.mensaje}</p>
   {notificacion.roomId && (
     <button
       className="ml-4 p-2 rounded-xl bg-cbookC-500 text-cbookC-200 hover:text-white"
