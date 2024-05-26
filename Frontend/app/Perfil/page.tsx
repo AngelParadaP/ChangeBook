@@ -108,6 +108,7 @@ const PerfilUsuarioPage: React.FC = () => {
     if (currentUserCode) {
       // Ordenar los IDs para que el roomId sea el mismo independientemente del orden
       const roomId = [currentUserCode, codigoUsuario].sort().join("-");
+       axios.patch(`/api/chat/mark-as-read?room=${roomId}&codigoUsuario=${currentUserCode}`);
       router.push(`/chat?roomId=${roomId}`);
     } else {
       console.error("User ID not found in localStorage.");

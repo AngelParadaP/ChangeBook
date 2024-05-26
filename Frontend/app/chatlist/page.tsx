@@ -9,7 +9,7 @@ interface ChatsModalProps {
 }
 
 const ChatsModal: React.FC<ChatsModalProps> = (props) => {
-  const [userChats, setUserChats] = useState<{ roomId: string; otherUserName: string; profileImage: string | null }[]>([]);
+  const [userChats, setUserChats] = useState<{ roomId: string; otherUserName: string; profileImage: string | null; hasNewMessages: boolean }[]>([]);
   const router = useRouter();
   const codigoUsuario = localStorage.getItem("codigoUsuario");
 
@@ -24,13 +24,16 @@ const ChatsModal: React.FC<ChatsModalProps> = (props) => {
         return user1 === codigoUsuario || user2 === codigoUsuario;
       });
 
+      const newMessagesResponse = await axios.get(`/api/chat/new-messages?codigoUsuario=${codigoUsuario}`);
+      const newMessages = newMessagesResponse.data;
+
       const userChatsWithNames = await Promise.all(
         filteredRooms.map(async (room: string) => {
           const [user1, user2] = room.split("-");
           const otherUserCodigo = user1 === codigoUsuario ? user2 : user1;
-          const otherUserResponse = await axios.get(`api/user/get/${otherUserCodigo}`);
+          const otherUserResponse = await axios.get(`/api/user/get/${otherUserCodigo}`);
           const { nombre: otherUserName, imagenPerfil: profileImage } = otherUserResponse.data;
-          return { roomId: room, otherUserName, profileImage: profileImage || null };
+          return { roomId: room, otherUserName, profileImage: profileImage || null, hasNewMessages: newMessages[room] || false };
         })
       );
 
@@ -43,6 +46,12 @@ const ChatsModal: React.FC<ChatsModalProps> = (props) => {
   useEffect(() => {
     fetchUserChats();
   }, [codigoUsuario]);
+
+  const handleChatClick = async (roomId: string) => {
+    await axios.patch(`/api/chat/mark-as-read?room=${roomId}&codigoUsuario=${codigoUsuario}`);
+    props.closeModal();
+    router.push(`/chat?roomId=${roomId}`);
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -58,11 +67,8 @@ const ChatsModal: React.FC<ChatsModalProps> = (props) => {
           {userChats.map((chat, index) => (
             <div
               key={index}
-              className="p-4 border-b cursor-pointer flex items-center rounded-full bg-gray-100 m-2"
-              onClick={() => {
-                props.closeModal();
-                router.push(`/chat?roomId=${chat.roomId}`);
-              }}
+              className="p-4 border-b cursor-pointer flex items-center rounded-full bg-gray-100 m-2 relative"
+              onClick={() => handleChatClick(chat.roomId)}
             >
               {chat.profileImage ? (
                 <img
@@ -79,6 +85,9 @@ const ChatsModal: React.FC<ChatsModalProps> = (props) => {
                 />
               )}
               <span className="flex-grow">{chat.otherUserName}</span>
+              {chat.hasNewMessages && (
+                <div className="absolute top-0 right-0 bg-blue-500 w-3 h-3 rounded-full"></div>
+              )}
               <div className="rounded-full bg-white p-2 shadow-md">
                 <FontAwesomeIcon icon={faComment} className="text-gray-400" />
               </div>
@@ -91,3 +100,4 @@ const ChatsModal: React.FC<ChatsModalProps> = (props) => {
 };
 
 export default ChatsModal;
+

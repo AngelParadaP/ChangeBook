@@ -14,5 +14,9 @@ export class Message {
   user: string;
 
   @Column()
-  room: string;  // Nuevo campo para la sala
+  room: string;
+
+  @Column({ default: true }) // Nuevo campo para indicar si el mensaje es nuevo
+  isNew: boolean;
 }
+
