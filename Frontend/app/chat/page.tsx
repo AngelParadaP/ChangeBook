@@ -63,13 +63,16 @@ interface PerfilUsuario {
 
 const Chat = () => {
 
-  const [messages, setMessages] = useState<
-    { message: string; username: string }[]
-  >([]);
+  const [messages, setMessages] = useState<{ message: string; username: string }[]>([]);
   const [input, setInput] = useState("");
   const socketRef = useRef<Socket | null>(null);
-  const searchParams = useSearchParams();
   const chatContainerRef = useRef<HTMLUListElement>(null);
+
+  const [notificationQueue, setNotificationQueue] = useState<Notificacion[]>([]);
+  const [notificationTimeout, setNotificationTimeout] = useState<NodeJS.Timeout | null>(null);
+
+
+  const searchParams = useSearchParams();
   const [navOption, setNavOption] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
@@ -90,7 +93,7 @@ const Chat = () => {
     creadoEn: string;
   } | null>(null);
 
-const handleNotificationClick = (roomId: string | null) => {
+const handleNotificationClick = (roomId: string | null, idNotificacion: string) => {
   // Verificar si roomId es nulo o indefinido
   if (roomId==="1" || roomId===null) {
     // Aquí puedes manejar la lógica para las notificaciones normales
@@ -99,8 +102,21 @@ const handleNotificationClick = (roomId: string | null) => {
   }
 
   // Redirigir al usuario al chat con la sala específica
-  
-  router.push(`/chat?roomId=${roomId}`);
+      if (perfilUsuario) {
+      axios.delete(`api/notificaciones/borrar/${idNotificacion}`);
+      const nuevasNotificaciones = perfilUsuario.notificaciones.filter(
+        (notificacion) => notificacion.idNotificacion !== idNotificacion
+      );
+      // Crear un nuevo objeto de perfil de usuario con las notificaciones actualizadas
+      const nuevoPerfilUsuario: PerfilUsuario = {
+        ...perfilUsuario,
+        notificaciones: nuevasNotificaciones,
+      };
+      setPerfilUsuario(nuevoPerfilUsuario); // Aquí deberías usar setPerfilUsuario en lugar de setPerfil
+          setNotificacionModal(false);
+        router.push(`/chat?roomId=${roomId}`);
+
+    }
 };
 
   useEffect(() => {
@@ -179,12 +195,10 @@ const handleNotificationClick = (roomId: string | null) => {
     }
   }, []);
 
-  useEffect(() => {
+   useEffect(() => {
     if (!roomId || typeof roomId !== "string") return;
 
-    const username =
-      localStorage.getItem("nombreUsuario") ||
-      prompt("Please enter your username:");
+    const username = localStorage.getItem("nombreUsuario") || prompt("Please enter your username:");
     if (!username) return;
 
     localStorage.setItem("nombreUsuario", username);
@@ -202,12 +216,9 @@ const handleNotificationClick = (roomId: string | null) => {
 
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3500/chat/messages",
-          {
-            params: { room: roomId },
-          }
-        );
+        const response = await axios.get("http://localhost:3500/chat/messages", {
+          params: { room: roomId },
+        });
         setMessages(
           response.data.map((msg: { content: string; user: string }) => ({
             message: msg.content,
@@ -226,6 +237,7 @@ const handleNotificationClick = (roomId: string | null) => {
     };
   }, [roomId]);
 
+
   const handleLogout = () => {
     localStorage.removeItem("codigoUsuario");
     redirect("/InicioSesion");
@@ -237,39 +249,58 @@ const handleNotificationClick = (roomId: string | null) => {
     router.push(`/Perfil?codigoUsuario=${books[0].codigoUsuario}`);
   };
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    let contador = 0
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    contador = contador+1
     e.preventDefault();
     if (input && socketRef.current) {
-      try {
-        await axios.post("http://localhost:3500/chat/message", {
-          message: input,
-          username: localStorage.getItem("nombreUsuario"),
-          room: roomId,
-        });
+      socketRef.current.emit("chat message", {
+        message: input,
+        room: roomId,
+      });
+    // Crear notificación para el otro usuario
+try {
+        const username = localStorage.getItem("nombreUsuario");
+        const newNotification: Notificacion = {
+          idNotificacion: new Date().getTime().toString(),
+          mensaje: `Tienes un mensaje de ${username}`,
+          resuelto: false,
+          fecha: new Date(),
+          roomId: roomId!,
+        };
+        setNotificationQueue((prev) => [...prev, newNotification]);
 
-        // Create notification for the other user
-        await axios.post("/api/notificaciones/agregarPara", {
-          codigoUsuario: otherCodigoUsuario,
-          mensaje: `Tienes un mensaje de ${localStorage.getItem(
-            "nombreUsuario"
-          )}`,
-          roomId: roomId,
-        });
+        if (!notificationTimeout) {
+          const timeout = setTimeout(async () => {
+            const queuedNotifications = [...notificationQueue];
+            console.log(queuedNotifications.length)
+            setNotificationQueue([]);
+            setNotificationTimeout(null);
 
-        setInput("");
-        window.location.reload();
+            await axios.post("/api/notificaciones/agregarPara", {
+              codigoUsuario: otherCodigoUsuario,
+              mensaje: `Tienes varios mensajes de ${username}`,
+              roomId: roomId,
+            });
+          }, 10000); //5 minutos
+
+          setNotificationTimeout(timeout);
+        }
       } catch (error) {
-        console.error("Error sending message:", error);
+        console.error("Error sending notification:", error);
       }
-    }
-  };
+    setInput("");
+  }
+};
+
 
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
 
   return (
      <div className="grid grid-cols-9 grid-rows-10 gap-3 bg-gray-50 w-screen h-screen ">
@@ -588,11 +619,12 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                 perfilUsuario?.notificaciones.length !== 0 ? (
                   perfilUsuario.notificaciones.map((notificacion) => (
 <div
+onClick={() => solveNotification(notificacion.idNotificacion)}
   className={`border border-cbookC-500 rounded-md flex items-center justify-between p-2 mb-2 ${
     notificacion.roomId && notificacion.roomId !== "1" ? "cursor-pointer hover:bg-gray-100" : ""
   }`}
 >
-  <p onClick={() => handleNotificationClick(notificacion.roomId)}className="flex-1">{notificacion.mensaje}</p>
+  <p  onClick={() => handleNotificationClick(notificacion.roomId,notificacion.idNotificacion) }className="flex-1">{notificacion.mensaje}</p>
   {notificacion.roomId && (
     <button
       className="ml-4 p-2 rounded-xl bg-cbookC-500 text-cbookC-200 hover:text-white"
@@ -624,3 +656,4 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
 
 export default Chat;
+
