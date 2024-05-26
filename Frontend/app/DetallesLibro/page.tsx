@@ -3,6 +3,7 @@ import BookCard from "./cardBook";
 import { IdBooks } from "./libro.service";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import ChatsModal from "../chatlist/page"
 import { useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,6 +16,7 @@ import {
   faBell,
   faHeart,
   faTimes,
+  faComments,
 } from "@fortawesome/free-solid-svg-icons";
 import { redirect } from "next/navigation";
 import AddBookForm from "../Publicar/page";
@@ -58,6 +60,12 @@ interface Notificacion {
 }
 
 const DetallesLibro = () => {
+  const [showChatModal, setShowChatModal] = useState(false);
+    const handleChatModalClose = () => {
+    setShowChatModal(false);
+  };
+
+
   const handleNotificationClick = (roomId: string | null) => {
   // Verificar si roomId es nulo o indefinido
   if (roomId==="1") {
@@ -190,6 +198,7 @@ const DetallesLibro = () => {
 
   return (
     <div className="grid grid-cols-9 grid-rows-10 gap-3 bg-gray-50 w-screen h-screen">
+      {/*Navigator de la izquierda */}
       <div className="hidden sm:block bg-cbookC-500 rounded-r-3xl shadow-xl col-span-1 row-span-10 flex-col h-screen justify-between">
         <div className="flex items-center justify-center m-5 mb-10">
           <img
@@ -199,6 +208,7 @@ const DetallesLibro = () => {
           />
         </div>
 
+        {/* Menú lateral izquierdo*/}
         <div className="flex flex-col items-left mx-3 gap-50 font-cbookF font-bold text-x1 cursor-pointer overflow-hidden mr-0">
           <a
             href="/Home"
@@ -212,9 +222,28 @@ const DetallesLibro = () => {
             <FontAwesomeIcon
               icon={faHome}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Inicio</span>
           </a>
+
+           <button
+            className={`py-4 text-white flex items-center p-3 transition duration-0 ${
+              navOption === "chatlist"
+                ? "bg-cbookC-700 rounded-l-3xl"
+                : "hover:bg-cbookC-700 hover:rounded-l-3xl hover:pr-12"
+            }`}
+            onClick={() => {
+              setNavOption("chatlist");
+              setShowChatModal(true);
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faComments}
+              className="inline-block w-8 h-8 mr-3"
+            />
+            <span>mis chats</span>
+          </button>
+
           <button
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
               navOption === "publicar"
@@ -229,9 +258,10 @@ const DetallesLibro = () => {
             <FontAwesomeIcon
               icon={faBook}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Publicar</span>
           </button>
+
           <a
             href="/WishList"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -247,6 +277,7 @@ const DetallesLibro = () => {
             ></FontAwesomeIcon>
             <span>Wish List</span>
           </a>
+
           <a
             href="PerfilUsuario"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -259,7 +290,7 @@ const DetallesLibro = () => {
             <FontAwesomeIcon
               icon={faUser}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Mi perfil</span>
           </a>
           <a
@@ -274,7 +305,7 @@ const DetallesLibro = () => {
             <FontAwesomeIcon
               icon={faSearch}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Buscar</span>
           </a>
 
@@ -290,13 +321,14 @@ const DetallesLibro = () => {
             <FontAwesomeIcon
               icon={faSignOut}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Salir</span>
           </a>
         </div>
       </div>
-      <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-xl col-span-8 row-span-1 mt-3 mr-3 flex items-center justify-end">
-   <div>
+      {/*Barra superior con notificaciones */}
+      <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-xl col-span-8 row-span-1 mt-3 mr-3 flex items-center justify-end relative">
+        <div>
           <a
             onClick={notificacionModalShow}
             className="flex items-center hover:cursor-pointer"
@@ -399,6 +431,26 @@ const DetallesLibro = () => {
             </button>
             <div className="flex-1 overflow-auto">
               <AddBookForm closeModal={handleModalClose} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showChatModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col">
+            <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">
+              Mis Chats
+            </h2>
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setShowChatModal(false)}
+            >
+              x
+            </button>
+            <div className="flex-1 overflow-auto">
+              <ChatsModal closeModal={handleChatModalClose} />
             </div>
           </div>
         </div>

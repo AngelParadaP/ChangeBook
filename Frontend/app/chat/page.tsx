@@ -9,6 +9,7 @@ import AddBookForm from "../Publicar/page";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import "./Chat.css";
+import ChatsModal from "../chatlist/page"
 import {
   faHome,
   faSignOut,
@@ -19,6 +20,9 @@ import {
   faBell,
   faHeart,
   faTimes,
+  faComment,
+  faComments,         // Agregado para el ícono de chat
+  faCommentDots,      // Agregado para el ícono de chat
 } from "@fortawesome/free-solid-svg-icons";
 
 interface Book {
@@ -58,6 +62,7 @@ interface PerfilUsuario {
 }
 
 const Chat = () => {
+
   const [messages, setMessages] = useState<
     { message: string; username: string }[]
   >([]);
@@ -67,6 +72,8 @@ const Chat = () => {
   const chatContainerRef = useRef<HTMLUListElement>(null);
   const [navOption, setNavOption] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
+
   const [books, setBooks] = useState<Book[]>([]);
   const roomId = searchParams.get("roomId");
   const [codigoUsuario1, codigoUsuario2] = roomId
@@ -83,8 +90,16 @@ const Chat = () => {
     creadoEn: string;
   } | null>(null);
 
-  const handleNotificationClick = (roomId: string) => {
+const handleNotificationClick = (roomId: string | null) => {
+  // Verificar si roomId es nulo o indefinido
+  if (roomId==="1" || roomId===null) {
+    // Aquí puedes manejar la lógica para las notificaciones normales
+    console.log("Notificación normal");
+    return;
+  }
+
   // Redirigir al usuario al chat con la sala específica
+  
   router.push(`/chat?roomId=${roomId}`);
 };
 
@@ -137,6 +152,10 @@ const Chat = () => {
 
   const handleModalClose = () => {
     setShowModal(false);
+  };
+
+  const handleChatModalClose = () => {
+    setShowChatModal(false);
   };
 
 
@@ -253,8 +272,8 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   }, [messages]);
 
   return (
-    <div className="grid grid-cols-9 grid-rows-10 gap-3 bg-gray-50 w-screen h-screen">
-      {/*MENU*/}
+     <div className="grid grid-cols-9 grid-rows-10 gap-3 bg-gray-50 w-screen h-screen ">
+ {/*Navigator de la izquierda */}
       <div className="hidden sm:block bg-cbookC-500 rounded-r-3xl shadow-xl col-span-1 row-span-10 flex-col h-screen justify-between">
         <div className="flex items-center justify-center m-5 mb-10">
           <img
@@ -264,6 +283,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           />
         </div>
 
+        {/* Menú lateral izquierdo*/}
         <div className="flex flex-col items-left mx-3 gap-50 font-cbookF font-bold text-x1 cursor-pointer overflow-hidden mr-0">
           <a
             href="/Home"
@@ -277,9 +297,28 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             <FontAwesomeIcon
               icon={faHome}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Inicio</span>
           </a>
+
+           <button
+            className={`py-4 text-white flex items-center p-3 transition duration-0 ${
+              navOption === "chatlist"
+                ? "bg-cbookC-700 rounded-l-3xl"
+                : "hover:bg-cbookC-700 hover:rounded-l-3xl hover:pr-12"
+            }`}
+            onClick={() => {
+              setNavOption("chatlist");
+              setShowChatModal(true);
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faComments}
+              className="inline-block w-8 h-8 mr-3"
+            />
+            <span>mis chats</span>
+          </button>
+
           <button
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
               navOption === "publicar"
@@ -294,9 +333,10 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             <FontAwesomeIcon
               icon={faBook}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Publicar</span>
           </button>
+
           <a
             href="/WishList"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -312,6 +352,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             ></FontAwesomeIcon>
             <span>Wish List</span>
           </a>
+
           <a
             href="PerfilUsuario"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -324,7 +365,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             <FontAwesomeIcon
               icon={faUser}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Mi perfil</span>
           </a>
           <a
@@ -339,7 +380,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             <FontAwesomeIcon
               icon={faSearch}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Buscar</span>
           </a>
 
@@ -355,38 +396,41 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             <FontAwesomeIcon
               icon={faSignOut}
               className="inline-block w-8 h-8 mr-3"
-            />
+            ></FontAwesomeIcon>
             <span>Salir</span>
           </a>
         </div>
       </div>
-      {/*NOTIFICACIONES*/}
-      <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-xl col-span-8 row-span-1 mt-3 mr-3 flex items-center justify-end">
-        <a
-          onClick={notificacionModalShow}
-          className="flex items-center hover:cursor-pointer"
-        >
-          <span className="font-cbookF font-bold text-x1 text-cbookC-700 mr-2">
-            Notificaciones
-          </span>
-          <div className="relative">
-            <FontAwesomeIcon
-              icon={faBell}
-              className="w-8 h-8 text-cbookC-700 relative z-10"
-            />
-            {perfilUsuario && perfilUsuario.notificaciones.length > 0 && (
-              <div className="absolute -bottom-1 -right-3 right-0 bg-red-500 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs z-20">
-                {perfilUsuario.notificaciones.length}
-              </div>
-            )}
-          </div>
-        </a>
+      {/*Barra superior con notificaciones */}
+      <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-xl col-span-8 row-span-1 mt-3 mr-3 flex items-center justify-end relative">
+        <div>
+          <a
+            onClick={notificacionModalShow}
+            className="flex items-center hover:cursor-pointer"
+          >
+            <span className="font-cbookF font-bold text-x1 text-cbookC-700 mr-2">
+              Notificaciones
+            </span>
+            <div className="relative">
+              <FontAwesomeIcon
+                icon={faBell}
+                className="w-8 h-8 text-cbookC-700 relative z-10"
+              />
+              {perfilUsuario && perfilUsuario.notificaciones.length > 0 && (
+                <div className="absolute -bottom-1 -right-3 right-0 bg-red-500 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs z-20">
+                  {perfilUsuario.notificaciones.length}
+                </div>
+              )}
+            </div>
+          </a>
+        </div>
         <img
           className="ml-6 w-10 h-10 mr-6"
           src="/libro_morado.png"
           alt="Libro"
         />
       </div>
+
       <div className="flex flex-col items-center justify-center bg-gradient-to-r from-cbookC-500 via-cbookC-700 to-cbookC-600 rounded-2xl shadow-xl col-span-6 row-span-9 mb-3 overflow-hidden">
         <h1 className="text-2xl font-bold font-cbookF text-cbookC-200 mb-4 mt-4">
           Chateando con: {otherUser?.nombre || "Cargando..."}
@@ -499,6 +543,25 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           </div>
         </div>
       )}
+            {showChatModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col">
+            <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">
+              Mis Chats
+            </h2>
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setShowChatModal(false)}
+            >
+              x
+            </button>
+            <div className="flex-1 overflow-auto">
+              <ChatsModal closeModal={handleChatModalClose} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {notificacionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -524,21 +587,23 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               {perfilUsuario ? (
                 perfilUsuario?.notificaciones.length !== 0 ? (
                   perfilUsuario.notificaciones.map((notificacion) => (
-                    <div
-                      key={notificacion.idNotificacion}
-                      className="border border-cbookC-500 rounded-md flex items-center justify-between p-2 mb-2"
-                      onClick={() => handleNotificationClick(notificacion.roomId)}
-                    >
-                      <p className="flex-1">{notificacion.mensaje}</p>
-                      <button
-                        className="ml-4 p-2 rounded-xl bg-cbookC-500 text-cbookC-200 hover:text-white"
-                        onClick={() =>
-                          solveNotification(notificacion.idNotificacion)
-                        }
-                      >
-                        Descartar
-                      </button>
-                    </div>
+<div
+  className={`border border-cbookC-500 rounded-md flex items-center justify-between p-2 mb-2 ${
+    notificacion.roomId && notificacion.roomId !== "1" ? "cursor-pointer hover:bg-gray-100" : ""
+  }`}
+>
+  <p onClick={() => handleNotificationClick(notificacion.roomId)}className="flex-1">{notificacion.mensaje}</p>
+  {notificacion.roomId && (
+    <button
+      className="ml-4 p-2 rounded-xl bg-cbookC-500 text-cbookC-200 hover:text-white"
+      onClick={() => solveNotification(notificacion.idNotificacion)}
+    >
+      Descartar
+    </button>
+  )}
+</div>
+
+
                   ))
                 ) : (
                   <div className="text-center">
@@ -554,6 +619,8 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       )}
     </div>
   );
-};
+}
+
+
 
 export default Chat;

@@ -20,4 +20,19 @@ export class ChatService {
   async findAll(room: string): Promise<Message[]> {
     return this.messagesRepository.find({ where: { room } });
   }
+ async findRoomsByUser(codigoUsuario: string): Promise<string[]> {
+    const messages = await this.messagesRepository
+      .createQueryBuilder('message')
+      .select('message.room')
+      .groupBy('message.room')
+      .getRawMany();
+
+    return messages
+      .map(msg => msg.message_room)
+      .filter(room => room.split('-').includes(codigoUsuario));
+  }
 }
+
+
+
+

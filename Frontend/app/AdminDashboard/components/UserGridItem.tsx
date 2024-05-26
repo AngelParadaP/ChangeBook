@@ -38,9 +38,10 @@ export const UserGridItem = ({ product }: Props) => {
     return (
         <div className="rounded-md overflow-hidden border border-gray-300 shadow-lg">
             <img
+        
                 src={product.imagenCredencial}
                 alt={product.nombre}
-                loading="lazy"
+                  loading="lazy"
                 className="min-w-64"
             />
             <div className="p-4 flex flex-col">

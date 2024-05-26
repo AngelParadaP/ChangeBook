@@ -67,8 +67,8 @@ const payload: CreateNotificationDto = {
   mensaje: 'Fuiste verificado! - Disfruta de la aplicacion',
   roomId: '1', // Asegúrate de proporcionar el roomId adecuado
 };
+
 await this.addComent(payload);
-      this.addComent(payload)
       return await this.credencialesRepository.save(user);
     } catch (err) {
       throw new InternalServerErrorException(
@@ -99,23 +99,24 @@ await this.addComent(payload);
   }
 
   async addComent(createNotificationDto: CreateNotificationDto) {
-    const { codigoUsuario, mensaje } = createNotificationDto;
-    const usuario = await this.userRepository.findOne({
-      where: { codigo: codigoUsuario },
-      relations: {
-        notificaciones: true,
-      },
-    });
+  const { codigoUsuario, mensaje, roomId } = createNotificationDto; // Añadir roomId aquí
+  const usuario = await this.userRepository.findOne({
+    where: { codigo: codigoUsuario },
+    relations: {
+      notificaciones: true,
+    },
+  });
 
-    console.log(usuario);
-    if (!usuario) {
-      throw new NotFoundException('User not found in database');
-    }
-
-    const notification = new Notification();
-    notification.mensaje = mensaje;
-    notification.user = usuario;
-
-    return await this.notificacionesRepository.save(notification);
+  if (!usuario) {
+    throw new NotFoundException('User not found in database');
   }
+
+  const notification = new Notification();
+  notification.mensaje = mensaje;
+  notification.user = usuario;
+  notification.roomId = '1'; // Asignar roomId aquí
+
+  return await this.notificacionesRepository.save(notification);
+}
+
 }
