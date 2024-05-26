@@ -76,7 +76,11 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
 
   // Redirigir al usuario al chat con la sala específica
       if (perfilUsuario) {
+            const currentUserCode = localStorage.getItem("codigoUsuario");
+
       axios.delete(`api/notificaciones/borrar/${idNotificacion}`);
+       axios.patch(`/api/chat/mark-as-read?room=${roomId}&codigoUsuario=${currentUserCode}`);
+
       const nuevasNotificaciones = perfilUsuario.notificaciones.filter(
         (notificacion) => notificacion.idNotificacion !== idNotificacion
       );
@@ -114,6 +118,8 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
     if (currentUserCode) {
       // Ordenar los IDs para que el roomId sea el mismo independientemente del orden
       const roomId = [currentUserCode, books[0].codigoUsuario].sort().join("-");
+      axios.patch(`/api/chat/mark-as-read?room=${roomId}&codigoUsuario=${currentUserCode}`);
+
       router.push(`/chat?roomId=${roomId}`);
     } else {
       console.error("User ID not found in localStorage.");

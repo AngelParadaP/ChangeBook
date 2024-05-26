@@ -79,6 +79,10 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
 
   // Redirigir al usuario al chat con la sala específica
       if (perfilUsuario) {
+            const codigoUsuario = localStorage.getItem("codigoUsuario");
+
+               axios.patch(`/api/chat/mark-as-read?room=${roomId}&codigoUsuario=${codigoUsuario}`);
+
       axios.delete(`api/notificaciones/borrar/${idNotificacion}`);
       const nuevasNotificaciones = perfilUsuario.notificaciones.filter(
         (notificacion) => notificacion.idNotificacion !== idNotificacion
