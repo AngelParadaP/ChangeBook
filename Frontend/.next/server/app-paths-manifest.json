@@ -1,7 +1,3 @@
 {
-  "/WishList/page": "app/WishList/page.js",
-  "/InicioSesion/page": "app/InicioSesion/page.js",
-  "/Home/page": "app/Home/page.js",
-  "/chat/page": "app/chat/page.js",
-  "/Perfil/page": "app/Perfil/page.js"
+  "/chat/page": "app/chat/page.js"
 }
