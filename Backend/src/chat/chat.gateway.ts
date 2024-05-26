@@ -1,5 +1,3 @@
-// src/chat/chat.gateway.ts
-
 import {
   WebSocketGateway,
   WebSocketServer,
@@ -11,7 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: { origin: '*' } })  // Permite conexiones desde cualquier origen
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
@@ -26,7 +24,7 @@ export class ChatGateway implements OnGatewayConnection {
     const { message, room } = data;
     const username = client.handshake.auth.username || 'anonymous';
     const savedMessage = await this.chatService.create(message, username, room);
-    this.server.to(room).emit('chat message', { message, username });
+    this.server.to(room).emit('chat message', { message: savedMessage.content, username: savedMessage.user });
   }
 
   async handleConnection(client: Socket) {
