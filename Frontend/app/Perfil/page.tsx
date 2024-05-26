@@ -6,6 +6,7 @@ import axios from "axios";
 import { fetchBooksByUser } from "./libro.service";
 import BookCard from "./BookCard";
 import AddBookForm from "../Publicar/page";
+import ChatsModal from "../chatlist/page"
 import { redirect } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,6 +18,7 @@ import {
   faSearch,
   faBell,
   faHeart,
+  faComments,
 } from "@fortawesome/free-solid-svg-icons";
 import { ModalReportar } from "./ModalReportar";
 
@@ -45,6 +47,10 @@ interface Book {
 }
 
 const PerfilUsuarioPage: React.FC = () => {
+    const [showChatModal, setShowChatModal] = useState(false);
+    const handleChatModalClose = () => {
+    setShowChatModal(false);
+  };
   const searchParams = useSearchParams();
   const router = useRouter();
   //const codigoUsuario = '222790811'
@@ -141,6 +147,25 @@ const PerfilUsuarioPage: React.FC = () => {
             />
             <span>Inicio</span>
           </a>
+
+         <button
+            className={`py-4 text-white flex items-center p-3 transition duration-0 ${
+              navOption === "chatlist"
+                ? "bg-cbookC-700 rounded-l-3xl"
+                : "hover:bg-cbookC-700 hover:rounded-l-3xl hover:pr-12"
+            }`}
+            onClick={() => {
+              setNavOption("chatlist");
+              setShowChatModal(true);
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faComments}
+              className="inline-block w-8 h-8 mr-3"
+            />
+            <span>mis chats</span>
+          </button>
+
           <button
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
               navOption === "publicar"
@@ -303,6 +328,25 @@ const PerfilUsuarioPage: React.FC = () => {
         </div>
       )}
 
+{showChatModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col">
+            <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">
+              Mis Chats
+            </h2>
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setShowChatModal(false)}
+            >
+              x
+            </button>
+            <div className="flex-1 overflow-auto">
+              <ChatsModal closeModal={handleChatModalClose} />
+            </div>
+          </div>
+        </div>
+      )}
       {showReport && (
         <ModalReportar
           codigo={codigoUsuario}

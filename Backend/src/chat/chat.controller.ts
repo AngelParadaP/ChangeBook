@@ -22,4 +22,10 @@ export class ChatController {
     const messages = await this.chatService.findAll(room);
     return messages;
   }
+
+  @Get('rooms')
+  async getRooms(@Query('codigoUsuario') codigoUsuario: string) {
+    const rooms = await this.chatService.findRoomsByUser(codigoUsuario);
+    return rooms;
+  }
 }

@@ -26,13 +26,13 @@ export class UploadService {
 
     await this.s3Client.send(
       new PutObjectCommand({
-        Bucket: 'image.bucket.for.cbook.webapp.20112004',
+        Bucket: 'proyectochangebookpruebasdeimagenesdeange.lp.ar.ad.ap2003.19.12',
         Key: fileName,
         Body: file,
       }),
     );
 
-    const url = `https://s3.us-east-2.amazonaws.com/image.bucket.for.cbook.webapp.20112004/${fileName}`; // Cambia 'your-bucket' por el nombre de tu bucket
+    const url = `https://s3.us-east-2.amazonaws.com/proyectochangebookpruebasdeimagenesdeange.lp.ar.ad.ap2003.19.12/${fileName}`; // Cambia 'your-bucket' por el nombre de tu bucket
 
     // Puedes devolver la URL aquí o almacenarla en tu base de datos
     return url;
@@ -49,13 +49,13 @@ export class UploadService {
 
     await this.s3Client.send(
       new PutObjectCommand({
-        Bucket: 'image.bucket.for.cbook.webapp.20112004',
+        Bucket: 'proyectochangebookpruebasdeimagenesdeange.lp.ar.ad.ap2003.19.12',
         Key: fileName,
         Body: file,
       }),
     );
 
-    const url = `https://s3.us-east-2.amazonaws.com/image.bucket.for.cbook.webapp.20112004/${fileName}`; // Cambia 'your-bucket' por el nombre de tu bucket
+    const url = `https://s3.us-east-2.amazonaws.com/proyectochangebookpruebasdeimagenesdeange.lp.ar.ad.ap2003.19.12/${fileName}`; // Cambia 'your-bucket' por el nombre de tu bucket
 
     // Puedes devolver la URL aquí o almacenarla en tu base de datos
     return url;

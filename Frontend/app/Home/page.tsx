@@ -6,9 +6,9 @@ import { fetchBooks, ratedBooks, fetchUsers} from "./libro.service";
 import React, { useState, useEffect } from "react";
 import SearchInput from "./search";
 import axios from "axios";
-
+import ChatsModal from "../chatlist/page"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart, faHome } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faHome, faComments } from "@fortawesome/free-solid-svg-icons";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons/faSignOut";
 import { faBook } from "@fortawesome/free-solid-svg-icons/faBook";
 import { faClock } from "@fortawesome/free-solid-svg-icons/faClock";
@@ -57,9 +57,15 @@ interface PerfilUsuario {
 }
 
 function Home() {
+
+  const [showChatModal, setShowChatModal] = useState(false);
+  const handleChatModalClose = () => {
+    setShowChatModal(false);
+  };
+
 const handleNotificationClick = (roomId: string | null) => {
   // Verificar si roomId es nulo o indefinido
-  if (roomId==="1") {
+  if (roomId==="1" || roomId===null) {
     // Aquí puedes manejar la lógica para las notificaciones normales
     console.log("Notificación normal");
     return;
@@ -238,6 +244,25 @@ const handleSearch = async (query: string) => {
             ></FontAwesomeIcon>
             <span>Inicio</span>
           </a>
+
+           <button
+            className={`py-4 text-white flex items-center p-3 transition duration-0 ${
+              navOption === "chatlist"
+                ? "bg-cbookC-700 rounded-l-3xl"
+                : "hover:bg-cbookC-700 hover:rounded-l-3xl hover:pr-12"
+            }`}
+            onClick={() => {
+              setNavOption("chatlist");
+              setShowChatModal(true);
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faComments}
+              className="inline-block w-8 h-8 mr-3"
+            />
+            <span>mis chats</span>
+          </button>
+
           <button
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
               navOption === "publicar"
@@ -255,6 +280,7 @@ const handleSearch = async (query: string) => {
             ></FontAwesomeIcon>
             <span>Publicar</span>
           </button>
+
           <a
             href="/WishList"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -270,6 +296,7 @@ const handleSearch = async (query: string) => {
             ></FontAwesomeIcon>
             <span>Wish List</span>
           </a>
+
           <a
             href="PerfilUsuario"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -433,6 +460,26 @@ const handleSearch = async (query: string) => {
         </div>
       )}
 
+        {showChatModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col">
+            <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">
+              Mis Chats
+            </h2>
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setShowChatModal(false)}
+            >
+              x
+            </button>
+            <div className="flex-1 overflow-auto">
+              <ChatsModal closeModal={handleChatModalClose} />
+            </div>
+          </div>
+        </div>
+      )}
+
        {notificacionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -461,7 +508,6 @@ const handleSearch = async (query: string) => {
   className={`border border-cbookC-500 rounded-md flex items-center justify-between p-2 mb-2 ${
     notificacion.roomId && notificacion.roomId !== "1" ? "cursor-pointer hover:bg-gray-100" : ""
   }`}
-  
 >
   <p onClick={() => handleNotificationClick(notificacion.roomId)}className="flex-1">{notificacion.mensaje}</p>
   {notificacion.roomId && (
@@ -473,6 +519,8 @@ const handleSearch = async (query: string) => {
     </button>
   )}
 </div>
+
+
                   ))
                 ) : (
                   <div className="text-center">
