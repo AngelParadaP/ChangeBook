@@ -1,4 +1,4 @@
-: // src/chat/chat.service.ts
+// src/chat/chat.service.ts
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';

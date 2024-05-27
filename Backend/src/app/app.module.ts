@@ -14,6 +14,7 @@ import { ChatModule } from 'src/chat/chat.module';
 import { ReportesModule } from 'src/reportes/reportes.module';
 import { ComentariosModule } from 'src/comentarios/comentarios.module';
 import { NotificacionesModule } from 'src/notificaciones/notificaciones.module';
+import { ExchangeModule } from 'src/exchange/exchange.module';
 
 @Module({
   imports: [
@@ -42,6 +43,8 @@ import { NotificacionesModule } from 'src/notificaciones/notificaciones.module';
     BooksModule,
     UploadModule,
     ChatModule,
+        ExchangeModule,
+
     ReportesModule,
     ComentariosModule,
     NotificacionesModule
