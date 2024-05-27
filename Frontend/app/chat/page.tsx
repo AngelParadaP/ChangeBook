@@ -8,8 +8,11 @@ import { redirect } from "next/navigation";
 import AddBookForm from "../Publicar/page";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import CreateExchangeModal from './CreateExchangeModal';
 import "./Chat.css";
 import ChatsModal from "../chatlist/page"
+import AcceptExchangeModal from "./AcceptExchangeModal";
+
 import {
   faHome,
   faSignOut,
@@ -62,6 +65,13 @@ interface PerfilUsuario {
 }
 
 const Chat = () => {
+    const [showAcceptExchangeModal, setShowAcceptExchangeModal] = useState(false);
+  const [pendingExchangeId, setPendingExchangeId] = useState<string | null>(null);
+
+
+  const [showExchangeModal, setShowExchangeModal] = useState(false);
+  const [selectedExchangeId, setSelectedExchangeId] = useState<string | null>(null);
+  const [exchangeDetails, setExchangeDetails] = useState(null);
 
   const [messages, setMessages] = useState<{ message: string; username: string }[]>([]);
   const [input, setInput] = useState("");
@@ -86,12 +96,15 @@ const Chat = () => {
   const otherCodigoUsuario =
     codigoUsuario1 === myCodigoUsuario ? codigoUsuario2 : codigoUsuario1;
 
+
   const [otherUser, setOtherUser] = useState<{
     nombre: string;
     imagenPerfil: string;
     strikes: number;
     creadoEn: string;
   } | null>(null);
+
+
 
 const handleNotificationClick = (roomId: string | null, idNotificacion: string) => {
   // Verificar si roomId es nulo o indefinido
@@ -177,6 +190,22 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
     setShowChatModal(false);
   };
 
+  useEffect(() => {
+    const checkPendingExchanges = async () => {
+      try {
+        const response = await axios.get(`/api/exchange/pending/${myCodigoUsuario}`);
+        if (response.data.length > 0) {
+          setPendingExchangeId(response.data[0].id);
+          setShowAcceptExchangeModal(true);
+        }
+      } catch (error) {
+        console.error("Error checking pending exchanges:", error);
+      }
+    };
+
+    checkPendingExchanges();
+  }, []);
+
 
   useEffect(() => {
     const codigoUsuario = localStorage.getItem("codigoUsuario");
@@ -246,11 +275,12 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
     redirect("/InicioSesion");
   };
 
+
+
   const router = useRouter();
 
-  const handleUserClick = () => {
-    router.push(`/Perfil?codigoUsuario=${books[0].codigoUsuario}`);
-  };
+
+
 
     let contador = 0
 
@@ -283,7 +313,7 @@ try {
 
             await axios.post("/api/notificaciones/agregarPara", {
               codigoUsuario: otherCodigoUsuario,
-              mensaje: `Tienes varios mensajes de ${username}`,
+              mensaje: `Tienes varios mensajes de ${perfilUsuario?.nombre}`,
               roomId: roomId,
             });
           }, 10000); //5 minutos
@@ -303,6 +333,30 @@ try {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+useEffect(() => {
+    const fetchExchanges = async () => {
+      try {
+        const response = await axios.get(`/api/exchange/${selectedExchangeId}`);
+        setExchangeDetails(response.data);
+      } catch (error) {
+        console.error('Error fetching exchange:', error);
+      }
+    };
+
+    if (selectedExchangeId) {
+      fetchExchanges();
+    }
+  }, [selectedExchangeId]);
+
+ 
+
+  const handleGenerateExchangeClick = () => {
+    setShowExchangeModal(true);
+  };
+
+
+
 
 
   return (
@@ -551,6 +605,23 @@ try {
               <span className="text-center font-cbookF font-bold text-xl max-w-52 justify-center text-gray-500">
                 Creado en: {new Date(otherUser.creadoEn).toLocaleDateString()}
               </span>
+ <button
+          className="bg-cbookC-700 hover:bg-cbookC-600 text-white font-cbookF font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline mt-4"
+        onClick={handleGenerateExchangeClick}
+      >
+        Crear Intercambio
+      </button>
+
+
+
+      {showExchangeModal && (
+        <CreateExchangeModal
+          closeModal={() => setShowExchangeModal(false)}
+          otherUserCodigo={otherCodigoUsuario}
+          roomId={roomId}
+          username={perfilUsuario?.nombre}
+        />
+      )}
             </>
           ) : (
             <div className="flex flex-col items-center">Cargando...</div>
@@ -596,7 +667,17 @@ try {
           </div>
         </div>
       )}
-
+      {showAcceptExchangeModal && pendingExchangeId && (
+        <AcceptExchangeModal
+          exchangeId={pendingExchangeId}
+          closeModal={() => setShowAcceptExchangeModal(false)}
+          roomId={roomId}
+          myusername={perfilUsuario?.nombre}
+          otherusername={otherUser?.nombre}
+          OtherUserCodigo={otherCodigoUsuario}
+          myusercodigo={myCodigoUsuario}
+        />
+      )}
       {notificacionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -655,8 +736,6 @@ onClick={() => solveNotification(notificacion.idNotificacion)}
     </div>
   );
 }
-
-
 
 export default Chat;
 
