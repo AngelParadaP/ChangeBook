@@ -12,12 +12,13 @@ interface Book {
 interface CreateExchangeModalProps {
   closeModal: () => void;
   otherUserCodigo: string;
+  myUserCodigo: string | null;
   roomId:string | null;
   username:string;
 }
 
 
-const CreateExchangeModal: React.FC<CreateExchangeModalProps> = ({ closeModal, otherUserCodigo, roomId,username }) => {
+const CreateExchangeModal: React.FC<CreateExchangeModalProps> = ({ closeModal, otherUserCodigo, roomId,username,myUserCodigo}) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedBook, setSelectedBook] = useState<string>('');
   const [devolucionDateTime, setDevolucionDateTime] = useState<string>('');
@@ -77,6 +78,7 @@ if (!selectedBook) {
   const exchange = {
     id: `${otherUserCodigo}_${selectedBook}`,
     usuarioReceptor: otherUserCodigo,
+    usuarioSolicitante:myUserCodigo,
     tituloLibro: selectedBook,
     aceptado: false,
     fechaDevolucion: new Date(devolucionDateTime),

@@ -1,7 +1,8 @@
 {
-  "/chat/page": "app/chat/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/Home/page": "app/Home/page.js",
+  "/DetallesLibro/page": "app/DetallesLibro/page.js",
+  "/Perfil/page": "app/Perfil/page.js",
   "/PerfilUsuario/page": "app/PerfilUsuario/page.js",
-  "/page": "app/page.js",
-  "/Perfil/page": "app/Perfil/page.js"
+  "/chat/page": "app/chat/page.js"
 }

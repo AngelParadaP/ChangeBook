@@ -1,4 +1,4 @@
-// File: /Users/angelparada/Desktop/ChangeB/ChangeBook/Frontend/app/Perfil/page.tsx
+// File: /Users/angelparada/Desktop/ ChangeBook/ChangeBook/Frontend/app/Perfil/page.tsx
 import * as entry from '../../../../app/Perfil/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
