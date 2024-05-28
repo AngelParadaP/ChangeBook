@@ -35,13 +35,13 @@ export class ExchangeService {
     await this.exchangeRepository.delete(id);
   }
 
-  findPending(usuarioReceptor: string): Promise<Exchange[]> {
+  findPending(usuarioReceptor: string, usuarioSolicitante: string): Promise<Exchange[]> {
     return this.exchangeRepository.find({
-      where: { usuarioReceptor, aceptado: false },
+      where: { usuarioReceptor, usuarioSolicitante, aceptado: false },
     });
   }
 
-    findActive(usuarioReceptor: string): Promise<Exchange[]> {
+  findActive(usuarioReceptor: string): Promise<Exchange[]> {
     return this.exchangeRepository.find({
       where: { usuarioReceptor, aceptado: true },
     });

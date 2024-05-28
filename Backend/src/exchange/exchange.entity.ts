@@ -14,6 +14,9 @@ export class Exchange {
   @Column()
   usuarioReceptor: string;
 
+  @Column()
+  usuarioSolicitante: string;
+
   @Column({ nullable: true })
   fechaDevolucion: Date;
 
@@ -22,7 +25,5 @@ export class Exchange {
 
   @Column({ nullable: true })
   lugar: string;
-
-  
 }
 

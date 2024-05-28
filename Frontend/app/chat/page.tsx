@@ -13,6 +13,7 @@ import "./Chat.css";
 import ChatsModal from "../chatlist/page"
 import AcceptExchangeModal from "./AcceptExchangeModal";
 
+
 import {
   faHome,
   faSignOut,
@@ -25,8 +26,10 @@ import {
   faTimes,
   faComment,
   faComments,         // Agregado para el ícono de chat
-  faCommentDots,      // Agregado para el ícono de chat
+  faCommentDots,
+  faExchangeAlt,      // Agregado para el ícono de chat
 } from "@fortawesome/free-solid-svg-icons";
+import IntercambiosActivos from "../IntercambiosActivos/page";
 
 interface Book {
   idLibro: string;
@@ -65,6 +68,8 @@ interface PerfilUsuario {
 }
 
 const Chat = () => {
+
+
     const [showAcceptExchangeModal, setShowAcceptExchangeModal] = useState(false);
   const [pendingExchangeId, setPendingExchangeId] = useState<string | null>(null);
 
@@ -185,26 +190,30 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
   const handleModalClose = () => {
     setShowModal(false);
   };
-
+const [showIntercambiosActivosModal, setShowIntercambiosActivosModal] = useState(false);
+ const handleIntercambiosActivosModalClose = () => {
+    setShowIntercambiosActivosModal(false);
+  };
   const handleChatModalClose = () => {
     setShowChatModal(false);
   };
 
-  useEffect(() => {
-    const checkPendingExchanges = async () => {
-      try {
-        const response = await axios.get(`/api/exchange/pending/${myCodigoUsuario}`);
-        if (response.data.length > 0) {
-          setPendingExchangeId(response.data[0].id);
-          setShowAcceptExchangeModal(true);
-        }
-      } catch (error) {
-        console.error("Error checking pending exchanges:", error);
+useEffect(() => {
+  const checkPendingExchanges = async () => {
+    try {
+      const response = await axios.get(`/api/exchange/pending/${myCodigoUsuario}/${otherCodigoUsuario}`);
+      if (response.data.length > 0) {
+        setPendingExchangeId(response.data[0].id);
+        setShowAcceptExchangeModal(true);
       }
-    };
+    } catch (error) {
+      console.error("Error checking pending exchanges:", error);
+    }
+  };
 
-    checkPendingExchanges();
-  }, []);
+  checkPendingExchanges();
+}, [myCodigoUsuario, otherCodigoUsuario]);
+
 
 
   useEffect(() => {
@@ -456,6 +465,23 @@ useEffect(() => {
             ></FontAwesomeIcon>
             <span>Mi perfil</span>
           </a>
+          <button
+            className={`py-4 text-white flex items-center p-3 transition duration-0 ${
+              navOption === "IntercambiosActivos"
+                ? "bg-cbookC-700 rounded-l-3xl"
+                : "hover:bg-cbookC-700 hover:rounded-l-3xl hover:pr-12"
+            }`}
+            onClick={() => {
+              setNavOption("IntercambiosActivos");
+              setShowIntercambiosActivosModal(true)
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faExchangeAlt}
+              className="inline-block w-8 h-8 mr-3"
+            ></FontAwesomeIcon>
+            <span>            Intercambios </span>
+          </button>
           <a
             href="Home"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -619,6 +645,7 @@ useEffect(() => {
           closeModal={() => setShowExchangeModal(false)}
           otherUserCodigo={otherCodigoUsuario}
           roomId={roomId}
+          myUserCodigo={myCodigoUsuario}
           username={perfilUsuario?.nombre}
         />
       )}
@@ -677,6 +704,21 @@ useEffect(() => {
           OtherUserCodigo={otherCodigoUsuario}
           myusercodigo={myCodigoUsuario}
         />
+      )}
+
+{/* Modal Intercambios Activos */}
+      {showIntercambiosActivosModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative">
+            <IntercambiosActivos closeModal={handleIntercambiosActivosModalClose} />
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={handleIntercambiosActivosModalClose}
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          </div>
+        </div>
       )}
       {notificacionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -738,4 +780,5 @@ onClick={() => solveNotification(notificacion.idNotificacion)}
 }
 
 export default Chat;
+
 

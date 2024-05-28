@@ -16,11 +16,14 @@ import {
   faBell,
   faHeart,
   faComments,
+  faTimes,
+  faExchangeAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { redirect } from "next/navigation";
 import AddBookForm from "../Publicar/page";
 import { useRouter } from "next/navigation";
 import ChatsModal from "../chatlist/page";
+import IntercambiosActivos from "../IntercambiosActivos/page";
 
 interface Book {
   idLibro: string;
@@ -60,6 +63,10 @@ interface PerfilUsuario {
 
 //AQUI EMPIEZA LA FUNCION
 const Perfil: React.FC = () => {
+   const [showIntercambiosActivosModal, setShowIntercambiosActivosModal] = useState(false);
+ const handleIntercambiosActivosModalClose = () => {
+    setShowIntercambiosActivosModal(false);
+  };
     const [showChatModal, setShowChatModal] = useState(false);
     const handleChatModalClose = () => {
     setShowChatModal(false);
@@ -214,6 +221,24 @@ const Perfil: React.FC = () => {
             />
             <span>Mi perfil</span>
           </a>
+
+                   <button
+            className={`py-4 text-white flex items-center p-3 transition duration-0 ${
+              navOption === "IntercambiosActivos"
+                ? "bg-cbookC-700 rounded-l-3xl"
+                : "hover:bg-cbookC-700 hover:rounded-l-3xl hover:pr-12"
+            }`}
+            onClick={() => {
+              setNavOption("IntercambiosActivos");
+              setShowIntercambiosActivosModal(true)
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faExchangeAlt}
+              className="inline-block w-8 h-8 mr-3"
+            ></FontAwesomeIcon>
+            <span>            Intercambios </span>
+          </button>
           <a
             href="Home"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -335,7 +360,20 @@ const Perfil: React.FC = () => {
           </div>
         </div>
       )}
-
+ {/* Modal Intercambios Activos */}
+      {showIntercambiosActivosModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative">
+            <IntercambiosActivos closeModal={handleIntercambiosActivosModalClose} />
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={handleIntercambiosActivosModalClose}
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          </div>
+        </div>
+      )}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>

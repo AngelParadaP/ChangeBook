@@ -4,6 +4,7 @@ import BookCard from "./cardBook";
 import { IdBooks } from "./libro.service";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { updateBookAvailability } from "../PerfilUsuario/libro.service";
 
 interface BookDetails {
   idLibro: string;
@@ -37,12 +38,11 @@ interface Book {
   imagen: string;
 }
 
-const AcceptExchangeModal = ({ exchangeId, closeModal, myusername, otherusername, roomId , OtherUserCodigo, myusercodigo}: { myusername:string; otherusername:string; roomId:string | null; OtherUserCodigo:string; myusercodigo:string; exchangeId: string; closeModal: () => void } ) => {
+const AcceptExchangeModal = ({ exchangeId, closeModal, myusername, otherusername, roomId , OtherUserCodigo, myusercodigo}: {myusername:string; otherusername:string; roomId:string | null; OtherUserCodigo:string; myusercodigo:string; exchangeId: string; closeModal: () => void } ) => {
   const [exchangeDetails, setExchangeDetails] = useState(null);
 const [bookDetails, setBookDetails] = useState<BookDetails | null>(null);
   const [books, setBooks] = useState<Book[]>([]);
     const idLibro = exchangeId.split('_').pop(); // Adjusted to match the expected format
-
 
   useEffect(() => {
 
@@ -88,6 +88,7 @@ const formatTime = (dateString: string) => {
   const handleAccept = async () => {
     try {
       await axios.patch(`/api/exchange/${exchangeId}`, { aceptado: true });
+      await updateBookAvailability(idLibro , false);
       axios.post(`api/books/sumarIntercambio/${idLibro}`)
           axios.post("/api/notificaciones/agregarPara", {
               codigoUsuario: myusercodigo,

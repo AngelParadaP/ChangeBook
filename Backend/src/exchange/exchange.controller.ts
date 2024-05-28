@@ -26,14 +26,14 @@ export class ExchangeController {
     return this.exchangeService.remove(id);
   }
 
-    @Get('pending/:usuarioReceptor')
-  findPending(@Param('usuarioReceptor') usuarioReceptor: string): Promise<Exchange[]> {
-    return this.exchangeService.findPending(usuarioReceptor);
+  @Get('pending/:usuarioReceptor/:usuarioSolicitante')
+  findPending(@Param('usuarioReceptor') usuarioReceptor: string, @Param('usuarioSolicitante') usuarioSolicitante: string): Promise<Exchange[]> {
+    return this.exchangeService.findPending(usuarioReceptor, usuarioSolicitante);
   }
 
-      @Get('active/:usuarioReceptor')
+  @Get('active/:usuarioReceptor')
   findActive(@Param('usuarioReceptor') usuarioReceptor: string): Promise<Exchange[]> {
-    return this.exchangeService.findPending(usuarioReceptor);
+    return this.exchangeService.findActive(usuarioReceptor);
   }
-}
 
+}

@@ -8,7 +8,7 @@ import SearchInput from "./search";
 import axios from "axios";
 import ChatsModal from "../chatlist/page"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart, faHome, faComments } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faHome, faComments, faExchangeAlt } from "@fortawesome/free-solid-svg-icons";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons/faSignOut";
 import { faBook } from "@fortawesome/free-solid-svg-icons/faBook";
 import { faClock } from "@fortawesome/free-solid-svg-icons/faClock";
@@ -21,6 +21,8 @@ import { useRouter } from "next/navigation";
 import "./styles.css";
 import { parseCookies } from "nookies";
 import AddBookForm from "../Publicar/page";
+import IntercambiosActivos from "../IntercambiosActivos/page";
+
 
 interface Book {
   idLibro: string;
@@ -57,7 +59,10 @@ interface PerfilUsuario {
 }
 
 function Home() {
-
+  const [showIntercambiosActivosModal, setShowIntercambiosActivosModal] = useState(false);
+ const handleIntercambiosActivosModalClose = () => {
+    setShowIntercambiosActivosModal(false);
+  };
   const [showChatModal, setShowChatModal] = useState(false);
   const handleChatModalClose = () => {
     setShowChatModal(false);
@@ -328,6 +333,25 @@ const handleSearch = async (query: string) => {
             ></FontAwesomeIcon>
             <span>Mi perfil</span>
           </a>
+
+        <button
+            className={`py-4 text-white flex items-center p-3 transition duration-0 ${
+              navOption === "IntercambiosActivos"
+                ? "bg-cbookC-700 rounded-l-3xl"
+                : "hover:bg-cbookC-700 hover:rounded-l-3xl hover:pr-12"
+            }`}
+            onClick={() => {
+              setNavOption("IntercambiosActivos");
+              setShowIntercambiosActivosModal(true)
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faExchangeAlt}
+              className="inline-block w-8 h-8 mr-3"
+            ></FontAwesomeIcon>
+            <span>            Intercambios </span>
+          </button>
+
           <a
             href="Home"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -359,6 +383,7 @@ const handleSearch = async (query: string) => {
             ></FontAwesomeIcon>
             <span>Salir</span>
           </a>
+            
         </div>
       </div>
       {/*Barra superior con notificaciones */}
@@ -495,7 +520,20 @@ const handleSearch = async (query: string) => {
           </div>
         </div>
       )}
-
+{/* Modal Intercambios Activos */}
+      {showIntercambiosActivosModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative">
+            <IntercambiosActivos closeModal={handleIntercambiosActivosModalClose} />
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={handleIntercambiosActivosModalClose}
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          </div>
+        </div>
+      )}
        {notificacionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>

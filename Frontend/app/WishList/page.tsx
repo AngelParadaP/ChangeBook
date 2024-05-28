@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faComments, faHeart, faHome } from "@fortawesome/free-solid-svg-icons";
+import { faComments, faExchangeAlt, faHeart, faHome } from "@fortawesome/free-solid-svg-icons";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons/faSignOut";
 import { faBook } from "@fortawesome/free-solid-svg-icons/faBook";
 import { faClock } from "@fortawesome/free-solid-svg-icons/faClock";
@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { parseCookies } from "nookies";
 import AddBookForm from "../Publicar/page";
 import ChatsModal from "../chatlist/page";
+import IntercambiosActivos from "../IntercambiosActivos/page";
 
 interface Book {
   idLibro: string;
@@ -125,7 +126,10 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
       setPerfilUsuario(nuevoPerfilUsuario); // Aquí deberías usar setPerfilUsuario en lugar de setPerfil
     }
   };
-
+const [showIntercambiosActivosModal, setShowIntercambiosActivosModal] = useState(false);
+ const handleIntercambiosActivosModalClose = () => {
+    setShowIntercambiosActivosModal(false);
+  };
   const [showModal, setShowModal] = useState(false);
   const handleModalClose = () => {
     setShowModal(false);
@@ -293,6 +297,23 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
             ></FontAwesomeIcon>
             <span>Mi perfil</span>
           </a>
+                   <button
+            className={`py-4 text-white flex items-center p-3 transition duration-0 ${
+              navOption === "IntercambiosActivos"
+                ? "bg-cbookC-700 rounded-l-3xl"
+                : "hover:bg-cbookC-700 hover:rounded-l-3xl hover:pr-12"
+            }`}
+            onClick={() => {
+              setNavOption("IntercambiosActivos");
+              setShowIntercambiosActivosModal(true)
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faExchangeAlt}
+              className="inline-block w-8 h-8 mr-3"
+            ></FontAwesomeIcon>
+            <span>            Intercambios </span>
+          </button>
           <a
             href="Home"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -464,8 +485,23 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
           </div>
         </div>
       )}
+       {/* Modal Intercambios Activos */}
+      {showIntercambiosActivosModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative">
+            <IntercambiosActivos closeModal={handleIntercambiosActivosModalClose} />
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={handleIntercambiosActivosModalClose}
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default Home;
+
