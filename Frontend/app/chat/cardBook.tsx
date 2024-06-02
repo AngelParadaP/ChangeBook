@@ -19,6 +19,7 @@ interface BookCardProps {
   codigoUsuario: string;
   imagenPerfil: string;
   imagen: string;
+  isDarkMode:boolean;
 }
 
 const BookCard: React.FC<BookCardProps> = ({
@@ -37,6 +38,7 @@ const BookCard: React.FC<BookCardProps> = ({
   codigoUsuario,
   imagenPerfil,
   imagen,
+  isDarkMode,
 }) => {
   const usuarioCodigo = localStorage.getItem("codigoUsuario");
   const router = useRouter();
@@ -69,20 +71,21 @@ const BookCard: React.FC<BookCardProps> = ({
   };
 
 
- return (
-    <div className="bg-white rounded-md p-2 flex items-center">
-      <img
-        loading="lazy"
-        src={imagen}
-        alt={titulo}
-        className="object-cover w-24 h-32 rounded-md mr-2"
-      />
-      <div className="flex flex-col">
-        <h2 className="text-lg font-semibold font-cbookF">{titulo}</h2>
-        <p className="text-sm text-gray-700 font-cbookF">{autor}</p>
-      </div>
+return (
+<div className={`rounded-md p-2 flex items-center ${isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"}`}>
+    <img
+      loading="lazy"
+      src={imagen}
+      alt={titulo}
+      className="object-cover w-24 h-32 rounded-md mr-2"
+    />
+    <div className="flex flex-col">
+      <h2 className={`text-lg font-semibold font-cbookF ${isDarkMode ? "text-white" : "text-black"}`}>{titulo}</h2>
+      <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"} font-cbookF`}>{autor}</p>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default BookCard;

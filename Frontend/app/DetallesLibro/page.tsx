@@ -23,6 +23,7 @@ import { redirect } from "next/navigation";
 import AddBookForm from "../Publicar/page";
 import { useRouter } from "next/navigation";
 import IntercambiosActivos from "../IntercambiosActivos/page";
+import { faMoon, faSun } from "@/node_modules/@fortawesome/free-solid-svg-icons/index";
 
 interface Book {
   idLibro: string;
@@ -220,10 +221,36 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
     }
   }, []);
 
+
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Recuperar el estado del modo oscuro del localStorage al montar el componente
+    const darkModeValue = localStorage.getItem('isDarkMode');
+    return darkModeValue ? JSON.parse(darkModeValue) : false;
+  });
+
+  useEffect(() => {
+    // Aplicar cambios en el tema de la interfaz según el estado del modo oscuro
+    const body = document.querySelector('body');
+    if (body) {
+      body.classList.toggle('dark-mode', isDarkMode);
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    // Cambiar el estado del modo oscuro
+    setIsDarkMode(!isDarkMode);
+  };
+
+  useEffect(() => {
+    // Guardar el estado del modo oscuro en el localStorage
+    localStorage.setItem('isDarkMode', JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
+
+
   return (
-    <div className="grid grid-cols-9 grid-rows-10 gap-3 bg-gray-50 w-screen h-screen">
+  <div className={`grid grid-cols-9 grid-rows-10 gap-3 w-screen h-screen ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-50 text-black'}`}>
       {/*Navigator de la izquierda */}
-      <div className="hidden sm:block bg-cbookC-500 rounded-r-3xl shadow-xl col-span-1 row-span-10 flex-col h-screen justify-between">
+    <div className={`hidden sm:block rounded-r-3xl shadow-xl col-span-1 row-span-10 flex-col h-screen justify-between ${isDarkMode ? 'bg-gray-900' : 'bg-cbookC-500'}`}>
         <div className="flex items-center justify-center m-5 mb-10">
           <img
             src="/logo_completo_blanco_recortado.png"
@@ -370,52 +397,64 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
             
         </div>
       </div>
-      {/*Barra superior con notificaciones */}
-      <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-xl col-span-8 row-span-1 mt-3 mr-3 flex items-center justify-end relative">
-        <div>
-          <a
+
+ {/*Barra superior con notificaciones */}
+<div className={`rounded-2xl border-2 shadow-xl col-span-8 row-span-1 mt-3 mr-3 flex items-center justify-end relative ${isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"}`}>
+    <button onClick={toggleDarkMode} className="ml-6 w-10 h-10 mr-6">
+        <FontAwesomeIcon
+            icon={isDarkMode ? faMoon : faSun}
+            className={`w-8 h-8 ${isDarkMode ? 'text-white' : 'text-cbookC-700'} relative z-10`}
+        />
+        <span className="sr-only">{isDarkMode ? "Modo noche" : "Modo día"}</span>
+    </button>
+    <div>
+        <a
             onClick={notificacionModalShow}
             className="flex items-center hover:cursor-pointer"
-          >
-            <span className="font-cbookF font-bold text-x1 text-cbookC-700 mr-2">
-              Notificaciones
+        >
+            <span className={`font-cbookF font-bold text-x1 mr-2 ${isDarkMode ? 'text-white' : 'text-cbookC-700'}`}>
+                Notificaciones
             </span>
             <div className="relative">
-              <FontAwesomeIcon
-                icon={faBell}
-                className="w-8 h-8 text-cbookC-700 relative z-10"
-              />
-              {perfilUsuario && perfilUsuario.notificaciones.length > 0 && (
-                <div className="absolute -bottom-1 -right-3 right-0 bg-red-500 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs z-20">
-                  {perfilUsuario.notificaciones.length}
-                </div>
-              )}
+                <FontAwesomeIcon
+                    icon={faBell}
+                    className={`w-8 h-8 ${isDarkMode ? 'text-white' : 'text-cbookC-700'} relative z-10`}
+                />
+                {perfilUsuario && perfilUsuario.notificaciones.length > 0 && (
+                    <div className="absolute -bottom-1 -right-3 right-0 bg-red-500 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs z-20">
+                        {perfilUsuario.notificaciones.length}
+                    </div>
+                )}
             </div>
-          </a>
-        </div>
-        <img
-          className="ml-6 w-10 h-10 mr-6"
-          src="/libro_morado.png"
-          alt="Libro"
-        />
-      </div>
+        </a>
+    </div>
+
+    <img
+        className="ml-6 w-10 h-10 mr-6"
+        src={isDarkMode ? "/libro_blanco.png" : "/libro_morado.png"}
+        alt="Libro"
+    />
+</div>
+
+
 
       {/* Muestra de los libros */}
-      <div className="bg-white rounded-2xl shadow-xl col-span-6 row-span-9 mb-3 overflow-auto">
+    <div className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'} rounded-2xl shadow-xl col-span-6 row-span-9 mb-3 overflow-auto`}>
         <div className="flex items-center ml-4 h-4 font-cbookF font-bold text-2xl"></div>
         <div className="ml-4 mr-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-4 mb-4">
           {books.map((book) => (
-            <BookCard key={book.idLibro} {...book} />
+            <BookCard isDarkMode={isDarkMode} key={book.idLibro} {...book} />
           ))}
         </div>
       </div>
 
       {/* Información del propietario del libro */}
-      <div className="bg-white border-2 border-gray-200 rounded-2xl shadow-xl col-span-2 row-span-9 mr-3 mb-3 flex justify-center items-center">
+      
+      <div className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'} border-2 border-gray-200 rounded-2xl shadow-xl col-span-2 row-span-9 mr-3 mb-3 flex justify-center items-center`}>
         <div className="flex flex-col items-center justify-between h-full space-y-4 p-8">
           {books.length > 0 ? (
             <>
-              <span className="text-center font-cbookF font-bold text-3xl max-w-44 justify-center text-cbookC-700">
+              <span className={`text-center font-cbookF font-bold text-3xl max-w-44 justify-center ${isDarkMode ? 'text-white' : 'text-cbookC-800'}`}>
                 Prestador
               </span>
               <div>
@@ -435,7 +474,7 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
                   />
                 )}
               </div>
-              <span className="text-center font-cbookF font-bold text-2xl max-w-52 justify-center text-gray-500">
+               <span className={`text-center font-cbookF font-bold text-2xl max-w-44 justify-center opacity-60 ${isDarkMode ? 'text-white' : 'text-cbookC-800'}`}>
                 {books[0].userNombre}
                 <br />
                 <br />
@@ -459,25 +498,11 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
           )}
         </div>
       </div>
-{/* Modal Intercambios Activos */}
-      {showIntercambiosActivosModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative">
-            <IntercambiosActivos closeModal={handleIntercambiosActivosModalClose} />
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={handleIntercambiosActivosModalClose}
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
-          </div>
-        </div>
-      )}
-      {showModal && (
+       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>
-          <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col">
-            <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">
+        <div className={`p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
+            <h2 className={`text-center font-cbookF font-bold text-3xl justify-center ${isDarkMode ? "text-white" : "text-cbookC-700"} mt-3 mb-5`}>
               Publicar Nuevo Libro
             </h2>
             <button
@@ -487,7 +512,7 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
               x
             </button>
             <div className="flex-1 overflow-auto">
-              <AddBookForm closeModal={handleModalClose} />
+              <AddBookForm isDarkMode={isDarkMode} closeModal={handleModalClose} />
             </div>
           </div>
         </div>
@@ -507,65 +532,67 @@ const handleNotificationClick = (roomId: string | null, idNotificacion: string) 
               x
             </button>
             <div className="flex-1 overflow-auto">
-              <ChatsModal closeModal={handleChatModalClose} />
+              <ChatsModal isDarkMode={isDarkMode} closeModal={handleChatModalClose} />
             </div>
           </div>
         </div>
       )}
 
-         {notificacionModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="absolute inset-0 bg-black opacity-50"></div>
-          <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-3/5 max-w-screen-2xl h-3/6 flex flex-col relative">
-            <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">
-              Notificaciones
-            </h2>
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={notificacionModalClose}
-            >
-              <FontAwesomeIcon
-                icon={faTimes}
-                className="text-cbookC-700 w-8 h-8"
-              ></FontAwesomeIcon>
-            </button>
-            {/* Renderización de las notificaciones */}
-            <div
-              className="flex-col overflow-auto border-cbookC-600"
-              id="masLeidos"
-            >
-              {perfilUsuario ? (
-                perfilUsuario?.notificaciones.length !== 0 ? (
-                  perfilUsuario.notificaciones.map((notificacion) => (
-<div
-  className={`border border-cbookC-500 rounded-md flex items-center justify-between p-2 mb-2 ${
-    notificacion.roomId && notificacion.roomId !== "1" ? "cursor-pointer hover:bg-gray-100" : ""
-  }`}
->
-  <p   onClick={() => handleNotificationClick(notificacion.roomId,notificacion.idNotificacion)}
-className="flex-1">{notificacion.mensaje}</p>
-  {notificacion.roomId && (
-    <button
-      className="ml-4 p-2 rounded-xl bg-cbookC-500 text-cbookC-200 hover:text-white"
-      onClick={() => solveNotification(notificacion.idNotificacion)}
-    >
-      Descartar
-    </button>
-  )}
-</div>
-                  ))
-                ) : (
-                  <div className="text-center">
-                    No tienes notificaciones pendientes.
-                  </div>
-                )
-              ) : (
-                <div className="text-center">Cargando...</div>
-              )}
-            </div>
+         {showIntercambiosActivosModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className={`p-6 rounded-lg shadow-lg relative ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
+            <IntercambiosActivos isDarkMode={isDarkMode} closeModal={handleIntercambiosActivosModalClose} />
+
           </div>
         </div>
       )}
+       {notificacionModal && (
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="absolute inset-0 bg-black opacity-50"></div>
+    <div className={`p-6 rounded-lg shadow-lg z-10 w-3/5 max-w-screen-2xl h-3/6 flex flex-col relative ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
+      <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">
+        Notificaciones
+      </h2>
+      <button
+        className="absolute top-0 right-0 p-2"
+        onClick={notificacionModalClose}
+      >
+        <FontAwesomeIcon
+          icon={faTimes}
+          className="text-cbookC-700 w-8 h-8"
+        />
+      </button>
+      {/* Renderización de las notificaciones */}
+      <div className="flex-col overflow-auto border-cbookC-600" id="masLeidos">
+        {perfilUsuario ? (
+          perfilUsuario?.notificaciones.length !== 0 ? (
+            perfilUsuario.notificaciones.map((notificacion) => (
+              <div
+                className={`border border-cbookC-500 rounded-md flex items-center justify-between p-2 mb-2 ${notificacion.roomId && notificacion.roomId !== "1" ? "cursor-pointer" : ""} ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-100"}`}
+              >
+                <p onClick={() => handleNotificationClick(notificacion.roomId, notificacion.idNotificacion)} className="flex-1">{notificacion.mensaje}</p>
+                {notificacion.roomId && (
+                  <button
+                    className={`ml-4 p-2 rounded-xl ${isDarkMode ? "bg-gray-600 text-white hover:text-white" : "bg-cbookC-500 text-cbookC-200 hover:text-white"}`}
+                    onClick={() => solveNotification(notificacion.idNotificacion)}
+                  >
+                    Descartar
+                  </button>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="text-center">
+              No tienes notificaciones pendientes.
+            </div>
+          )
+        ) : (
+          <div className="text-center">Cargando...</div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

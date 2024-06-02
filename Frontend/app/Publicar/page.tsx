@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 interface AddBookFormProps {
   closeModal: () => void;
+  isDarkMode: boolean; // Propiedad para el modo oscuro
 }
 
 const AddBookForm: React.FC<AddBookFormProps> = (props) => {
@@ -42,7 +43,7 @@ const AddBookForm: React.FC<AddBookFormProps> = (props) => {
     }
   };
 
-const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const codigoUsuario = localStorage.getItem("codigoUsuario");
 
@@ -58,9 +59,8 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
       formDataWithImage.append("file", image); // Añadir la imagen solo si existe
     }
 
-    try {                    
-  
-        await axios.post(`/api/books`, formDataWithImage, {
+    try {
+      await axios.post(`/api/books`, formDataWithImage, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -68,13 +68,15 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
       await axios.post("/api/notificaciones/agregarPara", {
         codigoUsuario,
         mensaje: `Agregaste el libro '${formData.titulo}'`,
-        roomId: "1"
+        roomId: "1",
       });
 
       toast.success("Libro Publicado", {
-        autoClose: 1000 , // Duración de 1000 ms (1 segundo)
+        autoClose: 1000, // Duración de 1000 ms (1 segundo)
         hideProgressBar: true,
         position: "top-center",
+        theme: props.isDarkMode ? "dark" : "light", // Aquí se define el tema del toast
+
       });
       setTimeout(() => {
         props.closeModal();
@@ -93,22 +95,26 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     } catch (error) {
       console.error("Error al publicar libro:", error);
       toast.error("Lo sentimos, error inesperado", {
-        autoClose: 1000,  // Duración de 1500 ms (1.5 segundos)
-                hideProgressBar: true,
+                theme: props.isDarkMode ? "dark" : "light", // Aquí se define el tema del toast
+
+        autoClose: 1000, // Duración de 1500 ms (1.5 segundos)
+        hideProgressBar: true,
         position: "top-center",
       });
     }
-};
-
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col h-full">
-            <ToastContainer />
+    <form
+      onSubmit={handleSubmit}
+      className={`flex flex-col h-full ${props.isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}
+    >
+      <ToastContainer />
 
       <div className="flex flex-1 overflow-auto">
         <div className="w-3/5 p-4">
           <div>
-            <label className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+            <label className="font-cbookF block font-bold mb-0 mt-1">
               Título:
             </label>
             <input
@@ -116,11 +122,13 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
               name="titulo"
               value={formData.titulo}
               onChange={handleChange}
-              className="rounded-lg p-2 w-full bg-gray-100 text-gray-600 font-cbookF focus:outline-none"
+              className={`rounded-lg p-2 w-full font-cbookF focus:outline-none ${
+                props.isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"
+              }`}
             />
           </div>
           <div>
-            <label className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+            <label className="font-cbookF block font-bold mb-0 mt-1">
               Autor:
             </label>
             <input
@@ -128,11 +136,13 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
               name="autor"
               value={formData.autor}
               onChange={handleChange}
-              className="rounded-lg p-2 w-full bg-gray-100 text-gray-600 font-cbookF focus:outline-none"
+              className={`rounded-lg p-2 w-full font-cbookF focus:outline-none ${
+                props.isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"
+              }`}
             />
           </div>
           <div>
-            <label className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+            <label className="font-cbookF block font-bold mb-0 mt-1">
               Editorial:
             </label>
             <input
@@ -140,22 +150,26 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
               name="editorial"
               value={formData.editorial}
               onChange={handleChange}
-              className="rounded-lg p-2 w-full bg-gray-100 text-gray-600 font-cbookF focus:outline-none"
+              className={`rounded-lg p-2 w-full font-cbookF focus:outline-none ${
+                props.isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"
+              }`}
             />
           </div>
           <div>
-            <label className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+            <label className="font-cbookF block font-bold mb-0 mt-1">
               Sinopsis:
             </label>
             <textarea
               name="sinopsis"
               value={formData.sinopsis}
               onChange={handleChange}
-              className="rounded-lg p-2 w-full bg-gray-100 text-gray-600 font-cbookF focus:outline-none"
+              className={`rounded-lg p-2 w-full font-cbookF focus:outline-none ${
+                props.isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"
+              }`}
             ></textarea>
           </div>
           <div>
-            <label className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+            <label className="font-cbookF block font-bold mb-0 mt-1">
               ISBN:
             </label>
             <input
@@ -163,11 +177,13 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
               name="isbn"
               value={formData.isbn}
               onChange={handleChange}
-              className="rounded-lg p-2 w-full bg-gray-100 text-gray-600 font-cbookF focus:outline-none"
+              className={`rounded-lg p-2 w-full font-cbookF focus:outline-none ${
+                props.isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"
+              }`}
             />
           </div>
           <div>
-            <label className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+            <label className="font-cbookF block font-bold mb-0 mt-1">
               Año de Publicación:
             </label>
             <input
@@ -175,12 +191,18 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
               name="ano_de_publicacion"
               value={formData.ano_de_publicacion}
               onChange={handleChange}
-              className="rounded-lg p-2 w-full bg-gray-100 text-gray-600 font-cbookF focus:outline-none"
+              className={`rounded-lg p-2 w-full font-cbookF focus:outline-none ${
+                props.isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"
+              }`}
             />
           </div>
         </div>
         <div className="w-2/5 p-4 flex flex-col items-center">
-          <div className="w-full h-full flex flex-col items-center justify-center border-2 border-gray-300 border-dashed rounded-lg bg-gray-50 p-4">
+          <div
+            className={`w-full h-full flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 ${
+              props.isDarkMode ? "border-gray-600 bg-gray-700" : "border-gray-300 bg-gray-50"
+            }`}
+          >
             {imagePreview ? (
               <img
                 src={imagePreview}
@@ -194,7 +216,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className="mt-4 w-full text-center text-gray-600 font-cbookF focus:outline-none"
+              className="mt-4 w-full text-center font-cbookF focus:outline-none"
             />
           </div>
         </div>
@@ -208,7 +230,9 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         </button>
         <button
           type="button"
-          className="mt-4 bg-gray-200 hover:bg-gray-300 text-cbookC-700 font-cbookF font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline"
+          className={`mt-4 font-cbookF font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline ${
+            props.isDarkMode ? "bg-gray-600 hover:bg-gray-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-cbookC-700"
+          }`}
           onClick={props.closeModal}
         >
           Cancelar

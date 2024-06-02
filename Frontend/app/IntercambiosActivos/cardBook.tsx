@@ -25,6 +25,8 @@ interface BookCardProps {
   fechaEntrega: Date | null;
   fechaDevolucion: Date | null;
   exchanges: Exchange[];
+    isDarkMode: boolean;
+
 }
 
 interface Exchange {
@@ -58,6 +60,7 @@ const BookCard: React.FC<BookCardProps> = ({
   fechaEntrega,
   fechaDevolucion,
   exchanges,
+  isDarkMode,
 }) => {
   const [solicitanteNombres, setSolicitanteNombres] = useState<{ [key: string]: string }>({});
   const router = useRouter();
@@ -104,6 +107,8 @@ const BookCard: React.FC<BookCardProps> = ({
 
       // You may want to update the state or trigger a re-fetch of exchanges after deletion
       toast.success("Intercambio eliminado correctamente", {
+                theme: isDarkMode ? "dark" : "light", // Aquí se define el tema del toast
+
         autoClose: 1000, // Duración de 1000 ms (1 segundo)
         hideProgressBar: true,
         position: "top-center",
@@ -113,14 +118,21 @@ const BookCard: React.FC<BookCardProps> = ({
       }, 1500);
     } catch (error) {
       console.error("Error deleting exchange:", error);
-      toast.error("Error al eliminar el intercambio");
+      toast.error("Error al eliminar el intercambio", {
+                theme: isDarkMode ? "dark" : "light", // Aquí se define el tema del toast
+
+        autoClose: 1000, // Duración de 1000 ms (1 segundo)
+        hideProgressBar: true,
+        position: "top-center",
+      });
     }
   };
 
   return (
-    <div className="bg-white rounded-md p-2 flex flex-col items-start overflow-y-auto max-h-90">
-      {filteredExchanges.map((exchange, index) => (
-        <div key={exchange.id} className={`bg-gray-100 rounded p-5 mb-1`}>
+    <div className={`rounded-md p-2 flex flex-col items-start overflow-y-auto max-h-90 ${isDarkMode ? 'bg-gray-600 text-white' : 'bg-white'}`}>
+      <ToastContainer/>
+      {filteredExchanges.map((exchange) => (
+        <div key={exchange.id} className={`rounded p-5 mb-1 ${isDarkMode ? 'bg-gray-600 text-white' : 'bg-gray-100 text-black'}`}>
           <div className="flex items-center ">
             <img
               loading="lazy"
@@ -130,23 +142,25 @@ const BookCard: React.FC<BookCardProps> = ({
             />
             <div className="flex flex-col">
               <h2 className="text-lg font-semibold font-cbookF">{titulo}</h2>
-              <p className="text-sm text-gray-700 font-cbookF">{autor}</p>
+              <p className={`text-sm font-cbookF ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{autor}</p>
             </div>
           </div>
-          <p className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+          <p className={`font-cbookF block font-bold mb-0 mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             <strong>Solicitante:</strong> {solicitanteNombres[exchange.usuarioSolicitante] || exchange.usuarioSolicitante}
           </p>
-          <p className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+          <p className={`font-cbookF block font-bold mb-0 mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             <strong>Lugar:</strong> {exchange.lugar || "No especificado"}
           </p>
-          <p className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+          <p className={`font-cbookF block font-bold mb-0 mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             <strong>Fecha y hora de entrega:</strong> {formatDateTime(exchange.fechaEntrega)}
           </p>
-          <p className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">
+          <p className={`font-cbookF block font-bold mb-0 mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             <strong>Fecha y hora de devolución:</strong> {formatDateTime(exchange.fechaDevolucion)}
           </p>
           <div className="flex justify-around mt-4">
-            <button className="bg-red-500 text-white p-2 rounded" onClick={() => handleDeleteExchange(exchange.id)}>Borrar intercambio</button>
+            <button className="bg-red-500 text-white p-2 rounded" onClick={() => handleDeleteExchange(exchange.id)}>
+              Borrar intercambio
+            </button>
           </div>
         </div>
       ))}

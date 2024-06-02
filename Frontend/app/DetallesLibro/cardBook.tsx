@@ -21,6 +21,8 @@ interface BookCardProps {
   codigoUsuario: string;
   imagenPerfil: string;
   imagen: string;
+      isDarkMode: boolean;
+
 }
 
 const BookCard: React.FC<BookCardProps> = ({
@@ -39,6 +41,7 @@ const BookCard: React.FC<BookCardProps> = ({
   codigoUsuario,
   imagenPerfil,
   imagen,
+      isDarkMode,
 }) => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [isAddingReview, setIsAddingReview] = useState(false);
@@ -59,12 +62,16 @@ const BookCard: React.FC<BookCardProps> = ({
       });
 
        toast.success("Libro añadido a la lista de deseos.", {
+                         theme: isDarkMode ? "dark" : "light", // Aquí se define el tema del toast
+
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
                                    ,hideProgressBar: true,
         position: "top-center",
       });
     } catch (error) {
        toast.info("El libro ya se encuentra lista de deseos.", {
+                         theme: isDarkMode ? "dark" : "light", // Aquí se define el tema del toast
+
         autoClose: 1000  // Duración de 1000 ms (1 segundo)
                                    ,hideProgressBar: true,
         position: "top-center",
@@ -83,74 +90,74 @@ const BookCard: React.FC<BookCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-md p-4 h-full flex">
-      <ToastContainer/>
-      <div className="flex-1">
-        <h2 className="text-3xl font-bold font-cbookF">{titulo}</h2>
-        <p className="text-2xl text-cbookC-600 font-cbookF font-bold">
-          {autor}
-        </p>
-        <br />
-        <p className="text-xl text-gray-600 font-cbookF">
-          Año publicación: {ano_de_publicacion}
-        </p>
-        <p className="text-xl text-gray-600 font-cbookF">Editorial: {editorial}</p>
-        <p className="text-xl text-gray-600 font-cbookF">ISBN: {isbn}</p>
-        <p className="text-xl text-gray-600 font-cbookF">
-          Estatus: {disponible ? "Disponible" : "No Disponible"}
-        </p>
-        <br />
-        <p className="text-xl text-gray-600 font-cbookF text-justify mb-8">
-          Sinopsis
-          <br /> {sinopsis}
-        </p>
-        <div className="text-xl text-gray-600 font-cbookF text-justify mb-8">
-          <p>Calificación</p>
-          <ReactStars
-            count={5}
-            size={24}
-            half={true}
-            value={calificacion}
-            edit={false}
-            color2={"#ffd700"}
-          />
-        </div>
-        <button
-          onClick={handleWishListClick}
-          className="mt-2 bg-cbookC-600 hover:bg-cbookC-500 text-white py-1 px-4 rounded"
-        >
-          Añadir a WishList
-        </button>
-        <button
-          onClick={handleShowReviews}
-          className="mt-2 bg-cbookC-500 hover:bg-cbookC-400 text-white py-1 px-4 rounded m-5"
-        >
-          Ver Reseñas
-        </button>
-        <button
-          onClick={handleAddReview}
-          className="mt-2 bg-cbookC-500 hover:bg-cbookC-400 text-white py-1 px-4 rounded"
-        >
-          Agregar Reseña
-        </button>
-      </div>
-      <div className="ml-4 flex-shrink-0 w-64 h-96 mt-0">
-        <img
-          loading="lazy"
-          src={imagen}
-          alt={titulo}
-          className="object-cover w-full h-full rounded-md"
+  <div className={`rounded-md p-4 h-full flex ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}>
+    <ToastContainer />
+    <div className="flex-1">
+      <h2 className="text-3xl font-bold font-cbookF">{titulo}</h2>
+      <p className={`text-2xl ${isDarkMode ? 'text-gray-300' : 'text-cbookC-600'} font-cbookF font-bold`}>
+        {autor}
+      </p>
+      <br />
+      <p className={`text-xl ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} font-cbookF`}>
+        Año publicación: {ano_de_publicacion}
+      </p>
+      <p className={`text-xl ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} font-cbookF`}>Editorial: {editorial}</p>
+      <p className={`text-xl ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} font-cbookF`}>ISBN: {isbn}</p>
+      <p className={`text-xl ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} font-cbookF`}>
+        Estatus: {disponible ? "Disponible" : "No Disponible"}
+      </p>
+      <br />
+      <p className={`text-xl ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} font-cbookF text-justify mb-8`}>
+        Sinopsis
+        <br /> {sinopsis}
+      </p>
+      <div className={`text-xl ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} font-cbookF text-justify mb-8`}>
+        <p>Calificación</p>
+        <ReactStars
+          count={5}
+          size={24}
+          half={true}
+          value={calificacion}
+          edit={false}
+          color2={"#ffd700"}
         />
       </div>
-      {showReviewModal && (
-        <ReviewModal
-          idLibro={idLibro}
-          isAddingReview={isAddingReview}
-          onClose={() => setShowReviewModal(false)}
-        />
-      )}
+      <button
+        onClick={handleWishListClick}
+        className="mt-2 bg-cbookC-600 hover:bg-cbookC-500 text-white py-1 px-4 rounded"
+      >
+        Añadir a WishList
+      </button>
+      <button
+        onClick={handleShowReviews}
+        className="mt-2 bg-cbookC-500 hover:bg-cbookC-400 text-white py-1 px-4 rounded m-5"
+      >
+        Ver Reseñas
+      </button>
+      <button
+        onClick={handleAddReview}
+        className="mt-2 bg-cbookC-500 hover:bg-cbookC-400 text-white py-1 px-4 rounded"
+      >
+        Agregar Reseña
+      </button>
     </div>
-  );
-};
-
+    <div className="ml-4 flex-shrink-0 w-64 h-96 mt-0">
+      <img
+        loading="lazy"
+        src={imagen}
+        alt={titulo}
+        className="object-cover w-full h-full rounded-md"
+      />
+    </div>
+    {showReviewModal && (
+      <ReviewModal
+        idLibro={idLibro}
+        isAddingReview={isAddingReview}
+        isDarkMode={isDarkMode}
+        onClose={() => setShowReviewModal(false)}
+      />
+    )}
+  </div>
+);
+    }
 export default BookCard;

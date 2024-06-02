@@ -18,6 +18,8 @@ interface BookCardProps {
   imagen: string;
   inWishList?: boolean;
   refreshWishList?: () => void;
+    isDarkMode: boolean;
+
 }
 
 const BookCard: React.FC<BookCardProps> = ({
@@ -35,6 +37,8 @@ const BookCard: React.FC<BookCardProps> = ({
   imagen,
   inWishList = false,
   refreshWishList,
+    isDarkMode,
+
 }) => {
   const router = useRouter();
   const usuarioCodigo = localStorage.getItem("codigoUsuario");
@@ -60,9 +64,12 @@ const handleWishListClick = async () => {
     
     });
     toast.success("Libro añadido a la lista de deseos.", {
+      
       autoClose: 1000,
       hideProgressBar: true,
       position: "top-center",
+              theme: isDarkMode ? "dark" : "light", // Aquí se define el tema del toast
+
     });
   } catch (error) {
     console.error("Error añadiendo libro a la lista de deseos:", error);
@@ -70,6 +77,8 @@ const handleWishListClick = async () => {
       autoClose: 1000,
       hideProgressBar: true,
       position: "top-center",
+              theme: isDarkMode ? "dark" : "light", // Aquí se define el tema del toast
+
     });
   }
 };
@@ -93,9 +102,8 @@ const handleWishListClick = async () => {
   };
 
   return (
-    <div className="bg-cbookC-100 shadow-md rounded-md p-4 flex flex-col h-full">
-                  <ToastContainer />
-
+    <div className={`shadow-md rounded-md p-4 flex flex-col h-full ${isDarkMode ? 'bg-gray-600 text-white' : 'bg-cbookC-100'}`}>
+      <ToastContainer />
       <div className="flex-grow">
         <img
           loading="lazy"
@@ -115,18 +123,18 @@ const handleWishListClick = async () => {
         <p
           style={{ cursor: "pointer" }}
           onClick={handleCardClick}
-          className="text-gray-600 font-cbookF"
+          className={`text-gray-600 font-cbookF ${isDarkMode ? 'text-white' : ''}`}
         >
           {autor}
         </p>
-        <p onClick={handleCardClick} className="text-gray-600 font-cbookF">
+        <p onClick={handleCardClick} className={`text-gray-600 font-cbookF ${isDarkMode ? 'text-white' : ''}`}>
           Estado: {disponible ? "🟢" : "🔴"}
         </p>
-        <p className="text-gray-600 font-cbookF">
+        <p className={`text-gray-600 font-cbookF ${isDarkMode ? 'text-white' : ''}`}>
           Publicado por:{" "}
           <span
             onClick={handleUserClick}
-            className="text-cbookC-600 cursor-pointer"
+            className={`text-cbookC-600 cursor-pointer ${isDarkMode ? 'text-gray-400' : ''}`}
           >
             {userNombre}
           </span>
