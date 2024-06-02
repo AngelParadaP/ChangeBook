@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ProgressProps } from "@/node_modules/semantic-ui-react/index";
 interface EditarPerfilProps {
+  isDarKMode: boolean;
   closeModal: () => void;
 }
 
-const EditarPerfil: React.FC<EditarPerfilProps> = ({ closeModal }) => {
+const EditarPerfil: React.FC<EditarPerfilProps> = ({ closeModal, isDarKMode }) => {
   const [imagenPerfil, setImagenPerfil] = useState<File | null>(null);
   const [nombre, setNombre] = useState("");
   const [modificacionNombre, setModificacionNombre] = useState(false);
@@ -69,6 +71,8 @@ const EditarPerfil: React.FC<EditarPerfilProps> = ({ closeModal }) => {
         autoClose: false  // Duración de 1000 ms (1 segundo)
                         ,hideProgressBar: true,
         position: "top-center",
+                theme: isDarKMode ? "dark" : "light", // Aquí se define el tema del toast
+
       });
       setTimeout(() => {
          window.location.reload();
@@ -76,6 +80,8 @@ const EditarPerfil: React.FC<EditarPerfilProps> = ({ closeModal }) => {
     } catch (error) {
       console.error("Error al actualizar el perfil:", error);
      toast.error("Perfil Actualizado", {
+               theme: isDarKMode ? "dark" : "light", // Aquí se define el tema del toast
+
         autoClose: false  // Duración de 1000 ms (1 segundo)
                         ,hideProgressBar: true,
         position: "top-center",

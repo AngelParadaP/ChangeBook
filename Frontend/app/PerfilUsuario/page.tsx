@@ -128,9 +128,35 @@ const Perfil: React.FC = () => {
     );
   };
 
+const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Recuperar el estado del modo oscuro del localStorage al montar el componente
+    const darkModeValue = localStorage.getItem('isDarkMode');
+    return darkModeValue ? JSON.parse(darkModeValue) : false;
+  });
+
+  useEffect(() => {
+    // Aplicar cambios en el tema de la interfaz según el estado del modo oscuro
+    const body = document.querySelector('body');
+    if (body) {
+      body.classList.toggle('dark-mode', isDarkMode);
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    // Cambiar el estado del modo oscuro
+    setIsDarkMode(!isDarkMode);
+  };
+
+  useEffect(() => {
+    // Guardar el estado del modo oscuro en el localStorage
+    localStorage.setItem('isDarkMode', JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
+
+
+
   return (
-    <div className="grid grid-cols-9 grid-rows-10 gap-3 bg-gray-50 w-screen h-screen">
-      <div className="hidden sm:block bg-cbookC-500 rounded-r-3xl shadow-xl col-span-1 row-span-10 flex-col h-screen justify-between">
+  <div className={`grid grid-cols-9 grid-rows-10 gap-3 w-screen h-screen ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
+    <div className={`hidden sm:block rounded-r-3xl shadow-xl col-span-1 row-span-10 flex-col h-screen justify-between ${isDarkMode ? "bg-gray-900" : "bg-cbookC-500"}`}>
         <div className="flex items-center justify-center m-5 mb-10">
           <img
             src="/logo_completo_blanco_recortado.png"
@@ -139,7 +165,7 @@ const Perfil: React.FC = () => {
           />
         </div>
 
-        <div className="flex flex-col items-left mx-3 gap-50 font-cbookF font-bold text-x1 cursor-pointer overflow-hidden mr-0">
+      <div className={`flex flex-col items-left mx-3 gap-50 font-cbookF font-bold text-x1 cursor-pointer overflow-hidden mr-0 ${isDarkMode ? "text-white" : "text-black"}`}>
           <a
             href="/Home"
             className={`py-4 text-white flex items-center p-3 transition duration-0 ${
@@ -273,7 +299,7 @@ const Perfil: React.FC = () => {
         </div>
       </div>
       {user && (
-        <div className="flex items-center justify-between col-span-8 row-span-1 mt-3 mr-3 mb-4 border-gray-200 border-2 bg-gradient-to-r from-cbookC-400 via-cbookC-600 to-cbookC-700 rounded-2xl shadow-xl h-56">
+      <div className={`flex items-center justify-between col-span-8 row-span-1 mt-3 mr-3 mb-4 border-2 rounded-2xl shadow-xl h-56 ${isDarkMode ? "border-gray-700 bg-gray-700" : "border-gray-200 bg-gradient-to-r from-cbookC-400 via-cbookC-600 to-cbookC-700"}`}>
           <div className="flex items-center">
             <div>
               {user.imagenPerfil ? (
@@ -292,10 +318,10 @@ const Perfil: React.FC = () => {
                 />
               )}
             </div>
-            <span className="text-justify font-cbookF font-bold text-2xl max-w-full justify-center text-white ml-5">
+          <span className={`text-justify font-cbookF font-bold text-2xl max-w-full justify-center ml-5 ${isDarkMode ? "text-gray-100" : "text-white"}`}>
               {user.nombre}
               <br />
-              <span className="text-cbookC-700">{user.codigo}</span>
+            <span className={`${isDarkMode ? "text-gray-300" : "text-cbookC-700"}`}>{user.codigo}</span>
               <br />
               <br />
               Strikes: {user.strikes}
@@ -303,7 +329,7 @@ const Perfil: React.FC = () => {
           </div>
           <button
             onClick={() => setShowEditForm(!showEditForm)}
-            className="bg-cbookC-400 hover:bg-cbookC-300 mr-8 text-white font-cbookF font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline mt-4"
+          className={`mr-8 font-cbookF font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline mt-4 ${isDarkMode ? "bg-gray-600 hover:bg-gray-500 text-white" : "bg-cbookC-400 hover:bg-cbookC-300 text-white"}`}
           >
             Editar Perfil
           </button>
@@ -311,9 +337,9 @@ const Perfil: React.FC = () => {
       )}
       {showEditForm && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-          <div className="bg-white p-4 rounded-lg shadow-md w-1/3 relative">
-            <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-8">
-              Editar Perfil
+          <div className={`p-4 rounded-lg shadow-md w-1/3 relative ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
+          <h2 className={`text-center font-cbookF font-bold text-3xl justify-center mt-3 mb-8 ${isDarkMode ? "text-white" : "text-cbookC-700"}`}>
+         Editar Perfil
             </h2>
             <button
               onClick={() => setShowEditForm(false)}
@@ -321,27 +347,50 @@ const Perfil: React.FC = () => {
             >
               x
             </button>
-            <EditarPerfil closeModal={() => setShowEditForm(false)} />
+            <EditarPerfil isDarKMode={isDarkMode} closeModal={() => setShowEditForm(false)} />
           </div>
         </div>
       )}
-      <div
-        className="col-span-8 row-span-9 border-gray-200 border-2 overflow-auto mt-44"
-        id="masLeidos"
-      >
-        <div className="grid grid-cols-1 gap-4">
-          {books.map((book) => (
-            <BookCard
-              key={book.idLibro}
-              book={book}
-              onDelete={handleDeleteBook}
-              onUpdateAvailability={handleUpdateAvailability}
-            />
-          ))}
-        </div>
-      </div>
 
-{showChatModal && (
+<div
+  className={`col-span-8 row-span-9 overflow-hidden rounded-xl mt-44 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}
+  id="masLeidos"
+>
+  <div className={`grid grid-cols-1 gap-4 p-4 ${isDarkMode ? "text-white" : ""}`}>
+    {books.map((book) => (
+      <BookCard
+        isDarkMode={isDarkMode}
+        key={book.idLibro}
+        book={book}
+        onDelete={handleDeleteBook}
+        onUpdateAvailability={handleUpdateAvailability}
+      />
+    ))}
+  </div>
+</div>
+
+
+{showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+        <div className={`p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
+            <h2 className={`text-center font-cbookF font-bold text-3xl justify-center ${isDarkMode ? "text-white" : "text-cbookC-700"} mt-3 mb-5`}>
+              Publicar Nuevo Libro
+            </h2>
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setShowModal(false)}
+            >
+              x
+            </button>
+            <div className="flex-1 overflow-auto">
+              <AddBookForm isDarkMode={isDarkMode} closeModal={handleModalClose} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showChatModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col">
@@ -355,41 +404,16 @@ const Perfil: React.FC = () => {
               x
             </button>
             <div className="flex-1 overflow-auto">
-              <ChatsModal closeModal={handleChatModalClose} />
+              <ChatsModal isDarkMode={isDarkMode} closeModal={handleChatModalClose} />
             </div>
           </div>
         </div>
       )}
- {/* Modal Intercambios Activos */}
-      {showIntercambiosActivosModal && (
+
+         {showIntercambiosActivosModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative">
-            <IntercambiosActivos closeModal={handleIntercambiosActivosModalClose} />
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={handleIntercambiosActivosModalClose}
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
-          </div>
-        </div>
-      )}
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="absolute inset-0 bg-black opacity-50"></div>
-          <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col">
-            <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">
-              Publicar Nuevo Libro
-            </h2>
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={() => setShowModal(false)}
-            >
-              x
-            </button>
-            <div className="flex-1 overflow-auto">
-              <AddBookForm closeModal={handleModalClose} />
-            </div>
+        <div className={`p-6 rounded-lg shadow-lg relative ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
+            <IntercambiosActivos isDarkMode={isDarkMode} closeModal={handleIntercambiosActivosModalClose} />
           </div>
         </div>
       )}

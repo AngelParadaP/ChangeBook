@@ -8,6 +8,7 @@ interface ReviewModalProps {
   idLibro: string;
   isAddingReview: boolean;
   onClose: () => void;
+  isDarkMode: boolean; // Agregado soporte para modo oscuro
 }
 
 interface Review {
@@ -19,6 +20,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   idLibro,
   isAddingReview,
   onClose,
+  isDarkMode, // Agregado soporte para modo oscuro
 }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState({
@@ -51,23 +53,23 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-xl relative">
+      <div className={`p-6 rounded-lg shadow-lg z-10 w-full max-w-xl relative ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
         <a
-          className="absolute top-0 right-0 p-2 text-xl text-gray-400 hover:text-gray-900 hover:cursor-pointer"
+          className={`absolute top-0 right-0 p-2 text-xl ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-900'} hover:cursor-pointer`}
           onClick={onClose}
         >
           <FontAwesomeIcon
             icon={faTimes}
-            className="text-cbookC-700 w-8 h-8"
-          ></FontAwesomeIcon>
+            className={`w-8 h-8 ${isDarkMode ? 'text-gray-200' : 'text-cbookC-700'}`}
+          />
         </a>
         {isAddingReview ? (
           <div className="flex flex-col items-center">
-            <h2 className="text-3xl font-cbookF font-bold text-cbookC-700 mt-3 mb-5 flex justify-center">
+            <h2 className={`text-3xl font-cbookF font-bold ${isDarkMode ? 'text-white' : 'text-cbookC-700'} mt-3 mb-5 flex justify-center`}>
               Agregar Reseña
             </h2>
             <textarea
-              className="w-full p-2 border rounded mb-8 mt-4 bg-gray-100 text-gray-600 text-xl font-cbookF focus:outline-none"
+              className={`w-full p-2 border rounded mb-8 mt-4 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-600'} text-xl font-cbookF focus:outline-none`}
               placeholder="Escribe tu reseña"
               value={newReview.comentario}
               onChange={(e) =>
@@ -75,7 +77,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
               }
             />
             <div className="flex items-center">
-              <label className="text-gray-600 text-xl font-cbookF">
+              <label className={`text-xl font-cbookF ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 Calificación:{" "}
               </label>
               <ReactStars
@@ -99,17 +101,17 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
           </div>
         ) : (
           <div>
-            <h2 className="text-3xl font-cbookF font-bold text-cbookC-700 mt-3 mb-5 flex justify-center">
+            <h2 className={`text-3xl font-cbookF font-bold ${isDarkMode ? 'text-white' : 'text-cbookC-700'} mt-3 mb-5 flex justify-center`}>
               Reseñas
             </h2>
             {reviews.length === 0 ? (
-              <p>No hay reseñas.</p>
+              <p className={`${isDarkMode ? 'text-gray-300' : 'text-black'}`}>No hay reseñas.</p>
             ) : (
               <ul>
                 {reviews.map((review, index) => (
                   <li
                     key={index}
-                    className="mb-2 text-gray-600 text-xl font-cbookF mt-8"
+                    className={`mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} text-xl font-cbookF mt-8`}
                   >
                     <p>{review.comentario}</p>
                     <div className="flex items-center">

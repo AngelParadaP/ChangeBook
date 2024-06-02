@@ -38,7 +38,7 @@ interface Book {
   imagen: string;
 }
 
-const AcceptExchangeModal = ({ exchangeId, closeModal, myusername, otherusername, roomId , OtherUserCodigo, myusercodigo}: {myusername:string; otherusername:string; roomId:string | null; OtherUserCodigo:string; myusercodigo:string; exchangeId: string; closeModal: () => void } ) => {
+const AcceptExchangeModal = ({ exchangeId, closeModal, myusername, otherusername, roomId , OtherUserCodigo, myusercodigo, IsDarkMode }: {IsDarkMode:boolean; myusername:string; otherusername:string; roomId:string | null; OtherUserCodigo:string; myusercodigo:string; exchangeId: string; closeModal: () => void } ) => {
   const [exchangeDetails, setExchangeDetails] = useState(null);
 const [bookDetails, setBookDetails] = useState<BookDetails | null>(null);
   const [books, setBooks] = useState<Book[]>([]);
@@ -101,6 +101,8 @@ const formatTime = (dateString: string) => {
               roomId: roomId,
             });
               toast.info("Recuerda llegar el dia y hora acordado", {
+                                theme: IsDarkMode ? "dark" : "light", // Aquí se define el tema del toast
+
         autoClose: 1000 , // Duración de 1000 ms (1 segundo)
         hideProgressBar: true,
         position: "top-center",
@@ -142,40 +144,41 @@ console.log("Datos de bookDetails antes de renderizar el componente:", bookDetai
 
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <ToastContainer/>
-      <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-md">
-        <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">
-          Aceptar Intercambio
-        </h2>
-        <div className="ml-4 mr-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-4 mb-4">
-          {books.map((book) => (
-            <BookCard key={book.idLibro} {...book} />
-          ))}
-        </div>
-        <div className="text-left ml-4">
-          <p><span className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">Lugar:</span> {exchangeDetails.lugar}</p>
-          <p><span className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">Fecha y hora de Entrega :</span> {formatTime(exchangeDetails.fechaEntrega)}</p>
-          <p><span className="font-cbookF block text-gray-600 font-bold mb-0 mt-1">Fecha y hora de Devolución :</span> {formatTime(exchangeDetails.fechaDevolucion)}</p>
-        </div>
-        <div className="flex justify-around mt-4">
-          <button
-            className="bg-green-500 text-white p-2 rounded"
-            onClick={handleAccept}
-          >
-            Aceptar
-          </button>
-          <button
-            className="bg-red-500 text-white p-2 rounded"
-            onClick={handleDecline}
-          >
-            Rechazar
-          </button>
-        </div>
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    <ToastContainer/>
+    <div className="absolute inset-0 bg-black opacity-50"></div>
+    <div className={`p-6 rounded-lg shadow-lg z-10 w-full max-w-md h-5/6 flex flex-col ${IsDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"}`}>
+      <h2 className={`text-center font-cbookF font-bold text-3xl justify-center mt-3 mb-5 ${IsDarkMode ? "text-white" : "text-cbookC-800"}`}>
+        Aceptar Intercambio
+      </h2>
+      <div className="ml-4 mr-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-4 mb-4">
+        {books.map((book) => (
+          <BookCard isDarkMode={IsDarkMode} key={book.idLibro} {...book} />
+        ))}
+      </div>
+      <div className="text-left ml-4">
+        <p><span className={`font-cbookF block ${IsDarkMode ? "text-gray-300" : "text-gray-600"} font-bold mb-0 mt-1`}>Lugar:</span> {exchangeDetails.lugar}</p>
+        <p><span className={`font-cbookF block ${IsDarkMode ? "text-gray-300" : "text-gray-600"} font-bold mb-0 mt-1`}>Fecha y hora de Entrega :</span> {formatTime(exchangeDetails.fechaEntrega)}</p>
+        <p><span className={`font-cbookF block ${IsDarkMode ? "text-gray-300" : "text-gray-600"} font-bold mb-0 mt-1`}>Fecha y hora de Devolución :</span> {formatTime(exchangeDetails.fechaDevolucion)}</p>
+      </div>
+      <div className="flex justify-around mt-4">
+        <button
+          className={`text-white p-2 rounded ${IsDarkMode ? "bg-gray-900 hover:bg-green-600" : "bg-green-500 hover:bg-green-400"}`}
+          onClick={handleAccept}
+        >
+          Aceptar
+        </button>
+        <button
+          className={`text-white p-2 rounded ${IsDarkMode ? "bg-gray-600 hover:bg-red-600 text-white" : "bg-red-500 hover:bg-red-400 text-cbookC-700"}`}
+          onClick={handleDecline}
+        >
+          Rechazar
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default AcceptExchangeModal;

@@ -18,6 +18,8 @@ interface BookCardProps {
   codigoUsuario: string;
   imagen: string;
   fetchWishList?: () => void;
+      isDarkMode: boolean;
+
 }
 
 const BookCard: React.FC<BookCardProps> = ({
@@ -34,6 +36,7 @@ const BookCard: React.FC<BookCardProps> = ({
   codigoUsuario,
   imagen,
   fetchWishList,
+      isDarkMode,
 }) => {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
@@ -84,7 +87,8 @@ const BookCard: React.FC<BookCardProps> = ({
   };
 
   return (
-    <div className="bg-cbookC-100 shadow-md rounded-md p-4">
+    
+    <div className={`shadow-md rounded-md p-4 flex flex-col h-full ${isDarkMode ? 'bg-gray-600 text-white' : 'bg-cbookC-100'}`}>
       <img
         loading="lazy"
         src={imagen}
@@ -103,18 +107,18 @@ const BookCard: React.FC<BookCardProps> = ({
       <p
         style={{ cursor: "pointer" }}
         onClick={handleCardClick}
-        className="text-gray-600 font-cbookF"
+          className={`text-gray-600 font-cbookF ${isDarkMode ? 'text-white' : ''}`}
       >
         {autor}
       </p>
-      <p onClick={handleCardClick} className="text-gray-600 font-cbookF">
+      <p onClick={handleCardClick} className={`text-gray-600 font-cbookF ${isDarkMode ? 'text-white' : ''}`}>
         Estado: {disponible ? "🟢" : "🔴"}
       </p>
-      <p className="text-gray-600 font-cbookF">
+      <p className={`text-gray-600 font-cbookF ${isDarkMode ? 'text-white' : ''}`}>
         Publicado por:{" "}
         <span
           onClick={handleUserClick}
-          className="text-cbookC-600 cursor-pointer"
+            className={`text-cbookC-600 cursor-pointer ${isDarkMode ? 'text-gray-400' : ''}`}
         >
           {userNombre}
         </span>
@@ -129,7 +133,7 @@ const BookCard: React.FC<BookCardProps> = ({
 
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-4 rounded-lg">
+            <div className={`${isDarkMode ? "bg-gray-600 text-white" : "bg-white"} p-4 rounded-lg`}>
             <p>¿Estás seguro de que deseas eliminar este libro?</p>
             <div className="flex justify-between mt-4">
               <button

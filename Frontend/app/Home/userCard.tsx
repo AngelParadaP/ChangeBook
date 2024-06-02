@@ -5,9 +5,11 @@ interface UserCardProps {
     codigo: string;
     nombre: string;
     imagenPerfil: string;
+        isDarkMode: boolean;
+
 }
 
-const UserCard: React.FC<UserCardProps> = ({ codigo, nombre, imagenPerfil }) => {
+const UserCard: React.FC<UserCardProps> = ({ codigo, nombre, imagenPerfil, isDarkMode}) => {
     const router = useRouter();
 
     const handleUserClick = () => {
@@ -15,7 +17,8 @@ const UserCard: React.FC<UserCardProps> = ({ codigo, nombre, imagenPerfil }) => 
     };
 
     return (
-        <div className="bg-cbookC-100 shadow-md rounded-md p-4 flex flex-col h-full w-full cursor-pointer" onClick={handleUserClick}>
+
+        <div className={`shadow-md rounded-md p-4 flex flex-col h-full w-full cursor-pointer ${isDarkMode ? 'bg-gray-600 text-white' : 'bg-cbookC-100'}`} onClick={handleUserClick}>
             <div className="flex items-center">
                 <img
                     loading="lazy"
@@ -25,7 +28,8 @@ const UserCard: React.FC<UserCardProps> = ({ codigo, nombre, imagenPerfil }) => 
                 />
                 <div className="ml-4">
                     <h2 className="text-lg font-bold font-cbookF">{nombre}</h2>
-                    <p className="text-gray-600 font-cbookF">{codigo}</p>
+                    
+                    <p           className={`text-gray-600 font-cbookF ${isDarkMode ? 'text-white' : ''}`}>{codigo}</p>
                 </div>
             </div>
         </div>

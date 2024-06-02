@@ -49,8 +49,7 @@ interface Exchange {
   fechaEntrega: Date | null;
   lugar: string | null;
 }
-
-const IntercambiosActivos: React.FC<{ closeModal: () => void }> = ({ closeModal }) => {
+const IntercambiosActivos: React.FC<{ closeModal: () => void,   isDarkMode: boolean  }> = ({ closeModal, isDarkMode }) => {
   const [exchanges, setExchanges] = useState<Exchange[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const [usuarioReceptor, setUsuarioReceptor] = useState<string>("");
@@ -101,21 +100,17 @@ const IntercambiosActivos: React.FC<{ closeModal: () => void }> = ({ closeModal 
   };
 
   return (
-    <div className="p-6">
+    <div className={`p-6 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
       <ToastContainer />
-      <h2 className="text-center font-cbookF font-bold text-3xl justify-center text-cbookC-700 mt-3 mb-5">Intercambios Activos</h2>
-         <button
-        className="absolute top-0 right-0 p-2"
-        onClick={closeModal}
-      >
-        <FontAwesomeIcon
-          icon={faTimes}
-          className="text-cbookC-700 w-8 h-8"
-        ></FontAwesomeIcon>
+      <h2 className={`text-center font-cbookF font-bold text-3xl justify-center ${isDarkMode ? "text-white" : "text-cbookC-700"} mt-3 mb-5`}>
+        Intercambios Activos
+      </h2>
+      <button className="absolute top-0 right-0 p-2" onClick={closeModal}>
+        <FontAwesomeIcon icon={faTimes} className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-cbookC-700"}`} />
       </button>
       <div className="overflow-y-auto max-h-96">
         {books.map((book) => (
-          <BookCard key={book.idLibro} {...book} exchanges={exchanges} />
+          <BookCard isDarkMode={isDarkMode} key={book.idLibro} {...book} exchanges={exchanges} />
         ))}
       </div>
     </div>

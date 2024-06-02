@@ -6,10 +6,16 @@ import { faTimes, faComment } from "@fortawesome/free-solid-svg-icons";
 
 interface ChatsModalProps {
   closeModal: () => void;
+  isDarkMode: boolean; // Agregado soporte para modo oscuro
 }
 
 const ChatsModal: React.FC<ChatsModalProps> = (props) => {
-  const [userChats, setUserChats] = useState<{ roomId: string; otherUserName: string; profileImage: string | null; hasNewMessages: boolean }[]>([]);
+  const [userChats, setUserChats] = useState<{
+    roomId: string;
+    otherUserName: string;
+    profileImage: string | null;
+    hasNewMessages: boolean;
+  }[]>([]);
   const router = useRouter();
   const codigoUsuario = localStorage.getItem("codigoUsuario");
 
@@ -17,23 +23,35 @@ const ChatsModal: React.FC<ChatsModalProps> = (props) => {
     if (!codigoUsuario) return;
 
     try {
-      const response = await axios.get(`/api/chat/rooms?codigoUsuario=${codigoUsuario}`);
+      const response = await axios.get(
+        `/api/chat/rooms?codigoUsuario=${codigoUsuario}`
+      );
       const rooms = response.data;
       const filteredRooms = rooms.filter((room: { split: (arg0: string) => [any, any]; }) => {
         const [user1, user2] = room.split("-");
         return user1 === codigoUsuario || user2 === codigoUsuario;
       });
 
-      const newMessagesResponse = await axios.get(`/api/chat/new-messages?codigoUsuario=${codigoUsuario}`);
+      const newMessagesResponse = await axios.get(
+        `/api/chat/new-messages?codigoUsuario=${codigoUsuario}`
+      );
       const newMessages = newMessagesResponse.data;
 
       const userChatsWithNames = await Promise.all(
         filteredRooms.map(async (room: string) => {
           const [user1, user2] = room.split("-");
           const otherUserCodigo = user1 === codigoUsuario ? user2 : user1;
-          const otherUserResponse = await axios.get(`/api/user/get/${otherUserCodigo}`);
-          const { nombre: otherUserName, imagenPerfil: profileImage } = otherUserResponse.data;
-          return { roomId: room, otherUserName, profileImage: profileImage || null, hasNewMessages: newMessages[room] || false };
+          const otherUserResponse = await axios.get(
+            `/api/user/get/${otherUserCodigo}`
+          );
+          const { nombre: otherUserName, imagenPerfil: profileImage } =
+            otherUserResponse.data;
+          return {
+            roomId: room,
+            otherUserName,
+            profileImage: profileImage || null,
+            hasNewMessages: newMessages[room] || false,
+          };
         })
       );
 
@@ -48,17 +66,32 @@ const ChatsModal: React.FC<ChatsModalProps> = (props) => {
   }, [codigoUsuario]);
 
   const handleChatClick = async (roomId: string) => {
-    await axios.patch(`/api/chat/mark-as-read?room=${roomId}&codigoUsuario=${codigoUsuario}`);
+    await axios.patch(
+      `/api/chat/mark-as-read?room=${roomId}&codigoUsuario=${codigoUsuario}`
+    );
     props.closeModal();
     router.push(`/chat?roomId=${roomId}`);
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="absolute inset-0 bg-black opacity-50" onClick={props.closeModal}></div>
-      <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col">
-        <div className="flex items-center justify-between col-span-8 row-span-1 mt-3 mr-3 mb-4 border-gray-200 border-2 bg-gradient-to-r from-cbookC-400 via-cbookC-600 to-cbookC-700 rounded-2xl shadow-xl p-4">
-          <h2 className="text-white font-semibold text-lg">Chats</h2>
+      <div
+        className="absolute inset-0 bg-black opacity-50"
+        onClick={props.closeModal}
+      ></div>
+      <div
+        className={`p-6 rounded-lg shadow-lg z-10 w-full max-w-3xl h-5/6 flex flex-col ${
+          props.isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+        }`}
+      >
+        <div
+          className={`flex items-center justify-between col-span-8 row-span-1 mt-3 mr-3 mb-4 border-2 ${
+            props.isDarkMode
+              ? "border-gray-600 bg-gradient-to-r from-gray-600 to-gray-700"
+              : "border-gray-200 bg-gradient-to-r from-cbookC-400 via-cbookC-600 to-cbookC-700"
+          } rounded-2xl shadow-xl p-4`}
+        >
+          <h2 className="font-semibold text-lg">Chats</h2>
           <button className="text-white" onClick={props.closeModal}>
             <FontAwesomeIcon icon={faTimes} size="lg" />
           </button>
@@ -67,7 +100,11 @@ const ChatsModal: React.FC<ChatsModalProps> = (props) => {
           {userChats.map((chat, index) => (
             <div
               key={index}
-              className="p-4 border-b cursor-pointer flex items-center rounded-full bg-gray-100 m-2 relative"
+              className={`p-4 border-b cursor-pointer flex items-center rounded-full m-2 relative ${
+                props.isDarkMode
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-gray-100 border-gray-200"
+              }`}
               onClick={() => handleChatClick(chat.roomId)}
             >
               {chat.profileImage ? (
@@ -100,4 +137,3 @@ const ChatsModal: React.FC<ChatsModalProps> = (props) => {
 };
 
 export default ChatsModal;
-
