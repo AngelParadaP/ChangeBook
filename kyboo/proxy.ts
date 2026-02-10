@@ -23,11 +23,26 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
+  // OPTIMIZATION: Redirect to /profile if user is accessing their own public profile
+  if (session && pathname.startsWith("/user/")) {
+    const pathUsername = pathname.split("/")[2];
+    if (pathUsername && session.username === pathUsername) {
+      return NextResponse.redirect(new URL("/profile", req.url));
+    }
+  }
+
   // If not in these cases, let request pass
   return NextResponse.next();
 }
 
 // Routes for the middleware to watch
 export const config = {
-  matcher: ["/login", "/register", "/home/:path*", "/profile/:path*", "/publish/:path*"],
+  matcher: [
+    "/login", 
+    "/register", 
+    "/home/:path*", 
+    "/profile/:path*", 
+    "/publish/:path*",
+    "/user/:path*"
+  ],
 };

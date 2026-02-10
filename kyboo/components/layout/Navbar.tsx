@@ -18,6 +18,30 @@ interface SearchResult {
   status: string | null;
 }
 
+// Helper component for safe image rendering
+const ThumbnailImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [hasError, setHasError] = useState(false);
+  const isInvalid = !src || src.includes("placeholder.example.com");
+
+  if (isInvalid || hasError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-xs bg-gray-200 dark:bg-zinc-700">
+        📚
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      onError={() => setHasError(true)}
+    />
+  );
+};
+
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -153,16 +177,7 @@ export function Navbar() {
                         className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
                       >
                         <div className="w-10 h-14 relative flex-shrink-0 rounded overflow-hidden bg-gray-200 dark:bg-zinc-700">
-                          {book.imageUrl ? (
-                            <Image 
-                              src={book.imageUrl} 
-                              alt={book.title} 
-                              fill 
-                              className="object-cover" 
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-xs">📚</div>
-                          )}
+                          <ThumbnailImage src={book.imageUrl} alt={book.title} />
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">

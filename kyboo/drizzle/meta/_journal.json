@@ -8,6 +8,13 @@
       "when": 1769732946579,
       "tag": "0000_true_omega_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1770425730902,
+      "tag": "0001_optimal_pixie",
+      "breakpoints": true
     }
   ]
 }

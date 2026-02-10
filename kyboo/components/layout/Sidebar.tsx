@@ -13,6 +13,7 @@ export function Sidebar() {
     { name: "Inicio", href: "/home", icon: "🏠" },
     { name: "Publicar", href: "/publish", icon: "📚" },
     { name: "Lista de espera", href: "/waitlist", icon: "🕐" },
+    { name: "Comunidades", href: "/communities", icon: "👥" },
     { name: "Mi Perfil", href: "/profile", icon: "👤" },
     { name: "Buscar", href: "/search", icon: "🔍" },
   ];
