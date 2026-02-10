@@ -35,3 +35,40 @@ export const books = pgTable("books", {
     authorIdx: index("author_idx").on(table.author),
   };
 });
+
+// Tabla para salas de chat entre usuarios
+export const chatRooms = pgTable("chat_rooms", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  participant1Id: uuid("participant1_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  participant2Id: uuid("participant2_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Índice único para prevenir salas duplicadas entre los mismos usuarios
+    // Ordenamos los IDs para asegurar unicidad sin importar el orden
+    participantsIdx: index("participants_idx").on(table.participant1Id, table.participant2Id),
+  };
+});
+
+// Tabla para mensajes de chat
+export const messages = pgTable("messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  roomId: uuid("room_id")
+    .references(() => chatRooms.id, { onDelete: "cascade" })
+    .notNull(),
+  senderId: uuid("sender_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  content: text("content").notNull(),
+  isRead: integer("is_read").default(0).notNull(), // 0 = no leído, 1 = leído
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    roomIdx: index("room_idx").on(table.roomId),
+    createdAtIdx: index("created_at_idx").on(table.createdAt),
+  };
+});
