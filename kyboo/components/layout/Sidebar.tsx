@@ -17,13 +17,26 @@ export function Sidebar() {
     loadUnreadCount();
   }, []);
 
-  // Polling cada 10 segundos para actualizar badge
+  // Polling optimizado con Page Visibility API
   useEffect(() => {
-    const interval = setInterval(() => {
-      loadUnreadCount();
-    }, 10000);
+    let interval: NodeJS.Timeout;
 
-    return () => clearInterval(interval);
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (interval) clearInterval(interval);
+      } else {
+        loadUnreadCount();
+        interval = setInterval(loadUnreadCount, 20000); // 20 segundos para badge
+      }
+    };
+
+    interval = setInterval(loadUnreadCount, 20000);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const loadUnreadCount = async () => {

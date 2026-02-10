@@ -15,18 +15,8 @@ export default function ChatPage() {
         }
     }, [status, router]);
 
-    if (status === "loading") {
-        return (
-            <div className="h-full flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin text-6xl mb-4">💬</div>
-                    <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (!session) {
+    // No mostrar loading global - ChatRoomList tiene su propio loading inicial
+    if (!session && status !== "loading") {
         return null;
     }
 

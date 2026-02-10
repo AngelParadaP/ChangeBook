@@ -1,55 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getChatRooms } from "@/server/actions/chat";
-
-interface ChatRoom {
-    id: string;
-    otherUser: {
-        id: string;
-        username: string;
-        name: string;
-        imageURL: string | null;
-    };
-    lastMessage: {
-        content: string;
-        createdAt: Date;
-    } | null;
-    unreadCount: number;
-}
+import { useChatRooms } from "@/contexts/ChatContext";
 
 export function ChatRoomList() {
     const router = useRouter();
-    const [rooms, setRooms] = useState<ChatRoom[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { rooms, loading } = useChatRooms();
 
-    useEffect(() => {
-        loadRooms();
-    }, []);
-
-    // Polling para actualizar la lista cada 5 segundos
-    useEffect(() => {
-        const interval = setInterval(() => {
-            loadRooms(true);
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const loadRooms = async (silent = false) => {
-        if (!silent) setLoading(true);
-
-        const result = await getChatRooms();
-
-        if (result.success && result.rooms) {
-            setRooms(result.rooms);
-        }
-
-        if (!silent) setLoading(false);
-    };
-
-    if (loading) {
+    // Mostrar loading solo en la carga inicial
+    if (loading && rooms.length === 0) {
         return (
             <div className="flex items-center justify-center h-full">
                 <div className="text-center">

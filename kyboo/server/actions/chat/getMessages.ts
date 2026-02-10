@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { messages } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, ne, and } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
 interface Message {
@@ -19,7 +19,11 @@ interface GetMessagesResult {
     error?: string;
 }
 
-export async function getMessages(roomId: string, limit: number = 50): Promise<GetMessagesResult> {
+export async function getMessages(
+    roomId: string,
+    limit: number = 50,
+    autoMarkAsRead: boolean = true
+): Promise<GetMessagesResult> {
     try {
         const currentUser = await getCurrentUser();
 
@@ -41,6 +45,21 @@ export async function getMessages(roomId: string, limit: number = 50): Promise<G
             .where(eq(messages.roomId, roomId))
             .orderBy(desc(messages.createdAt))
             .limit(limit);
+
+        // Marcar mensajes como leídos automáticamente si está habilitado
+        // Esto reduce las peticiones al servidor al combinar operaciones
+        if (autoMarkAsRead && roomMessages.length > 0) {
+            await db
+                .update(messages)
+                .set({ isRead: 1 })
+                .where(
+                    and(
+                        eq(messages.roomId, roomId),
+                        ne(messages.senderId, currentUser.id),
+                        eq(messages.isRead, 0)
+                    )
+                );
+        }
 
         // Invertir para mostrar del más antiguo al más nuevo
         return {

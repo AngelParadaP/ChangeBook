@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { ChatBubble } from "./ChatBubble";
 import { ChatInput } from "./ChatInput";
-import { getMessages, sendMessage, markAsRead } from "@/server/actions/chat";
+import { ChatSkeleton } from "./ChatSkeleton";
+import { getMessages, sendMessage, markAsRead, getChatRooms } from "@/server/actions/chat";
 
 interface Message {
     id: string;
@@ -16,33 +18,84 @@ interface Message {
 
 interface ChatWindowProps {
     roomId: string;
-    otherUser: {
+    otherUser?: {
         name: string;
         username: string;
         imageURL: string | null;
     };
 }
 
-export function ChatWindow({ roomId, otherUser }: ChatWindowProps) {
+export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowProps) {
     const { data: session } = useSession();
+    const router = useRouter();
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
+    const [otherUser, setOtherUser] = useState(initialOtherUser);
     const chatContainerRef = useRef<HTMLDivElement>(null);
+
+    // Obtener información del otro usuario si no se proporciona
+    useEffect(() => {
+        if (!initialOtherUser && roomId) {
+            const fetchRoomInfo = async () => {
+                const result = await getChatRooms();
+
+                if (result.success && result.rooms) {
+                    const room = result.rooms.find((r) => r.id === roomId);
+
+                    if (room) {
+                        setOtherUser(room.otherUser);
+                    } else {
+                        // Si no se encuentra la sala, redirigir
+                        router.push("/chat");
+                    }
+                }
+            };
+
+            fetchRoomInfo();
+        }
+    }, [roomId, initialOtherUser, router]);
 
     // Cargar mensajes iniciales
     useEffect(() => {
-        loadMessages();
-    }, [roomId]);
+        if (otherUser) {
+            loadMessages();
+        }
+    }, [roomId, otherUser]);
 
-    // Polling para nuevos mensajes cada 3 segundos
+    // Polling optimizado para nuevos mensajes
     useEffect(() => {
-        const interval = setInterval(() => {
-            loadMessages(true);
-        }, 3000);
+        if (!otherUser) return; // No hacer polling hasta tener la info del usuario
 
-        return () => clearInterval(interval);
-    }, [roomId]);
+        let interval: NodeJS.Timeout;
+
+        // Solo hacer polling si la pestaña está activa
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                // Pausar polling cuando la pestaña no está visible
+                if (interval) clearInterval(interval);
+            } else {
+                // Reanudar polling y actualizar inmediatamente cuando vuelve a estar visible
+                loadMessages(true);
+                interval = setInterval(() => {
+                    loadMessages(true);
+                }, 10000); // Aumentado a 10 segundos para reducir carga
+            }
+        };
+
+        // Iniciar polling
+        interval = setInterval(() => {
+            loadMessages(true);
+        }, 10000);
+
+        // Escuchar cambios de visibilidad
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [roomId, otherUser]);
 
     // Auto-scroll al final cuando hay nuevos mensajes
     useEffect(() => {
@@ -51,7 +104,7 @@ export function ChatWindow({ roomId, otherUser }: ChatWindowProps) {
         }
     }, [messages]);
 
-    // Marcar como leídos cuando se abre el chat
+    // Marcar como leídos cuando se abre el chat (solo una vez)
     useEffect(() => {
         markAsRead(roomId);
     }, [roomId]);
@@ -63,12 +116,6 @@ export function ChatWindow({ roomId, otherUser }: ChatWindowProps) {
 
         if (result.success && result.messages) {
             setMessages(result.messages);
-
-            // Marcar como leídos automáticamente durante polling
-            // para que los mensajes nuevos se marquen como leídos en tiempo real
-            if (silent) {
-                await markAsRead(roomId);
-            }
         }
 
         if (!silent) setLoading(false);
@@ -88,14 +135,26 @@ export function ChatWindow({ roomId, otherUser }: ChatWindowProps) {
         setSending(false);
     };
 
-    if (loading) {
+    if (loading || !otherUser) {
         return (
-            <div className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm">
-                <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                        <div className="animate-spin text-4xl mb-2">💬</div>
-                        <p className="text-gray-600 dark:text-gray-400">Cargando chat...</p>
+            <div className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm overflow-hidden">
+                {/* Header con información del usuario */}
+                <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-light-purple to-dark-purple text-white">
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
+                        👤
                     </div>
+                    <div className="flex-1">
+                        <div className="h-5 bg-white/20 rounded w-32 mb-2 animate-pulse" />
+                        <div className="h-3 bg-white/20 rounded w-20 animate-pulse" />
+                    </div>
+                </div>
+
+                {/* Skeleton de mensajes */}
+                <ChatSkeleton count={6} />
+
+                {/* Input placeholder */}
+                <div className="p-4 border-t border-gray-200 dark:border-zinc-700">
+                    <div className="h-12 bg-gray-200 dark:bg-zinc-700 rounded-xl animate-pulse" />
                 </div>
             </div>
         );
