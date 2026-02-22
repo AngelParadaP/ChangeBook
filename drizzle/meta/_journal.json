@@ -12,8 +12,15 @@
     {
       "idx": 1,
       "version": "7",
-      "when": 1770425730902,
-      "tag": "0001_optimal_pixie",
+      "when": 1770356983898,
+      "tag": "0001_exotic_wendell_vaughn",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771721589054,
+      "tag": "0002_little_jane_foster",
       "breakpoints": true
     }
   ]

@@ -9,6 +9,7 @@ import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
 import { getUserProfileByUsername } from "@/server/actions/user/getUserProfileByUsername";
 import { getUserBooks } from "@/server/actions/user/getUserBooks";
+import { getOrCreateRoom } from "@/server/actions/chat";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 
 interface UserProfile {
@@ -46,6 +47,7 @@ export default function UserProfilePage() {
     const [loading, setLoading] = useState(true);
     const [loadingBooks, setLoadingBooks] = useState(true);
     const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+    const [startingChat, setStartingChat] = useState(false);
 
     // Book modal state
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
@@ -101,6 +103,32 @@ export default function UserProfilePage() {
     const handleBookClick = (book: Book) => {
         setSelectedBook(book);
         setIsModalOpen(true);
+    };
+
+    const handleStartChat = async () => {
+        if (!profile?.id) return;
+
+        setStartingChat(true);
+        try {
+            const result = await getOrCreateRoom(profile.id);
+
+            if (result.success && result.roomId) {
+                // Redirigir a la sala de chat
+                router.push(`/chat/${result.roomId}`);
+            } else {
+                setToast({
+                    message: result.error || "Error al crear chat",
+                    type: "error"
+                });
+            }
+        } catch (err) {
+            setToast({
+                message: "Error al iniciar chat",
+                type: "error"
+            });
+        } finally {
+            setStartingChat(false);
+        }
     };
 
     if (loading) {
@@ -171,6 +199,16 @@ export default function UserProfilePage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Botón para enviar mensaje */}
+                        <button
+                            onClick={handleStartChat}
+                            disabled={startingChat}
+                            className="w-full bg-gradient-to-r from-light-purple to-dark-purple text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            <span className="text-xl">💬</span>
+                            {startingChat ? "Abriendo chat..." : "Enviar mensaje"}
+                        </button>
 
                         <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-light-purple dark:border-dark-purple">
                             <div className="flex items-center justify-between mb-4">
