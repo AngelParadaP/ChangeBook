@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
-    "@tailwindcss/typography": "^0.5.19",
     "@tiptap/extension-link": "^3.19.0",
     "@tiptap/extension-placeholder": "^3.19.0",
     "@tiptap/extension-underline": "^3.19.0",

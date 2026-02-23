@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
 
@@ -185,13 +186,22 @@ export function BookModal({
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             {isEditing ? "Editar Libro" : "Detalles del Libro"}
           </h2>
-          <button
-            onClick={handleClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-all hover:rotate-90"
-            aria-label="Cerrar"
-          >
-            <span className="text-2xl">✕</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/books/${book.id}`}
+              onClick={handleClose}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-light-purple dark:text-light-pink hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-all"
+            >
+              Abrir página ↗
+            </Link>
+            <button
+              onClick={handleClose}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-all hover:rotate-90"
+              aria-label="Cerrar"
+            >
+              <span className="text-2xl">✕</span>
+            </button>
+          </div>
         </div>
 
         {/* Content */}
