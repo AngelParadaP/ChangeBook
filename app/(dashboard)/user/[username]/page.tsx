@@ -65,6 +65,8 @@ export default function UserProfilePage() {
         }
     }, [profile]);
 
+
+
     const loadProfile = async (username: string) => {
         setLoading(true);
         try {
@@ -140,15 +142,9 @@ export default function UserProfilePage() {
         );
     }
 
+
+
     if (!profile) {
-        return null;
-    }
-
-    const isOwner = session?.user?.id === profile.id;
-
-    // If viewing own profile, redirect to /profile
-    if (isOwner) {
-        router.push("/profile");
         return null;
     }
 

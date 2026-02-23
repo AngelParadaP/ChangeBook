@@ -1,4 +1,5 @@
-import { pgTable, text, integer, timestamp, uuid, index } from "drizzle-orm/pg-core";
+
+import { pgTable, text, integer, timestamp, uuid, index, primaryKey } from "drizzle-orm/pg-core";
 
 // CamelCase en TS, snake_case en DB
 export const users = pgTable("users", {
@@ -70,5 +71,62 @@ export const messages = pgTable("messages", {
   return {
     roomIdx: index("room_idx").on(table.roomId),
     createdAtIdx: index("created_at_idx").on(table.createdAt),
+  };
+});
+
+// Tabla para comunidades
+export const communities = pgTable("communities", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  ownerId: uuid("owner_id").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Tabla para miembros de comunidades
+export const communityMembers = pgTable("community_members", {
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  communityId: uuid("community_id").references(() => communities.id).notNull(),
+  role: text("role", { enum: ["admin", "moderator", "member"] }).default("member").notNull(),
+  status: text("status", { enum: ["active", "muted", "banned"] }).default("active").notNull(),
+  joinedAt: timestamp("joined_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.userId, table.communityId] }),
+  };
+});
+
+// Tabla para posts en comunidades
+export const posts = pgTable("posts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  content: text("content").notNull(),
+  imageUrl: text("image_url"),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  communityId: uuid("community_id").references(() => communities.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  likes: integer("likes").default(0).notNull(),
+});
+
+// Tabla para comentarios en posts
+export const comments = pgTable("comments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  content: text("content").notNull(),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  postId: uuid("post_id").references(() => posts.id).notNull(),
+  parentId: uuid("parent_id"), // Self-reference para respuestas anidadas
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  likes: integer("likes").default(0).notNull(),
+});
+
+// Tabla para likes en posts (relación muchos a muchos)
+export const postLikes = pgTable("post_likes", {
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  postId: uuid("post_id").references(() => posts.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.userId, table.postId] }),
   };
 });

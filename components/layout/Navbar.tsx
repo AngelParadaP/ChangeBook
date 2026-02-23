@@ -26,6 +26,29 @@ interface UserResult {
   studentCode: string;
   imageURL: string | null;
 }
+// Helper component for safe image rendering
+const ThumbnailImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [hasError, setHasError] = useState(false);
+  const isInvalid = !src || src.includes("placeholder.example.com");
+
+  if (isInvalid || hasError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-xs bg-gray-200 dark:bg-zinc-700">
+        📚
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      onError={() => setHasError(true)}
+    />
+  );
+};
 
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");

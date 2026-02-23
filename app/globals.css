@@ -1,6 +1,7 @@
 /* 1. La importación de Google Fonts siempre al principio */
 @import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme inline {
   /* 2. Registramos la fuente para que Tailwind cree la utilidad 'font-nunito' */

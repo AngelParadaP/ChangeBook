@@ -78,10 +78,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children, modal }: { children: React.ReactNode; modal: React.ReactNode }) {
   return (
     <SidebarProvider>
       <DashboardLayoutContent>{children}</DashboardLayoutContent>
+      {modal}
     </SidebarProvider>
   );
 }
