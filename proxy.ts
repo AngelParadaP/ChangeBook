@@ -11,7 +11,16 @@ export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const isAuthPage = pathname == "/login" || pathname == "/register";
-  const isAuthProtectedPage = pathname.startsWith("/home") || pathname.startsWith("/profile") || pathname.startsWith("/publish");
+  const isAuthProtectedPage =
+    pathname.startsWith("/home") ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/publish") ||
+    pathname.startsWith("/exchanges") ||
+    pathname.startsWith("/chat") ||
+    pathname.startsWith("/favorites") ||
+    pathname.startsWith("/books") ||
+    pathname.startsWith("/communities") ||
+    pathname.startsWith("/search");
 
   // Redirect to dashboard page if user is already authenticated
   if (session && isAuthPage) {
@@ -38,11 +47,17 @@ export async function proxy(req: NextRequest) {
 // Routes for the middleware to watch
 export const config = {
   matcher: [
-    "/login", 
-    "/register", 
-    "/home/:path*", 
-    "/profile/:path*", 
+    "/login",
+    "/register",
+    "/home/:path*",
+    "/profile/:path*",
     "/publish/:path*",
-    "/user/:path*"
+    "/user/:path*",
+    "/exchanges/:path*",
+    "/chat/:path*",
+    "/favorites/:path*",
+    "/books/:path*",
+    "/communities/:path*",
+    "/search/:path*"
   ],
 };

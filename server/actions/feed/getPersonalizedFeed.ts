@@ -51,7 +51,7 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
         })
         .from(books)
         .innerJoin(users, eq(books.ownerId, users.id))
-        .where(sql`${books.status} = 'disponible'`)
+        .where(sql`${books.status} IN ('disponible', 'ocupado')`)
         .orderBy(desc(books.createdAt))
         .limit(limit)
         .offset(offset);
@@ -88,7 +88,7 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
       .from(books)
       .innerJoin(users, eq(books.ownerId, users.id))
       .where(
-        sql`${books.status} = 'disponible' AND ${books.genres} && ${sql.raw(preferencesArraySQL)}`
+        sql`${books.status} IN ('disponible', 'ocupado') AND ${books.genres} && ${sql.raw(preferencesArraySQL)}`
       )
       // Order by match score DESC, then by creation date DESC
       .orderBy(

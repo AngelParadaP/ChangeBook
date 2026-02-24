@@ -10,6 +10,9 @@ import { getBookById } from "@/server/actions/books/getBookById";
 import { updateBook } from "@/server/actions/books";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { BOOK_GENRES } from "@/lib/constants/genres";
+import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModal";
+import { addFavorite, removeFavorite, isFavorite as checkIsFavorite } from "@/server/actions/favorites";
+import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
 
 interface BookDetail {
     id: string;
@@ -53,11 +56,43 @@ export default function BookDetailPage() {
         status: "disponible",
     });
 
+    // Exchange modal & Favorites
+    const [showExchangeModal, setShowExchangeModal] = useState(false);
+    const [isFav, setIsFav] = useState(false);
+    const [favLoading, setFavLoading] = useState(false);
+
     useEffect(() => {
         if (bookId) {
             loadBook(bookId);
+            loadFavoriteStatus(bookId);
         }
     }, [bookId]);
+
+    const loadFavoriteStatus = async (id: string) => {
+        const result = await checkIsFavorite(id);
+        if (result.success) {
+            setIsFav(result.isFavorite);
+        }
+    };
+
+    const handleToggleFavorite = async () => {
+        if (!book || favLoading) return;
+        setFavLoading(true);
+        if (isFav) {
+            const result = await removeFavorite(book.id);
+            if (result.success) {
+                setIsFav(false);
+                setToast({ message: "Removido de favoritos", type: "success" });
+            }
+        } else {
+            const result = await addFavorite(book.id);
+            if (result.success) {
+                setIsFav(true);
+                setToast({ message: "¡Agregado a favoritos! ❤️", type: "success" });
+            }
+        }
+        setFavLoading(false);
+    };
 
     const loadBook = async (id: string) => {
         setLoading(true);
@@ -108,7 +143,7 @@ export default function BookDetailPage() {
             year?: number | null;
             description?: string;
             genres?: string[];
-            status?: "disponible" | "intercambiado";
+            status?: "disponible" | "ocupado" | "intercambiado";
         } = {
             title: formData.title,
             author: formData.author,
@@ -116,7 +151,7 @@ export default function BookDetailPage() {
             year: formData.year ? parseInt(formData.year) : null,
             description: formData.description,
             genres: formData.genres,
-            status: formData.status === "disponible" || formData.status === "intercambiado" ? formData.status : undefined,
+            status: formData.status === "disponible" || formData.status === "ocupado" || formData.status === "intercambiado" ? formData.status : undefined,
         };
 
         const result = await updateBook(book.id, updateData);
@@ -244,11 +279,13 @@ export default function BookDetailPage() {
                         <div className="mt-4 flex items-center gap-3">
                             <span
                                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold ${book.status === "disponible"
-                                        ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                                    ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                                    : book.status === "ocupado"
+                                        ? "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300"
                                         : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
                                     }`}
                             >
-                                {book.status === "disponible" ? "📗 Disponible" : "📕 Intercambiado"}
+                                {book.status === "disponible" ? "📗 Disponible" : book.status === "ocupado" ? "📙 Ocupado" : "📕 Intercambiado"}
                             </span>
                             {publishedDate && (
                                 <span className="text-xs text-gray-400 dark:text-gray-500">
@@ -351,8 +388,8 @@ export default function BookDetailPage() {
                                                 type="button"
                                                 onClick={() => toggleGenre(genre)}
                                                 className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${isSelected
-                                                        ? "bg-light-purple text-white"
-                                                        : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-gray-300"
+                                                    ? "bg-light-purple text-white"
+                                                    : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-gray-300"
                                                     } cursor-pointer hover:scale-105`}
                                             >
                                                 {genre}
@@ -407,8 +444,10 @@ export default function BookDetailPage() {
                                     value={formData.status}
                                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                     className="w-full px-4 py-2 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                                    disabled={book?.status === "ocupado"}
                                 >
                                     <option value="disponible">Disponible</option>
+                                    <option value="ocupado">Ocupado</option>
                                     <option value="intercambiado">Intercambiado</option>
                                 </select>
                             </div>
@@ -478,21 +517,68 @@ export default function BookDetailPage() {
                                     </button>
                                 )
                             ) : (
-                                book.status === "disponible" && (
+                                <div className="flex flex-col gap-2 w-full">
+                                    {/* Solicitar intercambio — disponible para disponible y ocupado (calendario filtra fechas) */}
+                                    {(book.status === "disponible" || book.status === "ocupado") && (
+                                        <button
+                                            onClick={() => setShowExchangeModal(true)}
+                                            className="w-full px-6 py-3 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
+                                        >
+                                            📬 Solicitar Intercambio
+                                        </button>
+                                    )}
+                                    {book.status === "ocupado" && (
+                                        <p className="text-xs text-center text-amber-600 dark:text-amber-400">
+                                            📅 Este libro tiene fechas ocupadas. En el calendario podrás ver los días disponibles.
+                                        </p>
+                                    )}
+                                    {/* Botón de mensaje */}
                                     <button
-                                        onClick={() => {
-                                            setToast({ message: "Funcionalidad de solicitud próximamente", type: "success" });
+                                        onClick={async () => {
+                                            const result = await getOrCreateRoom(book.ownerId);
+                                            if (result.success && result.roomId) {
+                                                router.push(`/chat/${result.roomId}`);
+                                            }
                                         }}
-                                        className="w-full px-6 py-3 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
+                                        className="w-full px-6 py-2.5 font-medium rounded-xl transition-all text-sm flex items-center justify-center gap-2 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700"
                                     >
-                                        📬 Solicitar Intercambio
+                                        💬 Enviar Mensaje al Dueño
                                     </button>
-                                )
+                                    {/* Botón de favorito */}
+                                    <button
+                                        onClick={handleToggleFavorite}
+                                        disabled={favLoading}
+                                        className={`w-full px-6 py-2.5 font-medium rounded-xl transition-all text-sm flex items-center justify-center gap-2 ${isFav
+                                            ? "bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800/30"
+                                            : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700"
+                                            }`}
+                                    >
+                                        {favLoading ? "..." : isFav ? "❤️ En favoritos" : "🤍 Agregar a favoritos"}
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Exchange Request Modal */}
+            {book && !isOwner && (
+                <ExchangeRequestModal
+                    isOpen={showExchangeModal}
+                    onClose={() => setShowExchangeModal(false)}
+                    bookId={book.id}
+                    bookTitle={book.title}
+                    ownerName={book.ownerName || "Usuario"}
+                    onSuccess={() => {
+                        loadBook(bookId);
+                        setShowExchangeModal(false);
+                        setToast({ message: "¡Solicitud de intercambio enviada!", type: "success" });
+                    }}
+                />
+            )}
+
+
         </>
     );
 }

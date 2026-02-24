@@ -26,7 +26,7 @@ export const books = pgTable("books", {
   description: text("description").notNull(),
   // Columna crítica para el filtrado basado en contenido
   genres: text("genres").array().notNull().default([]),
-  status: text("status", { enum: ["disponible", "intercambiado"] })
+  status: text("status", { enum: ["disponible", "ocupado", "intercambiado"] })
     .default("disponible")
     .notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -128,5 +128,66 @@ export const postLikes = pgTable("post_likes", {
 }, (table) => {
   return {
     pk: primaryKey({ columns: [table.userId, table.postId] }),
+  };
+});
+
+// ─── Tabla para intercambios de libros ──────────────────────────────────────
+export const exchanges = pgTable("exchanges", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // El libro que se intercambia
+  bookId: uuid("book_id")
+    .references(() => books.id, { onDelete: "cascade" })
+    .notNull(),
+  // Dueño del libro (quien lo presta)
+  ownerId: uuid("owner_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  // Solicitante (quien pide el libro)
+  requesterId: uuid("requester_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  // Estado del intercambio
+  status: text("status", {
+    enum: ["pendiente", "aceptado", "rechazado", "en_curso", "completado", "cancelado"],
+  })
+    .default("pendiente")
+    .notNull(),
+  // Fechas del préstamo
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  // Lugar de entrega dentro de CUCEI
+  meetingLocation: text("meeting_location").notNull(),
+  // Notas opcionales del solicitante
+  requesterNote: text("requester_note"),
+  // Notas opcionales del dueño (al aceptar/rechazar)
+  ownerNote: text("owner_note"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    bookIdx: index("exchange_book_idx").on(table.bookId),
+    ownerIdx: index("exchange_owner_idx").on(table.ownerId),
+    requesterIdx: index("exchange_requester_idx").on(table.requesterId),
+    statusIdx: index("exchange_status_idx").on(table.status),
+    datesIdx: index("exchange_dates_idx").on(table.startDate, table.endDate),
+  };
+});
+
+// ─── Tabla para favoritos de libros ─────────────────────────────────────────
+export const favorites = pgTable("favorites", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  bookId: uuid("book_id")
+    .references(() => books.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    bookIdx: index("favorites_book_idx").on(table.bookId),
+    userIdx: index("favorites_user_idx").on(table.userId),
+    // Prevenir duplicados: un usuario solo puede dar favorito una vez a un libro
+    uniqueIdx: index("favorites_unique_idx").on(table.userId, table.bookId),
   };
 });

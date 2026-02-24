@@ -3,8 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
+import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModal";
+import { addFavorite, removeFavorite, isFavorite as checkIsFavorite } from "@/server/actions/favorites";
+import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
 
 interface Book {
   id: string;
@@ -45,6 +49,16 @@ export function BookModal({
   const [imageError, setImageError] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  // Exchange modal state
+  const [showExchangeModal, setShowExchangeModal] = useState(false);
+  const [exchangeToast, setExchangeToast] = useState<string | null>(null);
+
+  // Favorite state
+  const [isFav, setIsFav] = useState(false);
+  const [favLoading, setFavLoading] = useState(false);
+  const [favAnimating, setFavAnimating] = useState(false);
 
   const [formData, setFormData] = useState({
     title: book.title,
@@ -56,7 +70,7 @@ export function BookModal({
     status: book.status || "disponible",
   });
 
-  // Reset form when book changes
+  // Reset form and load favorite status when book changes
   useEffect(() => {
     setFormData({
       title: book.title,
@@ -69,7 +83,29 @@ export function BookModal({
     });
     setIsEditing(false);
     setImageError(false);
-  }, [book]);
+    setExchangeToast(null);
+    // Load favorite status
+    if (!isOwner && book.id) {
+      checkIsFavorite(book.id).then((res) => {
+        if (res.success) setIsFav(res.isFavorite);
+      });
+    }
+  }, [book, isOwner]);
+
+  const handleToggleFavorite = async () => {
+    if (favLoading) return;
+    setFavLoading(true);
+    setFavAnimating(true);
+    if (isFav) {
+      const result = await removeFavorite(book.id);
+      if (result.success) setIsFav(false);
+    } else {
+      const result = await addFavorite(book.id);
+      if (result.success) setIsFav(true);
+    }
+    setFavLoading(false);
+    setTimeout(() => setFavAnimating(false), 400);
+  };
 
   // Animation on open
   useEffect(() => {
@@ -226,16 +262,43 @@ export function BookModal({
                 )}
               </div>
 
-              {/* Status Badge */}
-              <div className="mt-4">
+              {/* Status Badge + Favorite Heart */}
+              <div className="mt-4 flex items-center justify-between">
                 <span
                   className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${book.status === "disponible"
                     ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300"
+                    : book.status === "ocupado"
+                      ? "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300"
                     }`}
                 >
-                  {book.status === "disponible" ? "📗 Disponible" : "📕 Intercambiado"}
+                  {book.status === "disponible" ? "📗 Disponible" : book.status === "ocupado" ? "📙 Ocupado" : "📕 Intercambiado"}
                 </span>
+
+                {/* Animated Heart Favorite Button */}
+                {!isOwner && (
+                  <button
+                    onClick={handleToggleFavorite}
+                    disabled={favLoading}
+                    className="group/fav relative p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors disabled:opacity-50"
+                    aria-label={isFav ? "Quitar de favoritos" : "Agregar a favoritos"}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      className={`w-7 h-7 transition-all duration-300 ${favAnimating ? "scale-125" : "scale-100"
+                        } ${isFav
+                          ? "fill-red-500 stroke-red-500"
+                          : "fill-transparent stroke-gray-400 dark:stroke-gray-500 group-hover/fav:stroke-red-400"
+                        }`}
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -443,19 +506,49 @@ export function BookModal({
             </div>
           ) : (
             // Non-owner actions
-            <div className="flex gap-3 justify-end">
-              {book.status === "disponible" && onRequestBook && (
+            <div className="flex gap-3 justify-end items-center">
+              {exchangeToast && (
+                <span className="text-sm text-green-600 dark:text-green-400 font-medium">✅ {exchangeToast}</span>
+              )}
+              <button
+                onClick={async () => {
+                  const result = await getOrCreateRoom(book.ownerId);
+                  if (result.success && result.roomId) {
+                    router.push(`/chat/${result.roomId}`);
+                  }
+                }}
+                className="px-5 py-3 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-all hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700"
+              >
+                💬 Enviar Mensaje
+              </button>
+              {(book.status === "disponible" || book.status === "ocupado") && (
                 <button
-                  onClick={() => onRequestBook(book.id)}
-                  className="px-6 py-3 bg-light-purple hover:bg-dark-purple text-white font-semibold rounded-xl transition-all"
+                  onClick={() => setShowExchangeModal(true)}
+                  className="px-6 py-3 bg-light-purple hover:bg-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
                 >
-                  📬 Solicitar Libro
+                  📬 Solicitar Intercambio
                 </button>
               )}
             </div>
           )}
         </div>
       </div>
+
+      {/* Exchange Request Modal */}
+      {!isOwner && (
+        <ExchangeRequestModal
+          isOpen={showExchangeModal}
+          onClose={() => setShowExchangeModal(false)}
+          bookId={book.id}
+          bookTitle={book.title}
+          ownerName={book.ownerUsername || "Usuario"}
+          onSuccess={() => {
+            setShowExchangeModal(false);
+            setExchangeToast("¡Solicitud de intercambio enviada!");
+            setTimeout(() => setExchangeToast(null), 4000);
+          }}
+        />
+      )}
 
       <style jsx global>{`
         @keyframes fadeIn {

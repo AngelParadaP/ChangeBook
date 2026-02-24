@@ -6,15 +6,18 @@ import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSidebar } from "./SidebarContext";
 import { getUnreadCount } from "@/server/actions/chat";
+import { getPendingExchangeCount } from "@/server/actions/exchanges";
 
 export function Sidebar() {
   const { isOpen, sidebarWidth } = useSidebar();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [exchangeCount, setExchangeCount] = useState(0);
 
   // Cargar conteo de mensajes no leídos
   useEffect(() => {
     loadUnreadCount();
+    loadExchangeCount();
   }, []);
 
   // Polling optimizado con Page Visibility API
@@ -30,7 +33,10 @@ export function Sidebar() {
       }
     };
 
-    interval = setInterval(loadUnreadCount, 20000);
+    interval = setInterval(() => {
+      loadUnreadCount();
+      loadExchangeCount();
+    }, 20000);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
@@ -46,11 +52,19 @@ export function Sidebar() {
     }
   };
 
+  const loadExchangeCount = async () => {
+    const result = await getPendingExchangeCount();
+    if (result.success && result.count !== undefined) {
+      setExchangeCount(result.count);
+    }
+  };
+
   const navItems = [
     { name: "Inicio", href: "/home", icon: "🏠" },
     { name: "Chats", href: "/chat", icon: "💬", badge: unreadCount },
     { name: "Publicar", href: "/publish", icon: "📚" },
-    { name: "Lista de espera", href: "/waitlist", icon: "🕐" },
+    { name: "Intercambios", href: "/exchanges", icon: "🔄", badge: exchangeCount },
+    { name: "Favoritos", href: "/favorites", icon: "❤️" },
     { name: "Comunidades", href: "/communities", icon: "👥" },
     { name: "Mi Perfil", href: "/profile", icon: "👤" },
     { name: "Buscar", href: "/search", icon: "🔍" },
