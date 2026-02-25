@@ -4,14 +4,19 @@ import { db } from "@/db";
 import { communities, communityMembers } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 
-export async function createCommunity(data: { name: string; description: string; imageUrl?: string }) {
+export async function createCommunity(data: {
+  name: string;
+  description: string;
+  imageUrl?: string;
+  genres?: string[];
+}) {
   try {
     const user = await getCurrentUser();
     if (!user || !user.id) {
       return { success: false, error: "No autorizado" };
     }
 
-    const { name, description, imageUrl } = data;
+    const { name, description, imageUrl, genres } = data;
 
     // Use transaction to ensure both community creation and initial membership occur
     const result = await db.transaction(async (tx) => {
@@ -21,6 +26,7 @@ export async function createCommunity(data: { name: string; description: string;
           name,
           description,
           imageUrl: imageUrl || null,
+          genres: genres || [],
           ownerId: user.id,
         })
         .returning();

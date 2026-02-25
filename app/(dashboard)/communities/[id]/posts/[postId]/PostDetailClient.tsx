@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { useSession } from "next-auth/react";
@@ -50,20 +51,25 @@ interface CommentItemProps {
     onSubmit: (parentId: string) => void;
     submitting: boolean;
     currentUserRole?: string | null;
+    currentUserId?: string | null;
     onDelete: (id: string) => void;
     onBan: (userId: string) => void;
 }
 
-const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyContent, setReplyContent, onSubmit, submitting, currentUserRole, onDelete, onBan }: CommentItemProps) => {
+const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyContent, setReplyContent, onSubmit, submitting, currentUserRole, currentUserId, onDelete, onBan }: CommentItemProps) => {
     const isReplying = replyingTo === comment.id;
     const canModerate = currentUserRole === "admin" || currentUserRole === "moderator";
+    const isCommentOwner = currentUserId === comment.userId;
+    const isDeleted = comment.content === "[comentario eliminado]";
     
     return (
         <div className={`mt-4 ${depth > 0 ? "ml-4 pl-4 border-l-2 border-gray-100 dark:border-zinc-800" : ""}`}>
             <div className="flex gap-3">
                 <div className="flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-800 overflow-hidden relative">
-                        {comment.userImage ? (
+                        {isDeleted ? (
+                            <span className="flex items-center justify-center h-full text-xs text-gray-400">👤</span>
+                        ) : comment.userImage ? (
                             <Image src={comment.userImage} alt={comment.username} fill className="object-cover" />
                         ) : (
                             <span className="flex items-center justify-center h-full text-xs">👤</span>
@@ -72,19 +78,31 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">{comment.username}</span>
-                        {comment.role === 'admin' && <ShieldCheck size={14} className="text-blue-500" />}
-                        {comment.role === 'moderator' && <Shield size={14} className="text-green-500" />}
-                        <span className="text-xs text-gray-400">
+                        {isDeleted ? (
+                            <span className="font-semibold text-sm text-gray-400 dark:text-gray-500 italic">[eliminado]</span>
+                        ) : (
+                            <>
+                                <Link href={`/user/${comment.username}`} className="font-semibold text-sm text-gray-900 dark:text-gray-100 hover:underline">{comment.username}</Link>
+                                {comment.role === 'admin' && <ShieldCheck size={14} className="text-blue-500" />}
+                                {comment.role === 'moderator' && <Shield size={14} className="text-green-500" />}
+                            </>
+                        )}
+                        <span className="text-xs text-gray-400" suppressHydrationWarning>
                             {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: es })}
                         </span>
                     </div>
                     
-                    <div 
-                        className="text-gray-700 dark:text-gray-300 text-sm prose dark:prose-invert max-w-none mb-2"
-                        dangerouslySetInnerHTML={{ __html: comment.content }} 
-                    />
+                    {isDeleted ? (
+                        <p className="text-gray-400 dark:text-gray-500 text-sm italic mb-2">[comentario eliminado]</p>
+                    ) : (
+                        <div 
+                            className="text-gray-700 dark:text-gray-300 text-sm prose dark:prose-invert max-w-none mb-2"
+                            suppressHydrationWarning
+                            dangerouslySetInnerHTML={{ __html: comment.content }} 
+                        />
+                    )}
 
+                    {!isDeleted && (
                     <div className="flex items-center gap-4">
                         <button 
                             onClick={() => setReplyingTo(isReplying ? null : comment.id)}
@@ -94,6 +112,21 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                             Responder
                         </button>
                         
+                        {/* Owner delete button */}
+                        {isCommentOwner && !canModerate && (
+                            <button 
+                                onClick={() => {
+                                    if (confirm("¿Eliminar tu comentario?")) onDelete(comment.id);
+                                }}
+                                className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-red-500 transition-colors"
+                                title="Eliminar tu comentario"
+                            >
+                                <Trash2 size={14} />
+                                Eliminar
+                            </button>
+                        )}
+
+                        {/* Mod/admin actions */}
                         {canModerate && (
                             <div className="flex items-center gap-2">
                                 <button 
@@ -105,6 +138,7 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                                 >
                                     <Trash2 size={14} />
                                 </button>
+                                {currentUserId !== comment.userId && (
                                 <button 
                                     onClick={() => {
                                         if (confirm(`¿Banear a ${comment.username}?`)) onBan(comment.userId);
@@ -114,9 +148,11 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                                 >
                                     <Slash size={14} />
                                 </button>
+                                )}
                             </div>
                          )}
                     </div>
+                    )}
 
                     {isReplying && (
                         <div className="mt-4">
@@ -159,6 +195,7 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                             setReplyContent={setReplyContent}
                             onSubmit={onSubmit}
                             submitting={submitting}
+                            currentUserId={currentUserId}
                             currentUserRole={currentUserRole}
                             onDelete={onDelete}
                             onBan={onBan}
@@ -192,6 +229,10 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
     // Post local state
     const [postLikes, setPostLikes] = useState(post.likes);
     const [postLiked, setPostLiked] = useState(post.hasLiked ?? false);
+    const [likeAnimating, setLikeAnimating] = useState(false);
+    const likePendingRef = useRef(false);
+    const serverLikedRef = useRef(post.hasLiked ?? false);
+    const serverLikesRef = useRef(post.likes);
 
     const [showCommentBox, setShowCommentBox] = useState(false);
 
@@ -232,7 +273,14 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
         const result = await deleteComment(commentId);
         if (result.success) {
             toast("Comentario eliminado", "success");
-            router.refresh();
+            // Soft-delete: update local state to show "[comentario eliminado]"
+            const softDelete = (list: Comment[]): Comment[] =>
+                list.map((c: Comment) => ({
+                    ...c,
+                    content: c.id === commentId ? "[comentario eliminado]" : c.content,
+                    replies: c.replies ? softDelete(c.replies) : [],
+                }));
+            setComments(softDelete(comments));
         } else {
             toast(result.error || "Error al eliminar", "error");
         }
@@ -247,17 +295,36 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
         }
     };
 
-    const handlePostLike = async () => {
+    const handlePostLike = useCallback(async () => {
         const newLiked = !postLiked;
+        const newLikes = newLiked ? postLikes + 1 : postLikes - 1;
         setPostLiked(newLiked);
-        setPostLikes(prev => newLiked ? prev + 1 : prev - 1);
-        
-        const result = await togglePostLike(post.id);
-        if (!result.success) {
-            setPostLiked(!newLiked);
-            setPostLikes(prev => !newLiked ? prev + 1 : prev - 1);
+        setPostLikes(newLikes);
+
+        if (newLiked) {
+            setLikeAnimating(true);
+            setTimeout(() => setLikeAnimating(false), 300);
         }
-    };
+
+        if (likePendingRef.current) return;
+        likePendingRef.current = true;
+
+        try {
+            const result = await togglePostLike(post.id);
+            if (result.success) {
+                serverLikedRef.current = result.liked!;
+                serverLikesRef.current = newLikes;
+            } else {
+                setPostLiked(serverLikedRef.current);
+                setPostLikes(serverLikesRef.current);
+            }
+        } catch {
+            setPostLiked(serverLikedRef.current);
+            setPostLikes(serverLikesRef.current);
+        } finally {
+            likePendingRef.current = false;
+        }
+    }, [postLiked, postLikes, post.id]);
 
     const canModerate = currentUserRole === "admin" || currentUserRole === "moderator";
 
@@ -278,15 +345,25 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                              <div>
                                  <h2 className="font-bold text-gray-900 dark:text-white">c/{post.communityName}</h2>
                                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                                     <span>Publicado por u/{post.username}</span>
+                                     <span>Publicado por <Link href={`/user/${post.username}`} className="hover:underline">u/{post.username}</Link></span>
                                      <span>•</span>
-                                     <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: es })}</span>
+                                     <span suppressHydrationWarning>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: es })}</span>
                                  </div>
                              </div>
                          </div>
                          
                          <div className="flex items-center gap-2">
-                             {canModerate && (
+                             {/* Post owner delete */}
+                              {post.userId === session?.user?.id && !canModerate && (
+                                  <button 
+                                      onClick={handleDeletePost}
+                                      className="p-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-500 rounded-lg transition-colors"
+                                      title="Eliminar tu publicación"
+                                  >
+                                      <Trash2 size={18} />
+                                  </button>
+                              )}
+                              {canModerate && (
                                  <div className="flex items-center gap-2 mr-2 border-r border-gray-100 dark:border-zinc-800 pr-2">
                                     <button 
                                         onClick={handleDeletePost}
@@ -295,6 +372,7 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                                     >
                                         <Trash2 size={18} />
                                     </button>
+                                    {post.userId !== session?.user?.id && (
                                     <button 
                                         onClick={() => {
                                             if (confirm(`¿Banear a u/${post.username}?`)) handleBanUser(post.userId);
@@ -304,13 +382,14 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                                     >
                                         <Slash size={18} />
                                     </button>
+                                    )}
                                  </div>
                              )}
                          </div>
                      </div>
                      
                      <div className="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-100 mb-4">
-                        <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                        <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: post.content }} />
                      </div>
                      
                      {post.imageUrl && (
@@ -322,11 +401,11 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                      <div className="flex items-center gap-4 text-gray-500 text-sm font-medium pt-2 border-t border-gray-50 dark:border-zinc-800/50">
                         <button 
                             onClick={handlePostLike}
-                            className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-colors ${postLiked ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10' : 'hover:bg-gray-100 dark:hover:bg-zinc-800'}`}
+                            className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-all active:scale-95 select-none ${postLiked ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10' : 'hover:bg-gray-100 dark:hover:bg-zinc-800'}`}
                             title={postLiked ? "Ya no me gusta" : "Me gusta"}
                         >
-                            <Heart size={18} fill={postLiked ? "currentColor" : "none"} />
-                            <span>{postLikes}</span>
+                            <Heart size={18} fill={postLiked ? "currentColor" : "none"} className={`transition-transform duration-200 ${likeAnimating ? "scale-125" : "scale-100"}`} />
+                            <span className="tabular-nums">{postLikes}</span>
                         </button>
                         <button className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-zinc-800 px-2 py-1 rounded-lg transition-colors">
                             <CornerDownRight size={18} />
@@ -391,6 +470,7 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                                 onSubmit={handleSubmitComment}
                                 submitting={submitting}
                                 currentUserRole={currentUserRole}
+                                currentUserId={session?.user?.id}
                                 onDelete={handleDeleteComment}
                                 onBan={handleBanUser}
                             />

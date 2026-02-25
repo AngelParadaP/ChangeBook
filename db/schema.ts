@@ -80,6 +80,7 @@ export const communities = pgTable("communities", {
   name: text("name").notNull().unique(),
   description: text("description"),
   imageUrl: text("image_url"),
+  genres: text("genres").array().notNull().default([]),
   ownerId: uuid("owner_id").references(() => users.id).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -189,5 +190,28 @@ export const favorites = pgTable("favorites", {
     userIdx: index("favorites_user_idx").on(table.userId),
     // Prevenir duplicados: un usuario solo puede dar favorito una vez a un libro
     uniqueIdx: index("favorites_unique_idx").on(table.userId, table.bookId),
+  };
+});
+
+// ─── Tabla para recomendaciones de libros en comunidades ────────────────────
+export const communityBookRecommendations = pgTable("community_book_recommendations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  communityId: uuid("community_id")
+    .references(() => communities.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  bookId: uuid("book_id")
+    .references(() => books.id, { onDelete: "cascade" })
+    .notNull(),
+  message: text("message"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    communityIdx: index("cbr_community_idx").on(table.communityId),
+    userIdx: index("cbr_user_idx").on(table.userId),
+    // Un libro solo puede ser recomendado una vez por comunidad
+    uniqueBookIdx: index("cbr_unique_book_idx").on(table.communityId, table.bookId),
   };
 });

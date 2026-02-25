@@ -9,7 +9,56 @@ import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
 import { getPersonalizedFeed } from "@/server/actions/feed/getPersonalizedFeed";
 import { getCommunityFeed } from "@/server/actions/communities/getCommunityFeed";
+import BookRecommendationSidebar from "@/components/community/BookRecommendationSidebar";
 import { updateBook } from "@/server/actions/books";
+
+// ─── Skeleton Components ─────────────────────────────────────────────────────
+
+function BookCardSkeleton() {
+  return (
+    <div className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-gray-200 dark:border-zinc-700 p-4 animate-pulse">
+      <div className="aspect-[2/3] bg-gray-200 dark:bg-zinc-700 rounded-xl mb-3" />
+      <div className="space-y-2">
+        <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded-full w-3/4" />
+        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-1/2" />
+        <div className="flex gap-1 mt-2">
+          <div className="h-5 bg-gray-200 dark:bg-zinc-700 rounded-full w-16" />
+          <div className="h-5 bg-gray-200 dark:bg-zinc-700 rounded-full w-12" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PostCardSkeleton() {
+  return (
+    <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-4 shadow-sm mb-4 animate-pulse">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-4 h-4 rounded-full bg-gray-200 dark:bg-zinc-700" />
+        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-28" />
+        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-3" />
+        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-36" />
+        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-3" />
+        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-20" />
+      </div>
+      <div className="space-y-2 mb-3">
+        <div className="h-3.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-full" />
+        <div className="h-3.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-5/6" />
+        <div className="h-3.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-2/3" />
+      </div>
+      <div className="flex items-center gap-4 border-t border-gray-100 dark:border-zinc-800/50 pt-3">
+        <div className="flex items-center gap-1.5">
+          <div className="w-[18px] h-[18px] rounded bg-gray-200 dark:bg-zinc-700" />
+          <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-6" />
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-[18px] h-[18px] rounded bg-gray-200 dark:bg-zinc-700" />
+          <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-20" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export interface Book {
   id: string;
@@ -271,11 +320,14 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
             </>
         ) : (
             // Communities Feed
-            <div className="max-w-2xl mx-auto">
+            <div className="flex justify-center gap-6">
+              {/* Main Posts Column */}
+              <div className="w-full max-w-2xl">
                 {postsLoading && posts.length === 0 && (
-                    <div className="text-center py-12">
-                         <div className="inline-block animate-spin text-4xl mb-4">📚</div>
-                         <p>Cargando publicaciones...</p>
+                    <div className="space-y-4">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <PostCardSkeleton key={`skeleton-${i}`} />
+                      ))}
                     </div>
                 )}
                 
@@ -295,15 +347,35 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
                         ))}
                     </div>
                 )}
+              </div>
+
+              {/* Book Recommendations Sidebar */}
+              <div className="hidden xl:block w-80 flex-shrink-0">
+                <div className="sticky top-6">
+                  <BookRecommendationSidebar
+                    aggregated={true}
+                    currentUserId={session?.user?.id}
+                  />
+                </div>
+              </div>
             </div>
         )}
 
-        {/* Shared Loading Indicator */}
-        <div ref={loaderRef} className="py-8 text-center">
-            {(activeTab === 'books' ? loading : postsLoading) && (books.length > 0 || posts.length > 0) && (
-                <div className="inline-block animate-spin text-4xl">📚</div>
+        <div ref={loaderRef} className="py-4">
+            {activeTab === 'books' && loading && books.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <BookCardSkeleton key={`load-book-${i}`} />
+                ))}
+              </div>
             )}
-            {/* End of list messages */}
+            {activeTab === 'communities' && postsLoading && posts.length > 0 && (
+              <div className="max-w-2xl mx-auto space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <PostCardSkeleton key={`load-post-${i}`} />
+                ))}
+              </div>
+            )}
         </div>
 
       </div>

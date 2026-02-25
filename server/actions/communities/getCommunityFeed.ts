@@ -25,7 +25,7 @@ export async function getCommunityFeed({ page = 0, limit = 10 }: FeedParams = {}
     const subscribedCommunities = await db
       .select({ id: communityMembers.communityId })
       .from(communityMembers)
-      .where(eq(communityMembers.userId, user.id));
+      .where(and(eq(communityMembers.userId, user.id), eq(communityMembers.status, "active")));
 
     const communityIds = subscribedCommunities.map(c => c.id);
 

@@ -2,8 +2,18 @@ import { getCommunities } from "@/server/actions/communities/getCommunities";
 import CommunitiesClient from "./CommunitiesClient";
 
 export default async function CommunitiesPage() {
-  const result = await getCommunities({ limit: 20 });
-  const initialCommunities = result.success && result.communities ? result.communities : [];
+  const [discoverResult, myResult] = await Promise.all([
+    getCommunities({ limit: 20, filter: "discover" }),
+    getCommunities({ limit: 20, filter: "mine" }),
+  ]);
 
-  return <CommunitiesClient initialCommunities={initialCommunities} />;
+  const discoverCommunities = discoverResult.success && discoverResult.communities ? discoverResult.communities : [];
+  const myCommunities = myResult.success && myResult.communities ? myResult.communities : [];
+
+  return (
+    <CommunitiesClient
+      initialDiscoverCommunities={discoverCommunities}
+      initialMyCommunities={myCommunities}
+    />
+  );
 }

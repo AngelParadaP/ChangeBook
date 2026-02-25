@@ -11,10 +11,18 @@ export async function getCommunity(id: string) {
         name: communities.name,
         description: communities.description,
         imageUrl: communities.imageUrl,
+        genres: communities.genres,
+        ownerId: communities.ownerId,
         memberCount: count(communityMembers.userId).as("member_count"),
       })
       .from(communities)
-      .leftJoin(communityMembers, eq(communities.id, communityMembers.communityId))
+      .leftJoin(
+        communityMembers,
+        and(
+          eq(communities.id, communityMembers.communityId),
+          eq(communityMembers.status, "active")
+        )
+      )
       .where(eq(communities.id, id))
       .groupBy(communities.id);
 
@@ -27,11 +35,11 @@ export async function getCommunity(id: string) {
     let role = null;
     
     if (user?.id) {
-         const [membership] = await db.select({ role: communityMembers.role })
+         const [membership] = await db.select({ role: communityMembers.role, status: communityMembers.status })
             .from(communityMembers)
             .where(and(eq(communityMembers.userId, user.id), eq(communityMembers.communityId, id)));
          
-         if (membership) {
+         if (membership && membership.status === "active") {
              isMember = true;
              role = membership.role;
          }

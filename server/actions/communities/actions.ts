@@ -1,9 +1,48 @@
 "use server";
 
 import { db } from "@/db";
-import { communityMembers, posts } from "@/db/schema";
+import { communityMembers, posts, communities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
+
+export async function leaveCommunity(communityId: string) {
+  try {
+    const user = await getCurrentUser();
+    if (!user || !user.id) {
+      return { success: false, error: "No autorizado" };
+    }
+
+    // Check if user is a member
+    const [membership] = await db
+      .select({ role: communityMembers.role })
+      .from(communityMembers)
+      .where(and(eq(communityMembers.userId, user.id), eq(communityMembers.communityId, communityId)));
+
+    if (!membership) {
+      return { success: false, error: "No eres miembro de esta comunidad" };
+    }
+
+    // Check if user is the owner/creator — owners cannot leave
+    const [community] = await db
+      .select({ ownerId: communities.ownerId })
+      .from(communities)
+      .where(eq(communities.id, communityId));
+
+    if (community && community.ownerId === user.id) {
+      return { success: false, error: "No puedes abandonar una comunidad que creaste. Elimínala si deseas." };
+    }
+
+    // Remove from community
+    await db.delete(communityMembers).where(
+      and(eq(communityMembers.userId, user.id), eq(communityMembers.communityId, communityId))
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error leaving community:", error);
+    return { success: false, error: "Error al abandonar la comunidad" };
+  }
+}
 
 export async function joinCommunity(communityId: string) {
   try {
@@ -12,13 +51,16 @@ export async function joinCommunity(communityId: string) {
       return { success: false, error: "No autorizado" };
     }
 
-    // Check if already a member
+    // Check if already a member or banned
     const [existingMember] = await db
-      .select()
+      .select({ status: communityMembers.status })
       .from(communityMembers)
       .where(and(eq(communityMembers.userId, user.id), eq(communityMembers.communityId, communityId)));
 
     if (existingMember) {
+      if (existingMember.status === "banned") {
+        return { success: false, error: "Has sido baneado de esta comunidad" };
+      }
       return { success: false, error: "Ya eres miembro de esta comunidad" };
     }
 

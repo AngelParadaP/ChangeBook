@@ -7,9 +7,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { searchBooks } from "@/server/actions/books/searchBooks";
 import { searchUsers } from "@/server/actions/user/searchUsers";
+import { getCommunities } from "@/server/actions/communities/getCommunities";
 import { updateBook } from "@/server/actions/books";
 import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
+import { Users } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -38,6 +40,15 @@ interface UserResult {
     imageURL: string | null;
     preferences: string[];
     createdAt: Date | null;
+}
+
+interface CommunityResult {
+    id: string;
+    name: string;
+    description: string | null;
+    imageUrl: string | null;
+    memberCount: number;
+    isMember: boolean;
 }
 
 const TABS: { key: SearchTab; label: string; icon: string }[] = [
@@ -80,6 +91,26 @@ function UserCardSkeleton() {
                 <div className="h-5 bg-gray-200 dark:bg-zinc-700 rounded-full w-20" />
                 <div className="h-5 bg-gray-200 dark:bg-zinc-700 rounded-full w-14" />
             </div>
+        </div>
+    );
+}
+
+function CommunityCardSkeleton() {
+    return (
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-gray-200 dark:border-zinc-700 p-5 animate-pulse">
+            <div className="flex items-start gap-4 mb-3">
+                <div className="w-16 h-16 rounded-xl bg-gray-200 dark:bg-zinc-700 flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                    <div className="h-5 bg-gray-200 dark:bg-zinc-700 rounded-full w-3/4" />
+                    <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-24" />
+                    <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded-full w-16" />
+                </div>
+            </div>
+            <div className="space-y-1.5 mb-4">
+                <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-full" />
+                <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-2/3" />
+            </div>
+            <div className="h-9 bg-gray-200 dark:bg-zinc-700 rounded-lg" />
         </div>
     );
 }
@@ -254,6 +285,57 @@ function SearchUserCard({ user }: { user: UserResult }) {
     );
 }
 
+// ─── Community Search Card ───────────────────────────────────────────────────
+
+function SearchCommunityCard({ community }: { community: CommunityResult }) {
+    const [imgError, setImgError] = useState(false);
+    const showImage = community.imageUrl && !imgError;
+
+    return (
+        <Link
+            href={`/communities/${community.id}`}
+            className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-light-purple/40 dark:border-dark-purple/40 p-5 hover:shadow-xl hover:scale-[1.02] hover:border-light-purple dark:hover:border-dark-purple transition-all duration-300 cursor-pointer group block"
+        >
+            <div className="flex items-start gap-4 mb-3">
+                <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex-shrink-0 relative group-hover:ring-2 group-hover:ring-light-purple/50 dark:group-hover:ring-dark-purple/50 transition-all">
+                    {showImage ? (
+                        <Image
+                            src={community.imageUrl!}
+                            alt={community.name}
+                            fill
+                            className="object-cover"
+                            onError={() => setImgError(true)}
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-2xl">
+                            👥
+                        </div>
+                    )}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-800 dark:text-gray-100 truncate text-base">
+                        {community.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                        <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                            <Users size={12} />
+                            {community.memberCount} {community.memberCount === 1 ? "miembro" : "miembros"}
+                        </span>
+                        {community.isMember && (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">
+                                Miembro
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
+                {community.description || "Sin descripción"}
+            </p>
+        </Link>
+    );
+}
+
 // ─── Main Search Page Content ────────────────────────────────────────────────
 
 function SearchPageContent() {
@@ -267,6 +349,7 @@ function SearchPageContent() {
     const [activeTab, setActiveTab] = useState<SearchTab>("books");
     const [bookResults, setBookResults] = useState<BookResult[]>([]);
     const [userResults, setUserResults] = useState<UserResult[]>([]);
+    const [communityResults, setCommunityResults] = useState<CommunityResult[]>([]);
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
@@ -328,6 +411,7 @@ function SearchPageContent() {
             if (q.length < 2) {
                 setBookResults([]);
                 setUserResults([]);
+                setCommunityResults([]);
                 setHasSearched(false);
                 return;
             }
@@ -346,6 +430,11 @@ function SearchPageContent() {
                     if (result.success && result.users) {
                         setUserResults(result.users as UserResult[]);
                     }
+                } else if (tab === "communities") {
+                    const result = await getCommunities({ query: q, limit: 20 });
+                    if (result.success && result.communities) {
+                        setCommunityResults(result.communities as CommunityResult[]);
+                    }
                 }
             } catch (error) {
                 console.error("Search error:", error);
@@ -358,8 +447,6 @@ function SearchPageContent() {
 
     // Debounced search
     useEffect(() => {
-        if (activeTab === "communities") return;
-
         const timer = setTimeout(() => {
             executeSearch(query, activeTab);
         }, 400);
@@ -380,11 +467,16 @@ function SearchPageContent() {
         setActiveTab(tab);
         setBookResults([]);
         setUserResults([]);
+        setCommunityResults([]);
         setHasSearched(false);
     };
 
     const currentResults =
-        activeTab === "books" ? bookResults : activeTab === "users" ? userResults : [];
+        activeTab === "books"
+            ? bookResults
+            : activeTab === "users"
+                ? userResults
+                : communityResults;
 
     return (
         <>
@@ -421,7 +513,7 @@ function SearchPageContent() {
                                     ? "Buscar por título o autor..."
                                     : activeTab === "users"
                                         ? "Buscar por nombre, usuario o código..."
-                                        : "Buscar comunidades..."
+                                        : "Buscar comunidades por nombre..."
                             }
                             className="w-full pl-12 pr-4 py-4 bg-gray-100 dark:bg-zinc-800 border-2 border-gray-200 dark:border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple focus:border-light-purple dark:focus:border-dark-purple focus:bg-white dark:focus:bg-zinc-900 transition-all text-gray-800 dark:text-gray-200 text-lg"
                             autoFocus
@@ -448,25 +540,6 @@ function SearchPageContent() {
 
                 {/* ─── Content ─────────────────────────────────────────────────── */}
 
-                {/* Communities placeholder */}
-                {activeTab === "communities" && (
-                    <div className="text-center py-20">
-                        <div className="text-7xl mb-6 animate-bounce">🏘️</div>
-                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-3">
-                            Comunidades — Próximamente
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
-                            Estamos trabajando en un sistema de comunidades donde podrás unirte a
-                            grupos de lectura, compartir opiniones y descubrir nuevos libros con
-                            personas que comparten tus intereses.
-                        </p>
-                        <div className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-purple-100 dark:bg-purple-900/30 text-light-purple dark:text-purple-300 rounded-full text-sm font-medium">
-                            <span className="inline-block w-2 h-2 bg-light-purple rounded-full animate-pulse" />
-                            En desarrollo
-                        </div>
-                    </div>
-                )}
-
                 {/* Loading Skeletons */}
                 {loading && activeTab === "books" && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -480,6 +553,14 @@ function SearchPageContent() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {Array.from({ length: 6 }).map((_, i) => (
                             <UserCardSkeleton key={i} />
+                        ))}
+                    </div>
+                )}
+
+                {loading && activeTab === "communities" && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <CommunityCardSkeleton key={i} />
                         ))}
                     </div>
                 )}
@@ -516,33 +597,50 @@ function SearchPageContent() {
                     </>
                 )}
 
+                {/* Results – Communities */}
+                {!loading && activeTab === "communities" && communityResults.length > 0 && (
+                    <>
+                        <div className="flex items-center justify-between mb-4">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {communityResults.length} {communityResults.length === 1 ? "resultado" : "resultados"} encontrados
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {communityResults.map((community) => (
+                                <SearchCommunityCard key={community.id} community={community} />
+                            ))}
+                        </div>
+                    </>
+                )}
+
                 {/* Empty states */}
                 {!loading &&
                     hasSearched &&
-                    activeTab !== "communities" &&
                     currentResults.length === 0 && (
                         <div className="text-center py-16">
                             <div className="text-6xl mb-4">
-                                {activeTab === "books" ? "📖" : "👥"}
+                                {activeTab === "books" ? "📖" : activeTab === "users" ? "👥" : "🏘️"}
                             </div>
                             <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                                 Sin resultados
                             </h3>
                             <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
-                                No se encontraron {activeTab === "books" ? "libros" : "usuarios"} para
+                                No se encontraron {activeTab === "books" ? "libros" : activeTab === "users" ? "usuarios" : "comunidades"} para
                                 &quot;{query}&quot;. Intenta con otra búsqueda.
                             </p>
                         </div>
                     )}
 
                 {/* Initial state – no search entered yet */}
-                {!loading && !hasSearched && activeTab !== "communities" && (
+                {!loading && !hasSearched && (
                     <div className="text-center py-16">
                         <div className="text-7xl mb-6">🔍</div>
                         <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                             {activeTab === "books"
                                 ? "Busca libros por título o autor"
-                                : "Busca usuarios por nombre, usuario o código"}
+                                : activeTab === "users"
+                                    ? "Busca usuarios por nombre, usuario o código"
+                                    : "Busca comunidades por nombre"}
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
                             Escribe al menos 2 caracteres para comenzar a buscar

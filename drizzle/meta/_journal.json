@@ -36,6 +36,20 @@
       "when": 1771834866533,
       "tag": "0004_old_jackal",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771968043662,
+      "tag": "0005_worthless_preak",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1771987381111,
+      "tag": "0006_milky_pixie",
+      "breakpoints": true
     }
   ]
 }
