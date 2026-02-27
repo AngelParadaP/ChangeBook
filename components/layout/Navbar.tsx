@@ -19,6 +19,31 @@ interface BookResult {
   status: string | null;
 }
 
+/* ─── helper: ícono SVG via máscara CSS ─── */
+function SvgIcon({
+  src,
+  className = "",
+}: {
+  src: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`shrink-0 ${className}`}
+      style={{
+        maskImage: `url(${src})`,
+        maskRepeat: "no-repeat",
+        maskPosition: "center",
+        maskSize: "contain",
+        WebkitMaskImage: `url(${src})`,
+        WebkitMaskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        WebkitMaskSize: "contain",
+      }}
+    />
+  );
+}
+
 interface UserResult {
   id: string;
   name: string;
@@ -26,6 +51,7 @@ interface UserResult {
   studentCode: string;
   imageURL: string | null;
 }
+
 // Helper component for safe image rendering
 const ThumbnailImage = ({ src, alt }: { src: string; alt: string }) => {
   const [hasError, setHasError] = useState(false);
@@ -102,7 +128,7 @@ export function Navbar() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  // Click outside listener for both menus
+  /* ── Click fuera cierra menús (lógica original intacta) ── */
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -123,9 +149,7 @@ export function Navbar() {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -136,33 +160,48 @@ export function Navbar() {
     }
   };
 
+  /* Iniciales del usuario para el avatar */
+  const initials = session?.user?.name
+    ? session.user.name
+      .split(" ")
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase()
+    : "?";
+
   const hasBooks = bookResults.length > 0;
   const hasUsers = userResults.length > 0;
   const hasAnyResults = hasBooks || hasUsers;
 
   return (
-    <nav className="bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700 rounded-2xl shadow-sm relative z-40">
-      <div className="px-6 py-4">
+    <nav className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl shadow-sm relative z-40">
+      <div className="px-4 py-3">
         <div className="flex items-center justify-between gap-4">
-          {/* Left side - Toggle and Theme Buttons */}
-          <div className="flex items-center gap-2">
+
+          {/* ── Izquierda: toggle + tema ── */}
+          <div className="flex items-center gap-1">
             <button
               onClick={toggle}
-              className="p-3 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-all"
+              className="p-2.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-all group"
               aria-label="Toggle sidebar"
             >
-              <span className="text-2xl">☰</span>
+              <SvgIcon
+                src="/icons/menu.svg"
+                className="w-5 h-5 bg-gray-500 dark:bg-gray-400 group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+              />
             </button>
             <ThemeToggle inline />
           </div>
 
-          {/* Search Bar Container */}
+          {/* ── Centro: buscador ── */}
           <div className="flex-1 max-w-2xl relative" ref={searchRef}>
             <form onSubmit={handleSearchSubmit}>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                  🔍
-                </span>
+                <SvgIcon
+                  src="/icons/search.svg"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-400 dark:bg-gray-500 pointer-events-none"
+                />
                 <input
                   type="text"
                   value={searchQuery}
@@ -173,16 +212,16 @@ export function Navbar() {
                   onFocus={() => {
                     if (searchQuery.length >= 2) setShowResults(true);
                   }}
-                  placeholder="Buscar libros, usuarios, código de alumno..."
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-full focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple focus:bg-white dark:focus:bg-zinc-900 transition-all text-gray-800 dark:text-gray-200"
+                  placeholder="Buscar libros, usuarios, autores..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-full focus:outline-none focus:ring-2 focus:ring-light-purple/40 dark:focus:ring-dark-pink/40 focus:bg-white dark:focus:bg-zinc-900 transition-all text-sm text-gray-800 dark:text-gray-200 font-medium"
                 />
                 {isSearching && (
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin h-5 w-5 border-2 border-gray-400 border-t-transparent rounded-full" />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin h-4 w-4 border-2 border-light-purple dark:border-dark-pink border-t-transparent rounded-full" />
                 )}
               </div>
             </form>
 
-            {/* Search Results Dropdown */}
+            {/* Resultados de búsqueda */}
             {showResults && searchQuery.length >= 2 && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl shadow-xl overflow-hidden max-h-[450px] overflow-y-auto z-50">
                 {hasAnyResults ? (
@@ -210,8 +249,11 @@ export function Navbar() {
                                     className="object-cover"
                                   />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-xs">
-                                    📚
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <SvgIcon
+                                      src="/icons/book-open.svg"
+                                      className="w-5 h-5 bg-gray-400"
+                                    />
                                   </div>
                                 )}
                               </div>
@@ -299,29 +341,33 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-4">
+          {/* ── Derecha: notificaciones + perfil ── */}
+          <div className="flex items-center gap-2">
+            {/* Botón notificaciones */}
             <button
-              className="relative p-3 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-all group"
+              className="relative p-2.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-all group"
               aria-label="Notificaciones"
             >
-              <span className="text-2xl">🔔</span>
+              <SvgIcon
+                src="/icons/bell.svg"
+                className="w-5 h-5 bg-gray-500 dark:bg-gray-400 group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+              />
               {notifications > 0 && (
-                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {notifications > 9 ? "9+" : notifications}
-                </span>
+                <span className="absolute top-1.5 right-1.5 bg-red-500 w-2 h-2 rounded-full" />
               )}
             </button>
 
-            {/* Profile Menu */}
+            {/* Menú de perfil */}
             <div className="relative">
               <button
                 ref={buttonRef}
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center gap-2 p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-all"
+                className="flex items-center gap-2 p-1 rounded-full transition-all hover:ring-2 hover:ring-light-purple/30 dark:hover:ring-dark-pink/30"
                 aria-label="Menú de usuario"
               >
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex items-center justify-center relative">
+                <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center relative"
+                  style={{ background: "linear-gradient(135deg, #26658C, #54ACBF)" }}
+                >
                   {session?.user?.image ? (
                     <Image
                       src={session.user.image}
@@ -330,22 +376,27 @@ export function Navbar() {
                       className="object-cover"
                     />
                   ) : (
-                    <span className="text-xl">👤</span>
+                    <span className="text-white text-xs font-bold tracking-wide">
+                      {initials}
+                    </span>
                   )}
                 </div>
               </button>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown */}
               {isProfileMenuOpen && (
                 <div
                   ref={menuRef}
-                  className="absolute right-0 mt-2 w-64 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                  className="absolute right-0 mt-2 w-60 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
                 >
-                  <div className="px-4 py-3 bg-gradient-to-r from-purple-100 to-purple-50 dark:from-purple-900/30 dark:to-purple-800/20 border-b border-gray-200 dark:border-zinc-700">
-                    <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                  <div
+                    className="px-4 py-3 border-b border-gray-100 dark:border-zinc-700"
+                    style={{ background: "linear-gradient(135deg, rgba(38,101,140,0.08), rgba(84,172,191,0.08))" }}
+                  >
+                    <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">
                       {session?.user?.name || "Usuario"}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
                       @{session?.user?.username || "username"}
                     </p>
                   </div>
@@ -356,10 +407,13 @@ export function Navbar() {
                         setIsProfileMenuOpen(false);
                         router.push("/profile");
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors text-left group"
                     >
-                      <span className="text-lg">👤</span>
-                      <span className="text-gray-700 dark:text-gray-200 font-medium">
+                      <SvgIcon
+                        src="/icons/user.svg"
+                        className="w-4 h-4 bg-gray-400 group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
                         Mi Perfil
                       </span>
                     </button>
@@ -369,10 +423,13 @@ export function Navbar() {
                         setIsProfileMenuOpen(false);
                         handleLogout();
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left group"
                     >
-                      <span className="text-lg">🚪</span>
-                      <span className="text-red-600 dark:text-red-400 font-medium">
+                      <SvgIcon
+                        src="/icons/log-out.svg"
+                        className="w-4 h-4 bg-red-400 group-hover:bg-red-500 transition-colors"
+                      />
+                      <span className="text-sm text-red-500 dark:text-red-400 font-medium">
                         Cerrar Sesión
                       </span>
                     </button>

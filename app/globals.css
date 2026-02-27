@@ -1,21 +1,21 @@
-/* 1. La importación de Google Fonts siempre al principio */
-@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+/*
+  La fuente Nunito se carga desde next/font/google en layout.tsx
+  y se inyecta como la variable CSS --font-nunito en <html>.
+*/
 @import "tailwindcss";
 
 @theme inline {
-  /* 2. Registramos la fuente para que Tailwind cree la utilidad 'font-nunito' */
-  --font-nunito: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  /* Conectamos la variable de next/font con las utilidades de Tailwind */
+  --font-nunito: var(--font-nunito), "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-nunito), "Nunito", ui-sans-serif, system-ui, sans-serif;
 
-  /* Si quieres que Nunito sea la fuente por defecto de TODO el proyecto (sans) */
-  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
-
-  /* Colores de tu marca */
-  --color-light-purple: #a87bc7;
-  --color-dark-purple: #734a91;
-  --color-light-pink: #f1d7ff;
-  --color-dark-pink: #e0b8ff;
-  --color-yellowed-white: #eeeeee;
-  --color-gray: #808080;
+  /* Colores de tu marca — paleta Luna */
+  --color-light-purple: #26658C;
+  --color-dark-purple: #023859;
+  --color-light-pink: #A7EBF2;
+  --color-dark-pink: #54ACBF;
+  --color-yellowed-white: #E4F5F7;
+  --color-gray: #3D7A8C;
 
   /* Sincronizamos con tus variables de fondo/texto */
   --color-background: var(--background);
@@ -23,30 +23,24 @@
 }
 
 :root {
-  /* 3. Variables de estado para Light Mode */
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Variables de estado para Light Mode */
+  --background: #E4F5F7;
+  --foreground: #011C40;
 }
 
 .dark {
   /* Variables de estado para Dark Mode */
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #011C40;
+  --foreground: #A7EBF2;
 }
 
 /* Variante de Dark Mode para Tailwind 4 */
 @variant dark (&:where(.dark, .dark *));
 
-/* 4. Estilos Globales */
-* {
-  font-family: "Nunito", ui-sans-serif, system-ui, sans-serif;
-}
-
+/* Estilos Globales */
 body {
   background-color: var(--background);
   color: var(--foreground);
-  /* Aplicamos la fuente aquí también para asegurar el renderizado global */
-  font-family: "Nunito", ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

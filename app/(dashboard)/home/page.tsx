@@ -16,9 +16,9 @@ export default async function HomePage() {
   const initialHasMore = result.success ? result.hasMore || false : false;
 
   return (
-    <HomeClient 
-      initialBooks={initialBooks} 
-      initialHasMore={initialHasMore} 
+    <HomeClient
+      initialBooks={initialBooks}
+      initialHasMore={initialHasMore}
     />
   );
 }

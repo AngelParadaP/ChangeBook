@@ -16,19 +16,42 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
     return () => cancelAnimationFrame(handle);
   }, []);
 
+  const iconSrc = theme === "dark" ? "/icons/moon.svg" : "/icons/sun.svg";
+
   if (!mounted) {
-    if (inline) return <div className="p-3" />;
-    return <div className="fixed bottom-4 right-4 p-5" />;
+    return (
+      <button
+        className={`${inline
+            ? "p-2.5 rounded-xl"
+            : "fixed bottom-4 right-4 p-3 rounded-full shadow-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+          } opacity-0`}
+        aria-hidden="true"
+      >
+        <div className={inline ? "w-5 h-5" : "w-6 h-6"} />
+      </button>
+    );
   }
 
   if (inline) {
     return (
       <button
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className="p-3 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-all"
+        className="p-2.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-all group"
         aria-label="Cambiar tema"
       >
-        <span className="text-2xl">{theme === "dark" ? "🌙" : "☀️"}</span>
+        <div
+          className="w-5 h-5 bg-gray-500 dark:bg-gray-400 group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+          style={{
+            maskImage: `url(${iconSrc})`,
+            maskRepeat: "no-repeat",
+            maskPosition: "center",
+            maskSize: "contain",
+            WebkitMaskImage: `url(${iconSrc})`,
+            WebkitMaskRepeat: "no-repeat",
+            WebkitMaskPosition: "center",
+            WebkitMaskSize: "contain",
+          }}
+        />
       </button>
     );
   }
@@ -37,13 +60,25 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className="fixed bottom-4 right-4 p-3 rounded-full shadow-lg 
-                 bg-white dark:bg-slate-800 
-                 text-slate-900 dark:text-yellow-400 
-                 border border-slate-200 dark:border-slate-700
-                 hover:scale-110 transition-all z-50"
+                 bg-white dark:bg-zinc-800 
+                 text-gray-800 dark:text-gray-200
+                 border border-gray-200 dark:border-zinc-700
+                 hover:scale-110 transition-all z-50 group"
       aria-label="Cambiar tema"
     >
-      {theme === "dark" ? "🌙" : "☀️"}
+      <div
+        className="w-6 h-6 bg-gray-600 dark:bg-gray-300 group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+        style={{
+          maskImage: `url(${iconSrc})`,
+          maskRepeat: "no-repeat",
+          maskPosition: "center",
+          maskSize: "contain",
+          WebkitMaskImage: `url(${iconSrc})`,
+          WebkitMaskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          WebkitMaskSize: "contain",
+        }}
+      />
     </button>
   );
 }
