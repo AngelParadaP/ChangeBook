@@ -143,9 +143,9 @@ export default function HomePage() {
   if (status === "loading") {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin text-6xl mb-4">📚</div>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando...</p>
+        <div className="text-center flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-light-pink/30 border-t-dark-pink animate-spin" />
+          <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wide">Cargando...</p>
         </div>
       </div>
     );
@@ -167,11 +167,11 @@ export default function HomePage() {
 
       <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+        <div className="mb-7">
+          <h1 className="text-2xl font-bold text-dark-purple dark:text-light-pink mb-1 tracking-tight">
             Basados en tus gustos
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-sm font-medium text-gray-400 dark:text-gray-500">
             Descubre libros personalizados para ti
           </p>
         </div>
@@ -204,12 +204,12 @@ export default function HomePage() {
             </div>
 
             {/* Loading indicator */}
-            <div ref={loaderRef} className="py-8 text-center">
+            <div ref={loaderRef} className="py-8 flex justify-center">
               {loading && (
-                <div className="inline-block animate-spin text-4xl">📚</div>
+                <div className="w-8 h-8 rounded-full border-4 border-light-pink/30 border-t-dark-pink animate-spin" />
               )}
               {!hasMore && books.length > 0 && (
-                <p className="text-gray-400 dark:text-gray-500 text-sm">
+                <p className="text-gray-400 dark:text-gray-500 text-xs font-medium tracking-wide">
                   No hay más libros para mostrar
                 </p>
               )}

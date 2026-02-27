@@ -146,9 +146,13 @@ export default function UserProfilePage() {
 
     const isOwner = session?.user?.id === profile.id;
 
-    // If viewing own profile, redirect to /profile
+    useEffect(() => {
+        if (isOwner) {
+            router.push("/profile");
+        }
+    }, [isOwner, router]);
+
     if (isOwner) {
-        router.push("/profile");
         return null;
     }
 

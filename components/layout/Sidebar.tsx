@@ -1,23 +1,57 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSidebar } from "./SidebarContext";
 import { getUnreadCount } from "@/server/actions/chat";
 
+/* ─── helper: ícono SVG via máscara CSS (igual que en login/register) ─── */
+function SvgIcon({
+  src,
+  className = "",
+}: {
+  src: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`shrink-0 ${className}`}
+      style={{
+        maskImage: `url(${src})`,
+        maskRepeat: "no-repeat",
+        maskPosition: "center",
+        maskSize: "contain",
+        WebkitMaskImage: `url(${src})`,
+        WebkitMaskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        WebkitMaskSize: "contain",
+      }}
+    />
+  );
+}
+
+const navItems = [
+  { name: "Inicio", href: "/home", icon: "/icons/home.svg" },
+  { name: "Chats", href: "/chat", icon: "/icons/chat.svg" },
+  { name: "Publicar", href: "/publish", icon: "/icons/book-open.svg" },
+  { name: "Lista de espera", href: "/waitlist", icon: "/icons/clock.svg" },
+  { name: "Mi Perfil", href: "/profile", icon: "/icons/user.svg" },
+  { name: "Buscar", href: "/search", icon: "/icons/search.svg" },
+];
+
 export function Sidebar() {
   const { isOpen, sidebarWidth } = useSidebar();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Cargar conteo de mensajes no leídos
+  /* ── Polling de mensajes no leídos (lógica original intacta) ── */
   useEffect(() => {
     loadUnreadCount();
   }, []);
 
-  // Polling optimizado con Page Visibility API
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
@@ -26,16 +60,16 @@ export function Sidebar() {
         if (interval) clearInterval(interval);
       } else {
         loadUnreadCount();
-        interval = setInterval(loadUnreadCount, 20000); // 20 segundos para badge
+        interval = setInterval(loadUnreadCount, 20000);
       }
     };
 
     interval = setInterval(loadUnreadCount, 20000);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
@@ -46,70 +80,101 @@ export function Sidebar() {
     }
   };
 
-  const navItems = [
-    { name: "Inicio", href: "/home", icon: "🏠" },
-    { name: "Chats", href: "/chat", icon: "💬", badge: unreadCount },
-    { name: "Publicar", href: "/publish", icon: "📚" },
-    { name: "Lista de espera", href: "/waitlist", icon: "🕐" },
-    { name: "Mi Perfil", href: "/profile", icon: "👤" },
-    { name: "Buscar", href: "/search", icon: "🔍" },
-  ];
-
   return (
     <>
-      {/* Sidebar - Flush left with rounded right corners */}
       <aside
-        className={`fixed left-0 top-0 bottom-0 bg-light-purple dark:bg-dark-purple text-white transition-all duration-300 z-40 flex flex-col rounded-r-[2rem] shadow-lg ${isOpen ? sidebarWidth : "w-0"
-          } overflow-hidden`}
+        className={`fixed left-0 top-0 bottom-0 z-40 flex flex-col transition-all duration-300 rounded-r-3xl overflow-hidden shadow-2xl ${isOpen ? sidebarWidth : "w-0"
+          }`}
+        style={{
+          background: "linear-gradient(160deg, #011C40 0%, #023859 50%, #1a4f73 100%)",
+        }}
       >
-        {/* Logo Section */}
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center gap-3 justify-center items-center">
-            <div className="text-5xl">📖</div>
-            <div className="flex flex-col justify-center items-center">
-              <span className="text-xl font-bold tracking-wide">KYBOO</span>
-            </div>
-          </div>
+        {/* Decorative blurred circle — top */}
+        <div
+          className="absolute -top-16 -left-16 w-48 h-48 rounded-full pointer-events-none opacity-10 blur-3xl"
+          style={{ background: "#A7EBF2" }}
+        />
+        {/* Decorative blurred circle — bottom */}
+        <div
+          className="absolute -bottom-16 -right-8 w-40 h-40 rounded-full pointer-events-none opacity-10 blur-3xl"
+          style={{ background: "#54ACBF" }}
+        />
+
+        {/* ── Logo ── */}
+        <div className="px-5 pt-7 pb-5 border-b border-white/10 flex items-center gap-0.5">
+          <Image
+            src="/images/logo_kyboo.png"
+            alt="Kyboo Logo"
+            width={44}
+            height={44}
+            className="drop-shadow-lg -mr-0.5"
+            priority
+          />
+          <span
+            className="text-4xl font-bold tracking-tight"
+            style={{ color: "#A7EBF2" }}
+          >
+            yboo
+          </span>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="flex-1 py-6 space-y-2 px-3">
+        {/* ── Navigation ── */}
+        <nav className="flex-1 py-5 px-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
+            const isChatWithBadge =
+              item.href === "/chat" && unreadCount > 0;
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative ${isActive
-                  ? "bg-white/20 shadow-lg"
-                  : "hover:bg-white/10 hover:translate-x-1"
+                className={`relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group ${isActive
+                    ? "bg-white/15 border-l-2 border-light-pink"
+                    : "hover:bg-white/8 border-l-2 border-transparent"
                   }`}
               >
-                <span className="text-2xl">{item.icon}</span>
-                <span className="font-medium text-lg">{item.name}</span>
+                <SvgIcon
+                  src={item.icon}
+                  className={`w-5 h-5 transition-colors duration-200 ${isActive
+                      ? "bg-light-pink"
+                      : "bg-white/60 group-hover:bg-white/90"
+                    }`}
+                />
+                <span
+                  className={`font-semibold text-sm tracking-wide transition-colors duration-200 ${isActive ? "text-light-pink" : "text-white/75 group-hover:text-white"
+                    }`}
+                >
+                  {item.name}
+                </span>
 
-                {/* Indicador de notificación - simple punto rojo */}
-                {item.badge !== undefined && item.badge > 0 && (
-                  <div className="absolute top-1 right-2 bg-red-500 rounded-full w-3 h-3 animate-pulse" />
+                {/* Badge de mensajes no leídos */}
+                {isChatWithBadge && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-light-pink animate-pulse" />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Sign Out Button */}
-        <div className="p-4 border-t border-white/10">
+        {/* ── Sign Out ── */}
+        <div className="p-3 border-t border-white/10">
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex items-center gap-4 px-4 py-3 w-full rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
+            className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl transition-all duration-200 group hover:bg-red-500/15 border-l-2 border-transparent hover:border-red-400/50"
           >
-            <span className="text-2xl">🚪</span>
-            <span className="font-medium text-lg">Salir</span>
+            <SvgIcon
+              src="/icons/log-out.svg"
+              className="w-5 h-5 bg-white/50 group-hover:bg-red-400 transition-colors duration-200"
+            />
+            <span className="text-sm font-semibold text-white/60 group-hover:text-red-300 transition-colors duration-200">
+              Salir
+            </span>
           </button>
         </div>
       </aside>
 
-      {/* Overlay for mobile when open */}
+      {/* Overlay móvil */}
       {isOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black/50 z-30"
