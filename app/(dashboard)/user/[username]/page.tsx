@@ -65,6 +65,8 @@ export default function UserProfilePage() {
         }
     }, [profile]);
 
+
+
     const loadProfile = async (username: string) => {
         setLoading(true);
         try {
@@ -140,6 +142,8 @@ export default function UserProfilePage() {
         );
     }
 
+
+
     if (!profile) {
         return null;
     }
@@ -155,7 +159,6 @@ export default function UserProfilePage() {
     if (isOwner) {
         return null;
     }
-
     return (
         <>
             {toast && (

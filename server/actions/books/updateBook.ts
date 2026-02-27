@@ -13,7 +13,7 @@ interface UpdateBookData {
   year?: number | null;
   description?: string;
   genres?: string[];
-  status?: "disponible" | "intercambiado";
+  status?: "disponible" | "ocupado" | "intercambiado";
 }
 
 export async function updateBook(bookId: string, data: UpdateBookData) {

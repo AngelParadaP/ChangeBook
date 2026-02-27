@@ -1,0 +1,1 @@
+ALTER TABLE "communities" ADD COLUMN "genres" text[] DEFAULT '{}' NOT NULL;

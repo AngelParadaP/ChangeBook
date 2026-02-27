@@ -8,8 +8,9 @@ import Link from "next/link";
 import { useSidebar } from "./SidebarContext";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { searchBooks } from "@/server/actions/books/searchBooks";
+import { searchUsers } from "@/server/actions/user/searchUsers";
 
-interface SearchResult {
+interface BookResult {
   id: string;
   title: string;
   author: string;
@@ -43,9 +44,42 @@ function SvgIcon({
   );
 }
 
+interface UserResult {
+  id: string;
+  name: string;
+  username: string;
+  studentCode: string;
+  imageURL: string | null;
+}
+
+// Helper component for safe image rendering
+const ThumbnailImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [hasError, setHasError] = useState(false);
+  const isInvalid = !src || src.includes("placeholder.example.com");
+
+  if (isInvalid || hasError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-xs bg-gray-200 dark:bg-zinc-700">
+        📚
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      onError={() => setHasError(true)}
+    />
+  );
+};
+
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [bookResults, setBookResults] = useState<BookResult[]>([]);
+  const [userResults, setUserResults] = useState<UserResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [notifications] = useState(0);
@@ -64,19 +98,29 @@ export function Navbar() {
     router.push("/login");
   };
 
-  /* ── Búsqueda con debounce (lógica original intacta) ── */
+  // Debounced search – searches both books and users simultaneously
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (searchQuery.length >= 2) {
         setIsSearching(true);
         setShowResults(true);
-        const result = await searchBooks(searchQuery);
-        if (result.success && result.books) {
-          setSearchResults(result.books as SearchResult[]);
+
+        const [booksResult, usersResult] = await Promise.all([
+          searchBooks(searchQuery, 4),
+          searchUsers(searchQuery, 4),
+        ]);
+
+        if (booksResult.success && booksResult.books) {
+          setBookResults(booksResult.books as BookResult[]);
         }
+        if (usersResult.success && usersResult.users) {
+          setUserResults(usersResult.users as UserResult[]);
+        }
+
         setIsSearching(false);
       } else {
-        setSearchResults([]);
+        setBookResults([]);
+        setUserResults([]);
         setShowResults(false);
       }
     }, 500);
@@ -95,6 +139,7 @@ export function Navbar() {
       ) {
         setIsProfileMenuOpen(false);
       }
+
       if (
         searchRef.current &&
         !searchRef.current.contains(event.target as Node)
@@ -110,7 +155,8 @@ export function Navbar() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      console.log("Full search for:", searchQuery);
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setShowResults(false);
     }
   };
 
@@ -123,6 +169,10 @@ export function Navbar() {
       .join("")
       .toUpperCase()
     : "?";
+
+  const hasBooks = bookResults.length > 0;
+  const hasUsers = userResults.length > 0;
+  const hasAnyResults = hasBooks || hasUsers;
 
   return (
     <nav className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl shadow-sm relative z-40">
@@ -162,7 +212,7 @@ export function Navbar() {
                   onFocus={() => {
                     if (searchQuery.length >= 2) setShowResults(true);
                   }}
-                  placeholder="Buscar libros o autores..."
+                  placeholder="Buscar libros, usuarios, autores..."
                   className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-full focus:outline-none focus:ring-2 focus:ring-light-purple/40 dark:focus:ring-dark-pink/40 focus:bg-white dark:focus:bg-zinc-900 transition-all text-sm text-gray-800 dark:text-gray-200 font-medium"
                 />
                 {isSearching && (
@@ -173,56 +223,117 @@ export function Navbar() {
 
             {/* Resultados de búsqueda */}
             {showResults && searchQuery.length >= 2 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl shadow-xl overflow-hidden max-h-[400px] overflow-y-auto z-50">
-                {searchResults.length > 0 ? (
-                  <div className="divide-y divide-gray-100 dark:divide-zinc-800">
-                    <div className="px-4 py-2 text-xs font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-zinc-800/50 tracking-widest">
-                      RESULTADOS
-                    </div>
-                    {searchResults.map((book) => (
-                      <Link
-                        key={book.id}
-                        href={`/books/${book.id}`}
-                        onClick={() => setShowResults(false)}
-                        className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
-                      >
-                        <div className="w-10 h-14 relative flex-shrink-0 rounded overflow-hidden bg-gray-200 dark:bg-zinc-700">
-                          {book.imageUrl ? (
-                            <Image
-                              src={book.imageUrl}
-                              alt={book.title}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <SvgIcon
-                                src="/icons/book-open.svg"
-                                className="w-5 h-5 bg-gray-400"
-                              />
-                            </div>
-                          )}
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl shadow-xl overflow-hidden max-h-[450px] overflow-y-auto z-50">
+                {hasAnyResults ? (
+                  <>
+                    {/* Book Results Section */}
+                    {hasBooks && (
+                      <div>
+                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 flex items-center gap-1.5">
+                          <span>📚</span> LIBROS
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">
-                            {book.title}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {book.author} • {book.year || "N/A"}
-                          </p>
+                        <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                          {bookResults.map((book) => (
+                            <Link
+                              key={book.id}
+                              href={`/books/${book.id}`}
+                              onClick={() => setShowResults(false)}
+                              className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+                            >
+                              <div className="w-10 h-14 relative flex-shrink-0 rounded overflow-hidden bg-gray-200 dark:bg-zinc-700">
+                                {book.imageUrl ? (
+                                  <Image
+                                    src={book.imageUrl}
+                                    alt={book.title}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <SvgIcon
+                                      src="/icons/book-open.svg"
+                                      className="w-5 h-5 bg-gray-400"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
+                                  {book.title}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                  {book.author} • {book.year || "N/A"}
+                                </p>
+                              </div>
+                              {book.status === "intercambiado" && (
+                                <span className="ml-auto text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                  Intercambiado
+                                </span>
+                              )}
+                            </Link>
+                          ))}
                         </div>
-                        {book.status === "intercambiado" && (
-                          <span className="ml-auto text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 px-2 py-0.5 rounded-full whitespace-nowrap">
-                            Intercambiado
-                          </span>
-                        )}
-                      </Link>
-                    ))}
-                  </div>
+                      </div>
+                    )}
+
+                    {/* User Results Section */}
+                    {hasUsers && (
+                      <div>
+                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 flex items-center gap-1.5">
+                          <span>👤</span> USUARIOS
+                        </div>
+                        <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                          {userResults.map((user) => (
+                            <Link
+                              key={user.id}
+                              href={`/user/${user.username}`}
+                              onClick={() => setShowResults(false)}
+                              className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+                            >
+                              <div className="w-10 h-10 relative flex-shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800">
+                                {user.imageURL ? (
+                                  <Image
+                                    src={user.imageURL}
+                                    alt={user.name}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-lg">
+                                    👤
+                                  </div>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
+                                  {user.name}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                  @{user.username}
+                                </p>
+                              </div>
+                              <span className="text-[11px] bg-gray-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-400 px-2 py-0.5 rounded-full whitespace-nowrap font-mono">
+                                {user.studentCode}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Link to full search page */}
+                    <Link
+                      href={`/search?q=${encodeURIComponent(searchQuery)}`}
+                      onClick={() => setShowResults(false)}
+                      className="block px-4 py-3 text-center text-sm font-medium text-light-purple dark:text-dark-purple hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors border-t border-gray-100 dark:border-zinc-800"
+                    >
+                      Ver todos los resultados →
+                    </Link>
+                  </>
                 ) : (
                   !isSearching && (
                     <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-                      Sin resultados para &ldquo;{searchQuery}&rdquo;
+                      No se encontraron resultados para &quot;{searchQuery}&quot;
                     </div>
                   )
                 )}

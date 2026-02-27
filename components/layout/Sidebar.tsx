@@ -7,6 +7,7 @@ import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSidebar } from "./SidebarContext";
 import { getUnreadCount } from "@/server/actions/chat";
+import { getPendingExchangeCount } from "@/server/actions/exchanges";
 
 /* ─── helper: ícono SVG via máscara CSS (igual que en login/register) ─── */
 function SvgIcon({
@@ -33,23 +34,18 @@ function SvgIcon({
   );
 }
 
-const navItems = [
-  { name: "Inicio", href: "/home", icon: "/icons/home.svg" },
-  { name: "Chats", href: "/chat", icon: "/icons/chat.svg" },
-  { name: "Publicar", href: "/publish", icon: "/icons/book-open.svg" },
-  { name: "Lista de espera", href: "/waitlist", icon: "/icons/clock.svg" },
-  { name: "Mi Perfil", href: "/profile", icon: "/icons/user.svg" },
-  { name: "Buscar", href: "/search", icon: "/icons/search.svg" },
-];
+// navItems moved inside component to access dynamic values
 
 export function Sidebar() {
   const { isOpen, sidebarWidth } = useSidebar();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [exchangeCount, setExchangeCount] = useState(0);
 
   /* ── Polling de mensajes no leídos (lógica original intacta) ── */
   useEffect(() => {
     loadUnreadCount();
+    loadExchangeCount();
   }, []);
 
   useEffect(() => {
@@ -64,8 +60,11 @@ export function Sidebar() {
       }
     };
 
-    interval = setInterval(loadUnreadCount, 20000);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    interval = setInterval(() => {
+      loadUnreadCount();
+      loadExchangeCount();
+    }, 20000);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       clearInterval(interval);
@@ -80,6 +79,23 @@ export function Sidebar() {
     }
   };
 
+  const loadExchangeCount = async () => {
+    const result = await getPendingExchangeCount();
+    if (result.success && result.count !== undefined) {
+      setExchangeCount(result.count);
+    }
+  };
+
+  const navItems = [
+    { name: "Inicio", href: "/home", icon: "/icons/home.svg" },
+    { name: "Chats", href: "/chat", icon: "/icons/chat.svg", badge: unreadCount },
+    { name: "Publicar", href: "/publish", icon: "/icons/book-open.svg" },
+    { name: "Intercambios", href: "/exchanges", icon: "/icons/clock.svg", badge: exchangeCount },
+    { name: "Favoritos", href: "/favorites", icon: "/icons/bell.svg" },
+    { name: "Comunidades", href: "/communities", icon: "/icons/user.svg" },
+    { name: "Mi Perfil", href: "/profile", icon: "/icons/user.svg" },
+    { name: "Buscar", href: "/search", icon: "/icons/search.svg" },
+  ];
   return (
     <>
       <aside
@@ -130,15 +146,15 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={`relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group ${isActive
-                    ? "bg-white/15 border-l-2 border-light-pink"
-                    : "hover:bg-white/8 border-l-2 border-transparent"
+                  ? "bg-white/15 border-l-2 border-light-pink"
+                  : "hover:bg-white/8 border-l-2 border-transparent"
                   }`}
               >
                 <SvgIcon
                   src={item.icon}
                   className={`w-5 h-5 transition-colors duration-200 ${isActive
-                      ? "bg-light-pink"
-                      : "bg-white/60 group-hover:bg-white/90"
+                    ? "bg-light-pink"
+                    : "bg-white/60 group-hover:bg-white/90"
                     }`}
                 />
                 <span
@@ -148,8 +164,8 @@ export function Sidebar() {
                   {item.name}
                 </span>
 
-                {/* Badge de mensajes no leídos */}
-                {isChatWithBadge && (
+                {/* Badge de notificaciones (chats/intercambios) */}
+                {item.badge && item.badge > 0 && (
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-light-pink animate-pulse" />
                 )}
               </Link>
