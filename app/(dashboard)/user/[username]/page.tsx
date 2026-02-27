@@ -65,6 +65,14 @@ export default function UserProfilePage() {
         }
     }, [profile]);
 
+    const isOwner = session?.user?.id === profile?.id;
+
+    useEffect(() => {
+        if (isOwner) {
+            router.push("/profile");
+        }
+    }, [isOwner, router]);
+
 
 
     const loadProfile = async (username: string) => {
@@ -147,14 +155,6 @@ export default function UserProfilePage() {
     if (!profile) {
         return null;
     }
-
-    const isOwner = session?.user?.id === profile.id;
-
-    useEffect(() => {
-        if (isOwner) {
-            router.push("/profile");
-        }
-    }, [isOwner, router]);
 
     if (isOwner) {
         return null;
