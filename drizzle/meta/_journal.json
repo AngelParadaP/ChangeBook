@@ -50,6 +50,13 @@
       "when": 1771987381111,
       "tag": "0006_milky_pixie",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1772319535592,
+      "tag": "0007_futuristic_longshot",
+      "breakpoints": true
     }
   ]
 }

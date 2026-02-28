@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import { ExchangeCard } from "@/components/exchanges/ExchangeCard";
 import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModal";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type TabType = "activos" | "enviados" | "recibidos" | "historial" | "buscar";
 
@@ -35,11 +35,38 @@ interface ChatContact {
 }
 
 export default function ExchangesPage() {
+    return (
+        <Suspense fallback={
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 h-full flex items-center justify-center">
+                <div className="w-6 h-6 border-2 border-light-purple dark:border-light-pink border-t-transparent rounded-full animate-spin" />
+            </div>
+        }>
+            <ExchangesPageContent />
+        </Suspense>
+    );
+}
+
+function ExchangesPageContent() {
     const { data: session } = useSession();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<TabType>("activos");
+    const searchParams = useSearchParams();
+
+    // Leer tab de la URL si existe (ej: /exchanges?tab=recibidos)
+    const tabFromUrl = searchParams.get("tab") as TabType | null;
+    const validTabs: TabType[] = ["activos", "enviados", "recibidos", "historial", "buscar"];
+    const initialTab = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : "activos";
+
+    const [activeTab, setActiveTab] = useState<TabType>(initialTab);
     const [exchanges, setExchanges] = useState<ExchangeWithDetails[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Sincronizar tab cuando cambian los search params (navegación desde notificaciones)
+    useEffect(() => {
+        const newTab = searchParams.get("tab") as TabType | null;
+        if (newTab && validTabs.includes(newTab) && newTab !== activeTab) {
+            setActiveTab(newTab);
+        }
+    }, [searchParams]);
 
     // Search state
     const [searchQuery, setSearchQuery] = useState("");

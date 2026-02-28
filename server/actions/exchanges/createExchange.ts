@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { exchanges, books, users } from "@/db/schema";
+import { exchanges, books, users, notifications } from "@/db/schema";
 import { eq, and, or, ne, lte, gte, inArray } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -58,9 +58,9 @@ export async function createExchange(data: CreateExchangeData) {
             return { success: false, error: "El préstamo no puede ser mayor a 30 días" };
         }
 
-        // Verificar conflictos de fechas (estilo Airbnb)
-        // Un conflicto existe si: existingStart <= newEnd AND existingEnd >= newStart
-        const activeStatuses = ["pendiente", "aceptado", "en_curso"] as const;
+        // Verificar conflictos de fechas solo con intercambios ya aceptados o en curso
+        // Las solicitudes pendientes pueden tener fechas superpuestas — el dueño decide cuál aceptar
+        const activeStatuses = ["aceptado", "en_curso"] as const;
         const conflictingExchanges = await db
             .select()
             .from(exchanges)
@@ -99,6 +99,20 @@ export async function createExchange(data: CreateExchangeData) {
                 status: "pendiente",
             })
             .returning();
+
+        // Obtener el nombre del solicitante para la notificación
+        const requester = await db.query.users.findFirst({
+            where: eq(users.id, requesterId),
+        });
+        const requesterName = requester?.username || requester?.name || "Alguien";
+
+        // Notificar al dueño del libro
+        await db.insert(notifications).values({
+            userId: book.ownerId,
+            type: "exchange_requested",
+            message: `📬 @${requesterName} quiere intercambiar "${book.title}". ¡Revisa la solicitud!`,
+            exchangeId: newExchange.id,
+        });
 
         return {
             success: true,

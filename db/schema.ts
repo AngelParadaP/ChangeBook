@@ -174,6 +174,32 @@ export const exchanges = pgTable("exchanges", {
   };
 });
 
+// ─── Tabla para notificaciones ──────────────────────────────────────────────
+export const notifications = pgTable("notifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // Usuario que recibe la notificación
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  // Tipo de notificación
+  type: text("type", {
+    enum: ["exchange_requested", "exchange_accepted", "exchange_rejected", "exchange_auto_rejected", "exchange_started", "exchange_completed", "exchange_cancelled"],
+  }).notNull(),
+  // Mensaje descriptivo
+  message: text("message").notNull(),
+  // Referencia opcional al intercambio
+  exchangeId: uuid("exchange_id")
+    .references(() => exchanges.id, { onDelete: "cascade" }),
+  // Estado de lectura
+  isRead: integer("is_read").default(0).notNull(), // 0 = no leído, 1 = leído
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    userIdx: index("notification_user_idx").on(table.userId),
+    readIdx: index("notification_read_idx").on(table.isRead),
+  };
+});
+
 // ─── Tabla para favoritos de libros ─────────────────────────────────────────
 export const favorites = pgTable("favorites", {
   id: uuid("id").primaryKey().defaultRandom(),

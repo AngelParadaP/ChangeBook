@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,6 +9,15 @@ import { useSidebar } from "./SidebarContext";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { searchBooks } from "@/server/actions/books/searchBooks";
 import { searchUsers } from "@/server/actions/user/searchUsers";
+import {
+  getNotifications,
+  getUnreadNotificationCount,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteNotification,
+  deleteAllNotifications,
+  NotificationItem,
+} from "@/server/actions/notifications";
 
 interface BookResult {
   id: string;
@@ -76,13 +85,41 @@ const ThumbnailImage = ({ src, alt }: { src: string; alt: string }) => {
   );
 };
 
+// Configuración de iconos y colores por tipo de notificación
+const notificationConfig: Record<string, { icon: string; color: string }> = {
+  exchange_requested: { icon: "📬", color: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400" },
+  exchange_accepted: { icon: "✅", color: "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400" },
+  exchange_rejected: { icon: "❌", color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
+  exchange_auto_rejected: { icon: "🔄", color: "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400" },
+  exchange_started: { icon: "🚀", color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
+  exchange_completed: { icon: "🎉", color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400" },
+  exchange_cancelled: { icon: "🚫", color: "bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400" },
+};
+
+function formatTimeAgo(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - new Date(date).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return "Ahora";
+  if (diffMins < 60) return `hace ${diffMins}m`;
+  if (diffHours < 24) return `hace ${diffHours}h`;
+  if (diffDays < 7) return `hace ${diffDays}d`;
+  return new Date(date).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+}
+
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [bookResults, setBookResults] = useState<BookResult[]>([]);
   const [userResults, setUserResults] = useState<UserResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [notifications] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notificationsList, setNotificationsList] = useState<NotificationItem[]>([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const { toggle } = useSidebar();
@@ -92,10 +129,107 @@ export function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const notifButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
     router.push("/login");
+  };
+
+  // Cargar conteo de notificaciones no leídas
+  const loadUnreadCount = useCallback(async () => {
+    const result = await getUnreadNotificationCount();
+    if (result.success && result.count !== undefined) {
+      setUnreadCount(result.count);
+    }
+  }, []);
+
+  // Polling para notificaciones no leídas
+  useEffect(() => {
+    loadUnreadCount();
+    const interval = setInterval(loadUnreadCount, 15000);
+    return () => clearInterval(interval);
+  }, [loadUnreadCount]);
+
+  // Cargar lista de notificaciones al abrir el panel
+  const loadNotifications = async () => {
+    setLoadingNotifications(true);
+    const result = await getNotifications(20);
+    if (result.success && result.notifications) {
+      setNotificationsList(result.notifications);
+    }
+    setLoadingNotifications(false);
+  };
+
+  const handleToggleNotifications = async () => {
+    const willOpen = !isNotificationsOpen;
+    setIsNotificationsOpen(willOpen);
+    setIsProfileMenuOpen(false);
+    if (willOpen) {
+      await loadNotifications();
+    }
+  };
+
+  const handleMarkAsRead = async (notifId: string) => {
+    await markNotificationAsRead(notifId);
+    setNotificationsList((prev) =>
+      prev.map((n) => (n.id === notifId ? { ...n, isRead: 1 } : n))
+    );
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleMarkAllAsRead = async () => {
+    await markAllNotificationsAsRead();
+    setNotificationsList((prev) => prev.map((n) => ({ ...n, isRead: 1 })));
+    setUnreadCount(0);
+  };
+
+  const handleNotificationClick = async (notif: NotificationItem) => {
+    if (notif.isRead === 0) {
+      await handleMarkAsRead(notif.id);
+    }
+
+    // Determinar a qué tab navegar según el tipo de notificación
+    let tab = "activos";
+    switch (notif.type) {
+      case "exchange_requested":
+        // El owner recibe esta notificación → llevarlo a "recibidos"
+        tab = "recibidos";
+        break;
+      case "exchange_rejected":
+      case "exchange_auto_rejected":
+      case "exchange_completed":
+      case "exchange_cancelled":
+        // Estos ya terminaron → historial
+        tab = "historial";
+        break;
+      case "exchange_accepted":
+      case "exchange_started":
+        // Estos están activos → activos
+        tab = "activos";
+        break;
+      default:
+        tab = "activos";
+    }
+
+    router.push(`/exchanges?tab=${tab}`);
+    setIsNotificationsOpen(false);
+  };
+
+  const handleDeleteNotification = async (e: React.MouseEvent, notifId: string, wasUnread: boolean) => {
+    e.stopPropagation();
+    await deleteNotification(notifId);
+    setNotificationsList((prev) => prev.filter((n) => n.id !== notifId));
+    if (wasUnread) {
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    await deleteAllNotifications();
+    setNotificationsList([]);
+    setUnreadCount(0);
   };
 
   // Debounced search – searches both books and users simultaneously
@@ -128,7 +262,7 @@ export function Navbar() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  /* ── Click fuera cierra menús (lógica original intacta) ── */
+  /* ── Click fuera cierra menús ── */
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -145,6 +279,15 @@ export function Navbar() {
         !searchRef.current.contains(event.target as Node)
       ) {
         setShowResults(false);
+      }
+
+      if (
+        notifRef.current &&
+        notifButtonRef.current &&
+        !notifRef.current.contains(event.target as Node) &&
+        !notifButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsNotificationsOpen(false);
       }
     };
 
@@ -344,24 +487,150 @@ export function Navbar() {
           {/* ── Derecha: notificaciones + perfil ── */}
           <div className="flex items-center gap-2">
             {/* Botón notificaciones */}
-            <button
-              className="relative p-2.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-all group"
-              aria-label="Notificaciones"
-            >
-              <SvgIcon
-                src="/icons/bell.svg"
-                className="w-5 h-5 bg-gray-500 dark:bg-gray-400 group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
-              />
-              {notifications > 0 && (
-                <span className="absolute top-1.5 right-1.5 bg-red-500 w-2 h-2 rounded-full" />
+            <div className="relative">
+              <button
+                ref={notifButtonRef}
+                onClick={handleToggleNotifications}
+                className="relative p-2.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-all group"
+                aria-label="Notificaciones"
+              >
+                <SvgIcon
+                  src="/icons/bell.svg"
+                  className="w-5 h-5 bg-gray-500 dark:bg-gray-400 group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+                />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1 animate-pulse">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Panel de notificaciones */}
+              {isNotificationsOpen && (
+                <div
+                  ref={notifRef}
+                  className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                >
+                  {/* Header del panel */}
+                  <div className="px-4 py-3 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🔔</span>
+                      <h3 className="font-bold text-sm text-gray-800 dark:text-gray-100">
+                        Notificaciones
+                      </h3>
+                      {unreadCount > 0 && (
+                        <span className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={handleMarkAllAsRead}
+                        className="text-[11px] font-medium text-light-purple dark:text-light-pink hover:underline"
+                      >
+                        Marcar todo como leído
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Lista de notificaciones */}
+                  <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+                    {loadingNotifications ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="w-5 h-5 border-2 border-light-purple dark:border-light-pink border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    ) : notificationsList.length === 0 ? (
+                      <div className="py-10 text-center">
+                        <span className="text-3xl block mb-2">🔕</span>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          No tienes notificaciones
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-gray-50 dark:divide-zinc-800">
+                        {notificationsList.map((notif) => {
+                          const config = notificationConfig[notif.type] || {
+                            icon: "📌",
+                            color: "bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400",
+                          };
+                          return (
+                            <div
+                              key={notif.id}
+                              className={`relative group w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors flex items-start gap-3 cursor-pointer ${notif.isRead === 0
+                                ? "bg-purple-50/50 dark:bg-purple-900/5"
+                                : ""
+                                }`}
+                              onClick={() => handleNotificationClick(notif)}
+                            >
+                              {/* Icono */}
+                              <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm ${config.color}`}>
+                                {config.icon}
+                              </span>
+
+                              {/* Contenido */}
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-sm leading-snug ${notif.isRead === 0
+                                  ? "text-gray-800 dark:text-gray-100 font-medium"
+                                  : "text-gray-600 dark:text-gray-400"
+                                  }`}>
+                                  {notif.message}
+                                </p>
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                                  {formatTimeAgo(notif.createdAt)}
+                                </p>
+                              </div>
+
+                              {/* Indicador no leído o botón eliminar */}
+                              <div className="flex-shrink-0 flex items-center gap-1 mt-1">
+                                {notif.isRead === 0 && (
+                                  <span className="w-2 h-2 rounded-full bg-light-purple dark:bg-light-pink group-hover:hidden" />
+                                )}
+                                <button
+                                  onClick={(e) => handleDeleteNotification(e, notif.id, notif.isRead === 0)}
+                                  className={`w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all ${notif.isRead === 0 ? 'hidden group-hover:flex' : 'opacity-0 group-hover:opacity-100'}`}
+                                  title="Eliminar notificación"
+                                >
+                                  <span className="text-xs">✕</span>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  {notificationsList.length > 0 && (
+                    <div className="border-t border-gray-100 dark:border-zinc-800 flex items-center">
+                      <Link
+                        href="/exchanges"
+                        onClick={() => setIsNotificationsOpen(false)}
+                        className="flex-1 px-4 py-2.5 text-center text-xs font-medium text-light-purple dark:text-light-pink hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors"
+                      >
+                        Ver intercambios →
+                      </Link>
+                      <button
+                        onClick={handleDeleteAll}
+                        className="px-4 py-2.5 text-xs font-medium text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors border-l border-gray-100 dark:border-zinc-800"
+                      >
+                        🗑 Borrar todas
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
-            </button>
+            </div>
 
             {/* Menú de perfil */}
             <div className="relative">
               <button
                 ref={buttonRef}
-                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                onClick={() => {
+                  setIsProfileMenuOpen(!isProfileMenuOpen);
+                  setIsNotificationsOpen(false);
+                }}
                 className="flex items-center gap-2 p-1 rounded-full transition-all hover:ring-2 hover:ring-light-purple/30 dark:hover:ring-dark-pink/30"
                 aria-label="Menú de usuario"
               >

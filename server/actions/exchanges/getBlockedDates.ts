@@ -21,7 +21,7 @@ export async function getBlockedDates(bookId: string) {
             .where(
                 and(
                     eq(exchanges.bookId, bookId),
-                    inArray(exchanges.status, ["pendiente" as const, "aceptado" as const, "en_curso" as const])
+                    inArray(exchanges.status, ["aceptado" as const, "en_curso" as const])
                 )
             );
 
