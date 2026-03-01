@@ -13,7 +13,7 @@ import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getOrCreateRoom } from "@/server/actions/chat";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 import { Loader2 } from "lucide-react";
-import { Search, X } from "lucide-react";
+import { Search, X, MessageSquare } from "lucide-react";
 
 interface UserProfile {
     id: string;
@@ -178,7 +178,7 @@ export default function UserProfilePage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-full overflow-hidden">
                 {/* Left Column - User Info & Preferences */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar">
                     <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                         Perfil de @{profile.username}
                     </h1>
@@ -187,16 +187,18 @@ export default function UserProfilePage() {
                     </p>
 
                     <div className="space-y-6">
-                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50">
+                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50 shadow-inner">
                             <div className="flex flex-col md:flex-row gap-6 items-center">
                                 <div className="flex flex-col items-center gap-4">
-                                    <div className="w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex items-center justify-center relative">
-                                        <UserAvatar
-                                            imageURL={profile.imageURL}
-                                            name={profile.name}
-                                            size="2xl"
-                                            className="w-full h-full"
-                                        />
+                                    <div className="w-44 h-44 rounded-full p-[6px] bg-gradient-to-br from-primary-light/80 to-primary-muted dark:from-primary-dark dark:to-primary flex items-center justify-center relative shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
+                                        <div className="w-full h-full rounded-full overflow-hidden relative shadow-inner">
+                                            <UserAvatar
+                                                imageURL={profile.imageURL}
+                                                name={profile.name}
+                                                size="2xl"
+                                                className="w-full h-full"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -221,9 +223,9 @@ export default function UserProfilePage() {
                                         <button
                                             onClick={handleStartChat}
                                             disabled={startingChat}
-                                            className="w-full bg-gradient-to-r from-light-purple to-dark-purple text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md shadow-light-purple/20"
+                                            className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md shadow-primary/20"
                                         >
-                                            <span className="text-xl">💬</span>
+                                            <MessageSquare size={20} />
                                             {startingChat ? "Abriendo chat..." : "Enviar mensaje"}
                                         </button>
                                     </div>
@@ -246,7 +248,7 @@ export default function UserProfilePage() {
                                     profile.preferences.map((genre) => (
                                         <span
                                             key={genre}
-                                            className="px-4 py-2 rounded-full text-sm font-medium bg-light-purple/10 dark:bg-dark-purple/20 text-light-purple dark:text-light-pink ring-1 ring-light-purple/20 shadow-sm"
+                                            className="px-4 py-2 rounded-full text-sm font-medium bg-primary-soft dark:bg-primary-dark/20 text-primary dark:text-primary-light ring-1 ring-primary/20 shadow-sm"
                                         >
                                             {genre}
                                         </span>
@@ -263,7 +265,7 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* Right Column - Published Books */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar flex flex-col">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar flex flex-col">
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                         Libros publicados
                     </h2>
@@ -282,7 +284,7 @@ export default function UserProfilePage() {
                                     setBooksToShow(10); // Reset pagination when searching
                                 }}
                                 placeholder="Buscar por título, autor o género..."
-                                className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200 transition-all font-medium"
+                                className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-gray-800 dark:text-gray-200 transition-all font-medium"
                             />
                             {bookSearch && (
                                 <button

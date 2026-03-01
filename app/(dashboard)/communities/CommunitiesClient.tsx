@@ -141,7 +141,8 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Comunidades</h1>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors font-medium">
+          className="bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-xl font-medium transition-colors cursor-pointer shadow-sm hover:shadow-md flex items-center justify-center gap-2 w-full sm:w-auto"
+        >
           <Plus size={18} />
           Crear Comunidad
         </button>
@@ -153,10 +154,11 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
           <button
             key={tab.key}
             onClick={() => handleTabChange(tab.key)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === tab.key
-              ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg shadow-primary-glow"
-              : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-700 dark:hover:text-gray-200"
-              }`}
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 font-semibold transition-all duration-300 relative rounded-xl sm:rounded-none sm:rounded-t-xl cursor-pointer ${
+              activeTab === tab.key
+                ? "text-primary dark:text-primary-light bg-primary/5 dark:bg-primary-dark/20 sm:bg-transparent sm:dark:bg-transparent"
+                : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-800/50"
+            }`}
           >
             {tab.icon}
             {tab.label}
@@ -233,14 +235,14 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() => router.push(`/communities/${community.id}`)}
-                  className="flex-1 py-2 px-3 bg-gray-100 dark:bg-zinc-800 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"
+                  className="flex-1 py-2 px-3 bg-gray-100 dark:bg-zinc-800 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
                 >
                   Ver
                 </button>
                 {activeTab === "discover" && !community.isMember && (
                   <button
                     onClick={() => handleJoin(community.id)}
-                    className="flex-1 py-2 px-3 bg-primary-soft text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+                    className="flex-1 py-2 px-3 bg-primary-soft text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors cursor-pointer"
                   >
                     Unirse
                   </button>

@@ -489,7 +489,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 <button
                                     key={tab.key}
                                     onClick={() => handleTabChange(tab.key)}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${activeTab === tab.key
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${activeTab === tab.key
                                         ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-sm"
                                         : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
                                         }`}
@@ -529,14 +529,14 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 <div className="flex gap-2">
                                     <button
                                         onClick={openEditModal}
-                                        className="p-2.5 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl transition-colors"
+                                        className="p-2.5 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl transition-colors cursor-pointer"
                                         title="Editar comunidad"
                                     >
                                         <Settings size={18} />
                                     </button>
                                     <button
                                         onClick={() => setShowDeleteConfirm(true)}
-                                        className="p-2.5 bg-red-500/30 backdrop-blur-sm hover:bg-red-500/50 rounded-xl transition-colors"
+                                        className="p-2.5 bg-red-500/30 backdrop-blur-sm hover:bg-red-500/50 rounded-xl transition-colors cursor-pointer"
                                         title="Eliminar comunidad"
                                     >
                                         <Trash2 size={18} />
@@ -567,7 +567,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                         {joined && (
                             <button
                                 onClick={() => setShowPostModal(true)}
-                                className="px-4 py-2 bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 rounded-lg text-sm font-medium transition-colors"
+                                className="px-4 py-2 bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 rounded-lg text-sm font-medium transition-colors cursor-pointer"
                             >
                                 + Crear Publicación
                             </button>
@@ -575,7 +575,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                         {!joined && (
                             <button
                                 onClick={handleJoin}
-                                className="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors"
+                                className="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors cursor-pointer"
                             >
                                 Unirse
                             </button>
@@ -593,7 +593,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             <button
                                 onClick={handleLeave}
                                 disabled={leaving}
-                                className="group px-6 py-2 bg-green-500/10 text-green-600 border border-green-200 dark:border-green-800 hover:bg-red-500/10 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5"
+                                className="group px-6 py-2 bg-green-500/10 text-green-600 border border-green-200 dark:border-green-800 hover:bg-red-500/10 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
                             >
                                 <span className="group-hover:hidden flex items-center gap-1">{leaving ? "Saliendo..." : <><Check size={14} /> Miembro</>}</span>
                                 <span className="hidden group-hover:inline-flex items-center gap-1.5"><LogOut size={14} /> Abandonar</span>
@@ -608,7 +608,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                         <button
                             key={tab.key}
                             onClick={() => handleTabChange(tab.key)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === tab.key
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${activeTab === tab.key
                                 ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg shadow-primary-glow"
                                 : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-700 dark:hover:text-gray-200"
                                 }`}
@@ -769,36 +769,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                     <Image src={previewUrl} alt="Upload preview" fill className="object-contain" />
                                     <button
                                         onClick={removeImage}
-                                        className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-opacity"
-                                    >
-                                        <X size={16} />
-                                    </button>
-                                </div>
-                            ) : (
-                                <div
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="mb-4 border-2 border-dashed border-gray-200 dark:border-zinc-700 rounded-xl p-8 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group"
-                                >
-                                    <div className="p-3 bg-gray-100 dark:bg-zinc-800 rounded-full mb-2 group-hover:scale-110 transition-transform">
-                                        <Upload size={24} className="text-gray-400 group-hover:text-primary" />
-                                    </div>
-                                    <span className="text-sm font-medium">Click para subir una imagen</span>
-                                    <span className="text-xs text-gray-400 mt-1">PNG, JPG, WebP — se recortará</span>
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                        accept="image/png, image/jpeg, image/webp"
-                                    />
-                                </div>
-                            )}
-                            {previewUrl ? (
-                                <div className="relative w-full h-64 bg-gray-100 dark:bg-zinc-800 rounded-xl overflow-hidden mb-4 group border border-gray-200 dark:border-zinc-700">
-                                    <Image src={previewUrl} alt="Upload preview" fill className="object-contain" />
-                                    <button
-                                        onClick={removeImage}
-                                        className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-opacity"
+                                        className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full transition-opacity cursor-pointer"
                                     >
                                         <X size={16} />
                                     </button>
