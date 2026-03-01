@@ -50,8 +50,8 @@ export function AddBookForm() {
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-100 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
+    <div className="bg-card p-8 rounded-lg shadow-lg border border-card-border max-w-2xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-heading">
         Intercambiar un Libro
       </h2>
 
@@ -67,33 +67,33 @@ export function AddBookForm() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Título */}
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-body">
               Título
             </label>
             <input
               name="title"
               required
               type="text"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              className="mt-1 block w-full rounded-md border-card-border shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
             />
           </div>
 
           {/* Autor */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-body">
               Autor
             </label>
             <input
               name="author"
               required
               type="text"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              className="mt-1 block w-full rounded-md border-card-border shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
             />
           </div>
 
           {/* Año */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-body">
               Año de Edición
             </label>
             <input
@@ -101,27 +101,27 @@ export function AddBookForm() {
               type="number"
               min="1500"
               max={new Date().getFullYear()}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              className="mt-1 block w-full rounded-md border-card-border shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
             />
           </div>
 
           {/* Editorial */}
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-body">
               Editorial
             </label>
             <input
               name="publisher"
               type="text"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              className="mt-1 block w-full rounded-md border-card-border shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
             />
           </div>
 
           {/* Géneros */}
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-body">
               Géneros{" "}
-              <span className="text-gray-400 font-normal">
+              <span className="text-hint font-normal">
                 (separados por coma)
               </span>
             </label>
@@ -130,16 +130,16 @@ export function AddBookForm() {
               required
               type="text"
               placeholder="Ej: Ficción, Misterio, Realismo Mágico"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              className="mt-1 block w-full rounded-md border-card-border shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-hint">
               Estos tags se usarán para recomendar tu libro a otros lectores.
             </p>
           </div>
 
           {/* URL Imagen */}
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-body">
               URL de Portada
             </label>
             <input
@@ -147,20 +147,20 @@ export function AddBookForm() {
               required
               type="url"
               placeholder="https://..."
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              className="mt-1 block w-full rounded-md border-card-border shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
             />
           </div>
 
           {/* Descripción */}
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-body">
               Descripción / Sinopsis
             </label>
             <textarea
               name="description"
               required
               rows={4}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              className="mt-1 block w-full rounded-md border-card-border shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
             ></textarea>
           </div>
         </div>

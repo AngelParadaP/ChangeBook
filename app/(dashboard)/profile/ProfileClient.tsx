@@ -280,7 +280,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
           <Loader2 size={48} className="animate-spin text-primary dark:text-primary-light mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando...</p>
+          <p className="text-caption text-lg">Cargando...</p>
         </div>
       </div>
     );
@@ -309,16 +309,16 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-full overflow-hidden">
         {/* Left Column - User Info & Preferences */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+        <div className="bg-card rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar">
+          <h1 className="text-3xl font-bold text-heading mb-2">
             {isOwner ? "Mi Perfil" : `Perfil de ${profile.username}`}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-caption mb-6">
             {isOwner ? "Administra tu información y preferencias" : "Información del usuario"}
           </p>
 
           <div className="space-y-6">
-            <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50 shadow-inner">
+            <div className="bg-subtle rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50 shadow-inner">
               <div className="flex flex-col md:flex-row gap-6 items-center">
                 <div className="flex flex-col items-center gap-4">
                   <div
@@ -353,7 +353,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                   />
                   {isEditing && isOwner && (
                     <div className="flex flex-col items-center gap-2">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-[160px]">
+                      <p className="text-xs text-hint text-center max-w-[160px]">
                         Click en la imagen para cambiar (JPG, PNG, WebP - max 4MB)
                       </p>
                       {(profile.imageURL || imagePreview) && !wantsRemoveImage && (
@@ -386,36 +386,36 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
 
                 <div className="flex-1 space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre</label>
+                    <label className="block text-sm font-medium text-body mb-2">Nombre</label>
                     {isEditing ? (
                       <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-gray-800 dark:text-gray-200"
+                        className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading"
                       />
                     ) : (
-                      <p className="text-lg text-gray-800 dark:text-gray-100">{profile.name}</p>
+                      <p className="text-lg text-heading">{profile.name}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre de usuario</label>
+                    <label className="block text-sm font-medium text-body mb-2">Nombre de usuario</label>
                     {isEditing ? (
                       <input
                         type="text"
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-gray-800 dark:text-gray-200"
+                        className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading"
                       />
                     ) : (
-                      <p className="text-lg text-gray-800 dark:text-gray-100">@{profile.username}</p>
+                      <p className="text-lg text-heading">@{profile.username}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Código de alumno</label>
-                    <p className="text-lg text-gray-800 dark:text-gray-100">{profile.studentCode}</p>
+                    <label className="block text-sm font-medium text-body mb-2">Código de alumno</label>
+                    <p className="text-lg text-heading">{profile.studentCode}</p>
                   </div>
 
                   {isOwner && (
@@ -432,7 +432,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                           <button
                             onClick={handleCancel}
                             disabled={saving}
-                            className="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-gray-800 dark:text-gray-200 font-semibold rounded-xl transition-all"
+                            className="px-6 py-3 bg-dim text-heading font-semibold rounded-xl transition-all"
                           >
                             Cancelar
                           </button>
@@ -450,16 +450,16 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                 </div>
               </div>
 
-              <hr className="my-8 border-gray-200 dark:border-zinc-700" />
+              <hr className="my-8 border-card-border" />
 
               <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Preferencias de lectura</h2>
+                <h2 className="text-2xl font-bold text-heading">Preferencias de lectura</h2>
                 {isOwner && !isEditing && (
-                  <span className="text-sm text-gray-500 dark:text-gray-400">{formData.preferences.length} géneros</span>
+                  <span className="text-sm text-hint">{formData.preferences.length} géneros</span>
                 )}
               </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-caption mb-6">
                 {isOwner ? "Selecciona tus géneros favoritos" : "Géneros favoritos de este usuario"}
               </p>
 
@@ -467,7 +467,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                 <div className="space-y-4">
                   {/* Genre search */}
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hint">
                       <Search size={16} />
                     </span>
                     <input
@@ -475,13 +475,13 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                       value={genreSearch}
                       onChange={(e) => setGenreSearch(e.target.value)}
                       placeholder="Buscar género..."
-                      className="w-full pl-10 pr-8 py-3 bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-gray-800 dark:text-gray-200 text-sm"
+                      className="w-full pl-10 pr-8 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading text-sm"
                     />
                     {genreSearch && (
                       <button
                         type="button"
                         onClick={() => setGenreSearch("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption cursor-pointer"
                       >
                         <X size={14} />
                       </button>
@@ -506,9 +506,9 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                   )}
 
                   {/* Available genres scrollable grid */}
-                  <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar p-3 bg-white dark:bg-zinc-900/50 rounded-xl border border-gray-200 dark:border-zinc-700/50">
+                  <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar p-3 bg-card/50 rounded-xl border border-card-border/50">
                     {filteredGenres.length === 0 ? (
-                      <p className="text-sm text-gray-400 dark:text-gray-500 py-4 w-full text-center">
+                      <p className="text-sm text-hint py-4 w-full text-center">
                         No se encontraron géneros
                       </p>
                     ) : (
@@ -521,7 +521,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                             onClick={() => togglePreference(genre)}
                             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
                               ? "bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-dark/30 ring-1 ring-primary/20 shadow-sm"
-                              : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:border-primary/40 dark:hover:border-primary-dark/40 hover:bg-primary hover:bg-opacity-10 hover:text-primary dark:hover:text-primary-light"
+                              : "bg-soft text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-dark/40 hover:bg-primary hover:bg-opacity-10 hover:text-primary dark:hover:text-primary-light"
                             }`}
                           >
                             {isSelected && <span className="mr-1">✓</span>}
@@ -544,7 +544,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                       </span>
                     ))
                   ) : (
-                    <p className="text-gray-500 dark:text-gray-400 text-sm italic">
+                    <p className="text-hint text-sm italic">
                       No hay preferencias seleccionadas.
                     </p>
                   )}
@@ -562,15 +562,15 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       </div>
 
         {/* Right Column - Published Books */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar flex flex-col">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+        <div className="bg-card rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar flex flex-col">
+          <h2 className="text-2xl font-bold text-heading mb-4">
             {isOwner ? "Mis libros publicados" : "Libros publicados"}
           </h2>
 
           {/* Book Search Bar */}
           {books.length > 0 && (
             <div className="relative mb-6">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hint">
                 <Search size={18} />
               </span>
               <input
@@ -581,7 +581,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                   setBooksToShow(10); // Reset pagination when searching
                 }}
                 placeholder="Buscar por título, autor o género..."
-                className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-gray-800 dark:text-gray-200 transition-all font-medium"
+                className="w-full pl-10 pr-10 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading transition-all font-medium"
               />
               {bookSearch && (
                 <button
@@ -590,7 +590,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                     setBookSearch("");
                     setBooksToShow(10);
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -601,11 +601,11 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
           {loadingBooks ? (
             <div className="text-center py-8">
               <Loader2 size={32} className="animate-spin text-primary dark:text-primary-light mx-auto mb-2" />
-              <p className="text-gray-500 dark:text-gray-400">Cargando libros...</p>
+              <p className="text-hint">Cargando libros...</p>
             </div>
           ) : books.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400 text-lg">
+              <p className="text-hint text-lg">
                 {isOwner ? "No has publicado ningún libro aún" : "Este usuario no ha publicado libros"}
               </p>
               {isOwner && (
@@ -632,7 +632,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                 if (filteredBooks.length === 0) {
                   return (
                     <div className="text-center py-8">
-                       <p className="text-gray-500 dark:text-gray-400 text-lg">
+                       <p className="text-hint text-lg">
                           No se encontraron libros que coincidan con tu búsqueda.
                         </p>
                     </div>
@@ -664,7 +664,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                       <div className="pt-6 pb-2 text-center">
                         <button
                           onClick={() => setBooksToShow((prev) => prev + 10)}
-                          className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-all"
+                          className="px-6 py-2.5 bg-soft hover:bg-dim text-body font-semibold rounded-xl transition-all"
                         >
                           Cargar 10 más
                         </button>

@@ -240,7 +240,7 @@ export function BookModal({
     >
       <div
         ref={modalRef}
-        className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-gray-100 dark:border-zinc-800 flex flex-col"
+        className="bg-card rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-card-border flex flex-col"
         style={{
           opacity: isAnimating ? 1 : 0,
           transform: isAnimating
@@ -250,14 +250,14 @@ export function BookModal({
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-800/20">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+        <div className="flex items-center justify-between p-5 border-b border-card-border bg-subtle">
+          <h2 className="text-xl sm:text-2xl font-bold text-heading">
             {isEditing ? "Editar Libro" : "Detalles del Libro"}
           </h2>
           <div className="flex items-center gap-2">
             <button
               onClick={handleClose}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-zinc-700 rounded-xl transition-all cursor-pointer"
+              className="p-2 text-hint hover:text-body hover:bg-dim dark:hover:text-dim dark:hover:bg-dim rounded-xl transition-all cursor-pointer"
               aria-label="Cerrar"
             >
               <X size={20} />
@@ -326,7 +326,7 @@ export function BookModal({
                     ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 ring-1 ring-green-600/20"
                     : book.status === "ocupado"
                       ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 ring-1 ring-amber-600/20"
-                      : "bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300 ring-1 ring-gray-600/20"
+                      : "bg-soft text-body ring-1 ring-card-border"
                     }`}
                 >
                   {book.status === "disponible" ? <><CircleCheck size={14} className="inline mr-1" /> Disponible</> : book.status === "ocupado" ? <><CirclePause size={14} className="inline mr-1" /> Ocupado</> : <><CircleX size={14} className="inline mr-1" /> Intercambiado</>}
@@ -335,7 +335,7 @@ export function BookModal({
 
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                <label className="block text-sm font-medium text-hint mb-1.5">
                   Título
                 </label>
                 {isEditing ? (
@@ -343,10 +343,10 @@ export function BookModal({
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 transition-all font-medium"
+                    className="w-full px-4 py-2.5 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading transition-all font-medium"
                   />
                 ) : (
-                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  <p className="text-xl font-bold text-heading">
                     {book.title}
                   </p>
                 )}
@@ -354,7 +354,7 @@ export function BookModal({
 
               {/* Author */}
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                <label className="block text-sm font-medium text-hint mb-1.5">
                   Autor
                 </label>
                 {isEditing ? (
@@ -362,17 +362,17 @@ export function BookModal({
                     type="text"
                     value={formData.author}
                     onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 transition-all font-medium"
+                    className="w-full px-4 py-2.5 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading transition-all font-medium"
                   />
                 ) : (
-                  <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">{book.author}</p>
+                  <p className="text-lg text-body font-medium">{book.author}</p>
                 )}
               </div>
 
               {/* Owner Username */}
               {book.ownerUsername && !isEditing && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                  <label className="block text-sm font-medium text-hint mb-1.5">
                     Publicado por
                   </label>
                   <Link
@@ -388,7 +388,7 @@ export function BookModal({
               {/* Publisher & Year */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                  <label className="block text-sm font-medium text-hint mb-1.5">
                     Editorial
                   </label>
                   {isEditing ? (
@@ -396,16 +396,16 @@ export function BookModal({
                       type="text"
                       value={formData.publisher}
                       onChange={(e) => setFormData({ ...formData, publisher: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 transition-all"
+                      className="w-full px-4 py-2.5 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading transition-all"
                     />
                   ) : (
-                    <p className="text-gray-800 dark:text-gray-200 font-medium">
+                    <p className="text-heading font-medium">
                       {book.publisher || "No especificada"}
                     </p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                  <label className="block text-sm font-medium text-hint mb-1.5">
                     Año
                   </label>
                   {isEditing ? (
@@ -415,10 +415,10 @@ export function BookModal({
                       onChange={(e) => setFormData({ ...formData, year: e.target.value })}
                       min="1000"
                       max={new Date().getFullYear() + 1}
-                      className="w-full px-4 py-2.5 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 transition-all"
+                      className="w-full px-4 py-2.5 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading transition-all"
                     />
                   ) : (
-                    <p className="text-gray-800 dark:text-gray-200 font-medium">
+                    <p className="text-heading font-medium">
                       {book.year || "No especificado"}
                     </p>
                   )}
@@ -427,14 +427,14 @@ export function BookModal({
 
               {/* Genres */}
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                <label className="block text-sm font-medium text-hint mb-1.5">
                   Géneros
                 </label>
                 {isEditing ? (
                   <div className="space-y-3">
                     {/* Genre search */}
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hint">
                         <Search size={16} />
                       </span>
                       <input
@@ -442,13 +442,13 @@ export function BookModal({
                         value={genreSearch}
                         onChange={(e) => setGenreSearch(e.target.value)}
                         placeholder="Buscar género..."
-                        className="w-full pl-10 pr-8 py-2 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 text-sm"
+                        className="w-full pl-10 pr-8 py-2 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading text-sm"
                       />
                       {genreSearch && (
                         <button
                           type="button"
                           onClick={() => setGenreSearch("")}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption"
                         >
                           <X size={14} />
                         </button>
@@ -473,9 +473,9 @@ export function BookModal({
                     )}
 
                     {/* Genre grid */}
-                    <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto custom-scrollbar p-2 bg-gray-50 dark:bg-zinc-800/60 rounded-xl border border-gray-100 dark:border-zinc-700/50">
+                    <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto custom-scrollbar p-2 bg-subtle/60 rounded-xl border border-card-border/50">
                       {filteredGenres.length === 0 ? (
-                        <p className="text-sm text-gray-400 dark:text-gray-500 py-2 w-full text-center">
+                        <p className="text-sm text-hint py-2 w-full text-center">
                           No se encontraron géneros
                         </p>
                       ) : (
@@ -488,7 +488,7 @@ export function BookModal({
                               onClick={() => toggleGenre(genre)}
                               className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
                                 ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
-                                : "bg-white dark:bg-zinc-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-600 hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
+                                : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
                                 }`}
                             >
                               {isSelected && <span className="mr-1">✓</span>}
@@ -515,7 +515,7 @@ export function BookModal({
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                <label className="block text-sm font-medium text-hint mb-1.5">
                   Descripción
                 </label>
                 {isEditing ? (
@@ -523,10 +523,10 @@ export function BookModal({
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={4}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 resize-none transition-all font-medium"
+                    className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading resize-none transition-all font-medium"
                   />
                 ) : (
-                  <p className="text-gray-800 dark:text-gray-200 text-sm leading-relaxed p-4 bg-gray-50 dark:bg-zinc-800/30 rounded-xl border border-gray-100 dark:border-zinc-700/50">
+                  <p className="text-heading text-sm leading-relaxed p-4 bg-subtle/30 rounded-xl border border-card-border/50">
                     {book.description}
                   </p>
                 )}
@@ -536,7 +536,7 @@ export function BookModal({
         </div>
 
         {/* Footer Actions - Centered */}
-        <div className="border-t border-gray-100 dark:border-zinc-800 p-4 sm:p-5 bg-gray-50/50 dark:bg-zinc-800/20">
+        <div className="border-t border-card-border p-4 sm:p-5 bg-subtle">
           <div className="flex flex-wrap items-center justify-center gap-3 w-full">
             {isOwner ? (
               // Owner actions
@@ -546,7 +546,7 @@ export function BookModal({
                     <button
                       onClick={handleCancel}
                       disabled={isSaving}
-                      className="px-6 py-2.5 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 text-gray-800 dark:text-gray-200 font-semibold rounded-xl transition-all cursor-pointer disabled:cursor-not-allowed"
+                      className="px-6 py-2.5 bg-card hover:bg-soft border border-card-border text-heading font-semibold rounded-xl transition-all cursor-pointer disabled:cursor-not-allowed"
                     >
                       Cancelar
                     </button>
@@ -599,7 +599,7 @@ export function BookModal({
                       router.push(`/chat/${result.roomId}`);
                     }
                   }}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-all hover:bg-gray-100 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 shadow-sm cursor-pointer disabled:cursor-not-allowed"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-card text-body font-semibold rounded-xl transition-all hover:bg-soft border border-card-border shadow-sm cursor-pointer disabled:cursor-not-allowed"
                 >
                   <MessageSquare size={16} /> Enviar Mensaje
                 </button>
@@ -610,7 +610,7 @@ export function BookModal({
             <Link
               href={`/books/${book.id}`}
               onClick={handleClose}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-all hover:bg-gray-100 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 shadow-sm"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-card text-body font-semibold rounded-xl transition-all hover:bg-soft border border-card-border shadow-sm"
             >
               <ExternalLink size={16} /> Abrir página
             </Link>
@@ -637,16 +637,16 @@ export function BookModal({
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl max-w-sm w-full p-6 border border-gray-100 dark:border-zinc-800 pointer-events-auto animate-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Eliminar Libro</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <div className="bg-card rounded-2xl shadow-xl max-w-sm w-full p-6 border border-card-border pointer-events-auto animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-heading mb-2">Eliminar Libro</h3>
+            <p className="text-caption mb-6">
               ¿Estás seguro de que deseas eliminar "<strong>{book.title}</strong>"? Esta acción no se puede deshacer.
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-800 dark:text-gray-200 font-semibold rounded-xl transition-all cursor-pointer disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-soft hover:bg-dim text-heading font-semibold rounded-xl transition-all cursor-pointer disabled:cursor-not-allowed"
               >
                 Cancelar
               </button>

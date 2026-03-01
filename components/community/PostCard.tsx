@@ -77,15 +77,15 @@ export function PostCard({ post }: PostCardProps) {
   }, [liked, likes, post.id]);
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-4 hover:border-gray-300 dark:hover:border-zinc-700 transition-colors shadow-sm mb-4">
+    <div className="bg-card border border-card-border rounded-xl p-4 hover:border-card-border transition-colors shadow-sm mb-4">
       {/* Community Context - Top Bar */}
-      <div className="flex items-center gap-2 mb-3 text-xs text-gray-500">
-         <Link href={`/communities/${post.communityId}`} className="font-bold text-gray-900 dark:text-gray-100 hover:underline flex items-center gap-1 cursor-pointer" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center gap-2 mb-3 text-xs text-hint">
+         <Link href={`/communities/${post.communityId}`} className="font-bold text-heading hover:underline flex items-center gap-1 cursor-pointer" onClick={(e) => e.stopPropagation()}>
              {post.communityImage && <Image src={post.communityImage} alt="" width={16} height={16} className="rounded-full" />}
              c/{post.communityName}
          </Link>
          <span>•</span>
-         <span className="text-gray-400">Publicado por <Link href={`/user/${post.username}`} className="hover:underline hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer" onClick={(e) => e.stopPropagation()}>u/{post.username}</Link></span>
+         <span className="text-hint">Publicado por <Link href={`/user/${post.username}`} className="hover:underline hover:text-caption transition-colors cursor-pointer" onClick={(e) => e.stopPropagation()}>u/{post.username}</Link></span>
          <span>•</span>
          <span suppressHydrationWarning>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: es })}</span>
       </div>
@@ -93,26 +93,26 @@ export function PostCard({ post }: PostCardProps) {
       <Link href={`/communities/${post.communityId}/posts/${post.id}`} className="block group cursor-pointer">
           <div className="mb-3">
              <div 
-               className="text-gray-800 dark:text-gray-200 text-sm line-clamp-4 prose dark:prose-invert max-w-none group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors"
+               className="text-heading text-sm line-clamp-4 prose dark:prose-invert max-w-none group-hover:text-caption transition-colors"
                suppressHydrationWarning
                dangerouslySetInnerHTML={{ __html: post.content }}
              />
           </div>
 
           {post.imageUrl && (
-            <div className="mb-3 relative w-full h-80 rounded-lg overflow-hidden bg-gray-100 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800">
+            <div className="mb-3 relative w-full h-80 rounded-lg overflow-hidden bg-soft border border-card-border">
               <Image src={post.imageUrl} alt="Post content" fill className="object-contain" />
             </div>
           )}
       </Link>
 
-      <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400 text-sm border-t border-gray-100 dark:border-zinc-800/50 pt-3">
+      <div className="flex items-center gap-4 text-hint text-sm border-t border-card-border/50 pt-3">
         <button 
             onClick={handleLike}
             className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all active:scale-95 select-none cursor-pointer ${
               liked 
                 ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10' 
-                : 'hover:bg-gray-100 dark:hover:bg-zinc-800'
+                : 'hover:bg-soft'
             }`}
         >
           <Heart 
@@ -122,7 +122,7 @@ export function PostCard({ post }: PostCardProps) {
           />
           <span className="tabular-nums">{likes}</span>
         </button>
-        <Link href={`/communities/${post.communityId}/posts/${post.id}`} className="flex items-center gap-1.5 hover:bg-gray-100 dark:hover:bg-zinc-800 px-2 py-1 rounded-lg transition-colors cursor-pointer">
+        <Link href={`/communities/${post.communityId}/posts/${post.id}`} className="flex items-center gap-1.5 hover:bg-soft px-2 py-1 rounded-lg transition-colors cursor-pointer">
           <MessageSquare size={18} />
           <span>Comentarios</span>
         </Link>

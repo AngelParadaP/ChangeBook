@@ -274,22 +274,22 @@ export function ExchangeRequestModal({
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
             {/* Modal */}
-            <div className="relative bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="relative bg-card rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar">
                 {/* Header */}
-                <div className="sticky top-0 bg-white dark:bg-zinc-900 p-6 pb-4 border-b border-gray-100 dark:border-zinc-800 rounded-t-3xl z-10">
+                <div className="sticky top-0 bg-card p-6 pb-4 border-b border-card-border rounded-t-3xl z-10">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                            <h2 className="text-xl font-bold text-heading">
                                 <Mailbox size={20} className="inline mr-1" /> Solicitar Intercambio
                             </h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            <p className="text-sm text-hint mt-1">
                                 <span className="font-medium text-light-purple dark:text-light-pink">{bookTitle}</span>
                                 {" · "}de {ownerName}
                             </p>
                         </div>
                         <button
                             onClick={onClose}
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors text-gray-600 dark:text-gray-400"
+                            className="w-8 h-8 flex items-center justify-center rounded-full bg-soft hover:bg-dim transition-colors text-caption"
                         >
                             <X size={16} />
                         </button>
@@ -299,10 +299,10 @@ export function ExchangeRequestModal({
                 <div className="p-6 space-y-6">
                     {/* Calendar */}
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
+                        <label className="block text-xs font-bold text-hint uppercase tracking-wide mb-3">
                             <CalendarDays size={14} className="inline mr-1" /> Selecciona las fechas
                         </label>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
+                        <p className="text-xs text-hint mb-3">
                             {selectingEnd && startDate
                                 ? `Inicio: ${formatDate(startDate)} — Ahora selecciona la fecha de devolución`
                                 : "Haz clic en la fecha de inicio del préstamo"}
@@ -312,16 +312,16 @@ export function ExchangeRequestModal({
                         <div className="flex items-center justify-between mb-4">
                             <button
                                 onClick={prevMonth}
-                                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-gray-600 dark:text-gray-400"
+                                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-soft transition-colors text-caption"
                             >
                                 <ChevronLeft size={16} />
                             </button>
-                            <span className="font-semibold text-gray-700 dark:text-gray-300">
+                            <span className="font-semibold text-body">
                                 {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                             </span>
                             <button
                                 onClick={nextMonth}
-                                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-gray-600 dark:text-gray-400"
+                                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-soft transition-colors text-caption"
                             >
                                 <ChevronRight size={16} />
                             </button>
@@ -330,7 +330,7 @@ export function ExchangeRequestModal({
                         {/* Day names */}
                         <div className="grid grid-cols-7 gap-1 mb-1">
                             {dayNames.map((day) => (
-                                <div key={day} className="text-center text-[10px] font-bold text-gray-400 dark:text-gray-500 py-1">
+                                <div key={day} className="text-center text-[10px] font-bold text-hint py-1">
                                     {day}
                                 </div>
                             ))}
@@ -357,13 +357,13 @@ export function ExchangeRequestModal({
                                 if (disabled) {
                                     className += blocked
                                         ? "bg-red-100 dark:bg-red-900/20 text-red-300 dark:text-red-700 cursor-not-allowed line-through"
-                                        : "text-gray-300 dark:text-gray-600 cursor-not-allowed";
+                                        : "text-hint cursor-not-allowed";
                                 } else if (isStart || isEnd) {
                                     className += "bg-gradient-to-r from-light-purple to-dark-purple text-white font-bold shadow-md";
                                 } else if (inRange) {
                                     className += "bg-light-purple/20 dark:bg-dark-purple/20 text-light-purple dark:text-light-pink font-medium";
                                 } else {
-                                    className += "hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-300 cursor-pointer";
+                                    className += "hover:bg-soft text-body cursor-pointer";
                                 }
 
                                 return (
@@ -381,7 +381,7 @@ export function ExchangeRequestModal({
                         </div>
 
                         {/* Date legend */}
-                        <div className="flex gap-4 mt-3 text-[10px] text-gray-400 dark:text-gray-500">
+                        <div className="flex gap-4 mt-3 text-[10px] text-hint">
                             <div className="flex items-center gap-1">
                                 <div className="w-3 h-3 rounded bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800" />
                                 Ocupado
@@ -398,16 +398,16 @@ export function ExchangeRequestModal({
                         <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-3 border border-purple-100 dark:border-purple-800/30">
                             <div className="flex items-center justify-between text-sm">
                                 <div>
-                                    <span className="text-gray-500 dark:text-gray-400">Desde:</span>{" "}
-                                    <span className="font-semibold text-gray-700 dark:text-gray-300">{formatDate(startDate)}</span>
+                                    <span className="text-hint">Desde:</span>{" "}
+                                    <span className="font-semibold text-body">{formatDate(startDate)}</span>
                                 </div>
                                 <span className="text-light-purple dark:text-light-pink">→</span>
                                 <div>
-                                    <span className="text-gray-500 dark:text-gray-400">Hasta:</span>{" "}
-                                    <span className="font-semibold text-gray-700 dark:text-gray-300">{formatDate(endDate)}</span>
+                                    <span className="text-hint">Hasta:</span>{" "}
+                                    <span className="font-semibold text-body">{formatDate(endDate)}</span>
                                 </div>
                             </div>
-                            <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-1">
+                            <p className="text-xs text-center text-hint mt-1">
                                 {Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))} días de préstamo
                             </p>
                         </div>
@@ -415,13 +415,13 @@ export function ExchangeRequestModal({
 
                     {/* Meeting Location */}
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                        <label className="block text-xs font-bold text-hint uppercase tracking-wide mb-2">
                             <MapPin size={14} className="inline mr-1" /> Lugar de entrega en CUCEI
                         </label>
                         <select
                             value={meetingLocation}
                             onChange={(e) => setMeetingLocation(e.target.value)}
-                            className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-700 dark:text-gray-300 text-sm"
+                            className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm"
                         >
                             <option value="">Selecciona un lugar...</option>
                             {CUCEI_LOCATIONS.map((loc) => (
@@ -434,7 +434,7 @@ export function ExchangeRequestModal({
 
                     {/* Note */}
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                        <label className="block text-xs font-bold text-hint uppercase tracking-wide mb-2">
                             <MessageSquare size={14} className="inline mr-1" /> Nota (opcional)
                         </label>
                         <textarea
@@ -443,9 +443,9 @@ export function ExchangeRequestModal({
                             placeholder="Ej. ¿Podemos vernos a las 2pm?"
                             rows={2}
                             maxLength={200}
-                            className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-700 dark:text-gray-300 text-sm resize-none"
+                            className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm resize-none"
                         />
-                        <p className="text-right text-[10px] text-gray-400 mt-1">{note.length}/200</p>
+                        <p className="text-right text-[10px] text-hint mt-1">{note.length}/200</p>
                     </div>
 
                     {/* Error/Success messages */}

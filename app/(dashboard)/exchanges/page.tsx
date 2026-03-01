@@ -39,7 +39,7 @@ interface ChatContact {
 export default function ExchangesPage() {
     return (
         <Suspense fallback={
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 h-full flex items-center justify-center">
+            <div className="bg-card rounded-2xl shadow-sm p-6 h-full flex items-center justify-center">
                 <div className="w-6 h-6 border-2 border-light-purple dark:border-light-pink border-t-transparent rounded-full animate-spin" />
             </div>
         }>
@@ -215,40 +215,40 @@ function ExchangesPageContent() {
 
     const emptyMessages: Record<TabType, { icon: React.ReactNode; title: string; subtitle: string }> = {
         activos: {
-            icon: <BookOpenCheck size={48} className="text-gray-300 dark:text-gray-600" />,
+            icon: <BookOpenCheck size={48} className="text-hint" />,
             title: "Sin intercambios activos",
             subtitle: "Busca un libro y solicita tu primer intercambio",
         },
         enviados: {
-            icon: <Send size={48} className="text-gray-300 dark:text-gray-600" />,
+            icon: <Send size={48} className="text-hint" />,
             title: "No has enviado solicitudes",
             subtitle: "Busca libros que te interesen y solicita un intercambio",
         },
         recibidos: {
-            icon: <Inbox size={48} className="text-gray-300 dark:text-gray-600" />,
+            icon: <Inbox size={48} className="text-hint" />,
             title: "Sin solicitudes recibidas",
             subtitle: "Cuando alguien quiera un libro tuyo, aparecerá aquí",
         },
         historial: {
-            icon: <ClipboardList size={48} className="text-gray-300 dark:text-gray-600" />,
+            icon: <ClipboardList size={48} className="text-hint" />,
             title: "Sin historial",
             subtitle: "Los intercambios completados y cancelados aparecerán aquí",
         },
         buscar: {
-            icon: <Search size={48} className="text-gray-300 dark:text-gray-600" />,
+            icon: <Search size={48} className="text-hint" />,
             title: "Busca libros para intercambiar",
             subtitle: "Usa la barra de búsqueda o explora tus contactos",
         },
     };
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
+        <div className="bg-card rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
             {/* Header */}
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-heading flex items-center gap-3">
                     <RefreshCw size={24} className="text-light-purple dark:text-light-pink" /> Intercambios
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                <p className="text-hint text-sm mt-1">
                     Gestiona tus intercambios de libros con la comunidad
                 </p>
             </div>
@@ -283,26 +283,26 @@ function ExchangesPageContent() {
                 ].map((stat) => (
                     <div
                         key={stat.label}
-                        className="relative rounded-xl p-3 bg-gray-50 dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-700/50 overflow-hidden group hover:shadow-sm transition-shadow"
+                        className="relative rounded-xl p-3 bg-subtle border border-card-border/50 overflow-hidden group hover:shadow-sm transition-shadow"
                     >
                         <div className={`absolute inset-0 opacity-5 bg-gradient-to-br ${stat.color}`} />
                         <div className="relative">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">{stat.icon} {stat.label}</p>
-                            <p className="text-xl font-bold text-gray-800 dark:text-gray-100 mt-1">{stat.value}</p>
+                            <p className="text-xs text-hint flex items-center gap-1">{stat.icon} {stat.label}</p>
+                            <p className="text-xl font-bold text-heading mt-1">{stat.value}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-1 bg-gray-100 dark:bg-zinc-800 rounded-xl p-1 mb-6 overflow-x-auto">
+            <div className="flex gap-1 bg-soft rounded-xl p-1 mb-6 overflow-x-auto">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id
-                            ? "bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-100 shadow-sm"
-                            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                            ? "bg-card text-heading shadow-sm"
+                            : "text-hint hover:text-body"
                             }`}
                     >
                         {tab.icon}
@@ -320,7 +320,7 @@ function ExchangesPageContent() {
                             onClick={() => { setSearchMode("books"); setSelectedContact(null); }}
                             className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${searchMode === "books"
                                 ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
-                                : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700"
+                                : "bg-soft text-caption hover:bg-dim"
                                 }`}
                         >
                             <BookMarked size={16} className="inline mr-1" /> Buscar por libro
@@ -329,7 +329,7 @@ function ExchangesPageContent() {
                             onClick={() => { setSearchMode("contacts"); setSelectedContact(null); }}
                             className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${searchMode === "contacts"
                                 ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
-                                : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700"
+                                : "bg-soft text-caption hover:bg-dim"
                                 }`}
                         >
                             <MessageSquare size={16} className="inline mr-1" /> Buscar en mis chats
@@ -340,13 +340,13 @@ function ExchangesPageContent() {
                         <>
                             {/* Search Input */}
                             <div className="relative">
-                                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-hint" />
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Buscar por título, autor o usuario..."
-                                    className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-700 dark:text-gray-300 text-sm"
+                                    className="w-full pl-11 pr-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm"
                                 />
                             </div>
 
@@ -355,19 +355,19 @@ function ExchangesPageContent() {
                                 {searchLoading ? (
                                     <div className="space-y-2">
                                         {[1, 2, 3].map((i) => (
-                                            <div key={i} className="animate-pulse flex items-center gap-4 p-3 bg-gray-50 dark:bg-zinc-800 rounded-xl">
-                                                <div className="w-12 h-18 bg-gray-200 dark:bg-zinc-700 rounded-lg" />
+                                            <div key={i} className="animate-pulse flex items-center gap-4 p-3 bg-subtle rounded-xl">
+                                                <div className="w-12 h-18 bg-dim rounded-lg" />
                                                 <div className="flex-1 space-y-2">
-                                                    <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded w-3/4" />
-                                                    <div className="h-2 bg-gray-200 dark:bg-zinc-700 rounded w-1/2" />
+                                                    <div className="h-3 bg-dim rounded w-3/4" />
+                                                    <div className="h-2 bg-dim rounded w-1/2" />
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 ) : searchResults.length === 0 ? (
                                     <div className="text-center py-8">
-                                        <div className="mb-2"><BookOpenCheck size={40} className="mx-auto text-gray-300 dark:text-gray-600" /></div>
-                                        <p className="text-gray-400 text-sm">
+                                        <div className="mb-2"><BookOpenCheck size={40} className="mx-auto text-hint" /></div>
+                                        <p className="text-hint text-sm">
                                             {searchQuery.length >= 2
                                                 ? "No se encontraron libros"
                                                 : "Libros disponibles aparecerán aquí"}
@@ -392,11 +392,11 @@ function ExchangesPageContent() {
                                 <div>
                                     <button
                                         onClick={() => { setSelectedContact(null); setContactBooks([]); }}
-                                        className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 transition-colors"
+                                        className="flex items-center gap-2 text-sm text-hint hover:text-heading mb-4 transition-colors"
                                     >
                                         <ArrowLeft size={14} /> Volver a contactos
                                     </button>
-                                    <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-zinc-800 rounded-xl">
+                                    <div className="flex items-center gap-3 mb-4 p-3 bg-subtle rounded-xl">
                                         <div className="w-10 h-10">
                                             <UserAvatar
                                                 imageURL={selectedContact.imageURL}
@@ -405,18 +405,18 @@ function ExchangesPageContent() {
                                             />
                                         </div>
                                         <div>
-                                            <p className="font-semibold text-sm text-gray-700 dark:text-gray-300">{selectedContact.name}</p>
+                                            <p className="font-semibold text-sm text-body">{selectedContact.name}</p>
                                             <p className="text-xs text-light-purple dark:text-light-pink">@{selectedContact.username}</p>
                                         </div>
                                     </div>
 
                                     {/* Contact's books */}
                                     {searchLoading ? (
-                                        <div className="text-center py-8 text-gray-400">Cargando libros...</div>
+                                        <div className="text-center py-8 text-hint">Cargando libros...</div>
                                     ) : contactBooks.length === 0 ? (
                                         <div className="text-center py-8">
-                                            <div className="mb-2"><Mailbox size={40} className="mx-auto text-gray-300 dark:text-gray-600" /></div>
-                                            <p className="text-gray-400 text-sm">Este usuario no tiene libros publicados</p>
+                                            <div className="mb-2"><Mailbox size={40} className="mx-auto text-hint" /></div>
+                                            <p className="text-hint text-sm">Este usuario no tiene libros publicados</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-2">
@@ -442,16 +442,16 @@ function ExchangesPageContent() {
                                 <div className="space-y-2">
                                     {chatContacts.length === 0 ? (
                                         <div className="text-center py-8">
-                                            <div className="mb-2"><MessageSquare size={40} className="mx-auto text-gray-300 dark:text-gray-600" /></div>
-                                            <p className="text-gray-400 dark:text-gray-500 text-sm">No tienes chats activos</p>
-                                            <p className="text-gray-300 dark:text-gray-600 text-xs mt-1">Inicia una conversación para ver contactos aquí</p>
+                                            <div className="mb-2"><MessageSquare size={40} className="mx-auto text-hint" /></div>
+                                            <p className="text-hint text-sm">No tienes chats activos</p>
+                                            <p className="text-hint text-xs mt-1">Inicia una conversación para ver contactos aquí</p>
                                         </div>
                                     ) : (
                                         chatContacts.map((contact) => (
                                             <button
                                                 key={contact.id}
                                                 onClick={() => loadContactBooks(contact)}
-                                                className="w-full flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700/50 transition-colors text-left"
+                                                className="w-full flex items-center gap-3 p-3 bg-subtle rounded-xl hover:bg-soft/50 transition-colors text-left"
                                             >
                                                 <UserAvatar
                                                     imageURL={contact.imageURL}
@@ -459,10 +459,10 @@ function ExchangesPageContent() {
                                                     size="sm"
                                                 />
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-semibold text-sm text-gray-700 dark:text-gray-300 truncate">{contact.name}</p>
+                                                    <p className="font-semibold text-sm text-body truncate">{contact.name}</p>
                                                     <p className="text-xs text-light-purple dark:text-light-pink">@{contact.username}</p>
                                                 </div>
-                                                <ChevronRight size={16} className="text-gray-400" />
+                                                <ChevronRight size={16} className="text-hint" />
                                             </button>
                                         ))
                                     )}
@@ -479,13 +479,13 @@ function ExchangesPageContent() {
                     {loading ? (
                         <div className="space-y-3">
                             {[1, 2, 3].map((i) => (
-                                <div key={i} className="animate-pulse bg-gray-50 dark:bg-zinc-800 rounded-2xl p-4">
+                                <div key={i} className="animate-pulse bg-subtle rounded-2xl p-4">
                                     <div className="flex gap-4">
-                                        <div className="w-16 h-24 bg-gray-200 dark:bg-zinc-700 rounded-xl" />
+                                        <div className="w-16 h-24 bg-dim rounded-xl" />
                                         <div className="flex-1 space-y-2">
-                                            <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded w-3/4" />
-                                            <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded w-1/2" />
-                                            <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded w-1/3" />
+                                            <div className="h-4 bg-dim rounded w-3/4" />
+                                            <div className="h-3 bg-dim rounded w-1/2" />
+                                            <div className="h-3 bg-dim rounded w-1/3" />
                                         </div>
                                     </div>
                                 </div>
@@ -494,10 +494,10 @@ function ExchangesPageContent() {
                     ) : exchanges.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="mb-4 flex justify-center">{emptyMessages[activeTab].icon}</div>
-                            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            <h3 className="text-lg font-semibold text-body mb-1">
                                 {emptyMessages[activeTab].title}
                             </h3>
-                            <p className="text-gray-400 dark:text-gray-500 text-sm">
+                            <p className="text-hint text-sm">
                                 {emptyMessages[activeTab].subtitle}
                             </p>
                             {(activeTab === "activos" || activeTab === "enviados") && (
@@ -558,7 +558,7 @@ function BookSearchResult({
     const validImage = book.imageUrl && isValidImageUrl(book.imageUrl) && !imgError;
 
     return (
-        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700/50 transition-colors group">
+        <div className="flex items-center gap-3 p-3 bg-subtle rounded-xl hover:bg-soft/50 transition-colors group">
             {/* Book Image */}
             <Link href={`/books/${book.id}`} className="flex-shrink-0">
                 <div className="w-12 h-[72px] rounded-lg overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 relative shadow-sm">
@@ -581,11 +581,11 @@ function BookSearchResult({
             <div className="flex-1 min-w-0">
                 <Link
                     href={`/books/${book.id}`}
-                    className="font-semibold text-sm text-gray-800 dark:text-gray-100 hover:text-light-purple dark:hover:text-light-pink transition-colors truncate block"
+                    className="font-semibold text-sm text-heading hover:text-light-purple dark:hover:text-light-pink transition-colors truncate block"
                 >
                     {book.title}
                 </Link>
-                <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{book.author}</p>
+                <p className="text-xs text-hint truncate">{book.author}</p>
                 {book.ownerUsername && (
                     <p className="text-[10px] text-light-purple dark:text-light-pink mt-0.5">
                         @{book.ownerUsername}
@@ -605,7 +605,7 @@ function BookSearchResult({
                 </span>
                 <button
                     onClick={onMessage}
-                    className="px-2.5 py-1.5 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
+                    className="px-2.5 py-1.5 bg-soft text-caption text-xs font-medium rounded-lg hover:bg-dim transition-colors"
                     title="Enviar mensaje"
                 >
                     <MessageSquare size={14} />

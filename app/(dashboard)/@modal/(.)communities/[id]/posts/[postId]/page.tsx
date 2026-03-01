@@ -22,7 +22,7 @@ export default async function InterceptedPostPage(props: { params: Promise<{ id:
 
   return (
     <Modal>
-      <div className="bg-white dark:bg-zinc-900 min-h-full">
+      <div className="bg-card min-h-full">
          <PostDetailClient post={result.post} initialComments={initialComments} currentUserRole={roleResult.role} />
       </div>
     </Modal>

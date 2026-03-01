@@ -20,9 +20,9 @@ export function Button({
   
   const variants = {
     primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-    secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
-    outline: 'border border-gray-300 bg-transparent hover:bg-gray-100 focus:ring-gray-500',
-    ghost: 'bg-transparent hover:bg-gray-100 focus:ring-gray-500',
+    secondary: 'bg-body text-card hover:bg-heading focus:ring-primary',
+    outline: 'border border-card-border bg-transparent hover:bg-soft focus:ring-primary',
+    ghost: 'bg-transparent hover:bg-soft focus:ring-primary',
   };
 
   const sizes = {

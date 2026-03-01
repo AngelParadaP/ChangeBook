@@ -16,14 +16,14 @@ import { updateBook } from "@/server/actions/books";
 
 function BookCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-gray-200 dark:border-zinc-700 p-4 animate-pulse">
-      <div className="aspect-[2/3] bg-gray-200 dark:bg-zinc-700 rounded-xl mb-3" />
+    <div className="bg-card rounded-2xl border-2 border-card-border p-4 animate-pulse">
+      <div className="aspect-[2/3] bg-dim rounded-xl mb-3" />
       <div className="space-y-2">
-        <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded-full w-3/4" />
-        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-1/2" />
+        <div className="h-4 bg-dim rounded-full w-3/4" />
+        <div className="h-3 bg-dim rounded-full w-1/2" />
         <div className="flex gap-1 mt-2">
-          <div className="h-5 bg-gray-200 dark:bg-zinc-700 rounded-full w-16" />
-          <div className="h-5 bg-gray-200 dark:bg-zinc-700 rounded-full w-12" />
+          <div className="h-5 bg-dim rounded-full w-16" />
+          <div className="h-5 bg-dim rounded-full w-12" />
         </div>
       </div>
     </div>
@@ -32,28 +32,28 @@ function BookCardSkeleton() {
 
 function PostCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-4 shadow-sm mb-4 animate-pulse">
+    <div className="bg-card border border-card-border rounded-xl p-4 shadow-sm mb-4 animate-pulse">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-4 h-4 rounded-full bg-gray-200 dark:bg-zinc-700" />
-        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-28" />
-        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-3" />
-        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-36" />
-        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-3" />
-        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-20" />
+        <div className="w-4 h-4 rounded-full bg-dim" />
+        <div className="h-3 bg-dim rounded-full w-28" />
+        <div className="h-3 bg-dim rounded-full w-3" />
+        <div className="h-3 bg-dim rounded-full w-36" />
+        <div className="h-3 bg-dim rounded-full w-3" />
+        <div className="h-3 bg-dim rounded-full w-20" />
       </div>
       <div className="space-y-2 mb-3">
-        <div className="h-3.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-full" />
-        <div className="h-3.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-5/6" />
-        <div className="h-3.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-2/3" />
+        <div className="h-3.5 bg-dim rounded-full w-full" />
+        <div className="h-3.5 bg-dim rounded-full w-5/6" />
+        <div className="h-3.5 bg-dim rounded-full w-2/3" />
       </div>
-      <div className="flex items-center gap-4 border-t border-gray-100 dark:border-zinc-800/50 pt-3">
+      <div className="flex items-center gap-4 border-t border-card-border/50 pt-3">
         <div className="flex items-center gap-1.5">
-          <div className="w-[18px] h-[18px] rounded bg-gray-200 dark:bg-zinc-700" />
-          <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-6" />
+          <div className="w-[18px] h-[18px] rounded bg-dim" />
+          <div className="h-3 bg-dim rounded-full w-6" />
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-[18px] h-[18px] rounded bg-gray-200 dark:bg-zinc-700" />
-          <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-20" />
+          <div className="w-[18px] h-[18px] rounded bg-dim" />
+          <div className="h-3 bg-dim rounded-full w-20" />
         </div>
       </div>
     </div>
@@ -267,19 +267,19 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
         />
       )}
 
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
+      <div className="bg-card rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
         {/* Header with Tabs */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+          <h1 className="text-3xl font-bold text-heading mb-2">
             Inicio
           </h1>
-          <div className="flex gap-4 border-b border-gray-200 dark:border-zinc-700 mt-4">
+          <div className="flex gap-4 border-b border-card-border mt-4">
                <button
                   onClick={() => handleTabChange('books')}
                   className={`pb-2 px-1 text-lg font-medium transition-colors relative ${
                       activeTab === 'books' 
                       ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple' 
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                      : 'text-hint hover:text-body'
                   }`}
                >
                    Libros para ti
@@ -289,7 +289,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
                   className={`pb-2 px-1 text-lg font-medium transition-colors relative ${
                       activeTab === 'communities' 
                       ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple' 
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                      : 'text-hint hover:text-body'
                   }`}
                >
                    Comunidades
@@ -303,7 +303,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
             <>
                 {books.length === 0 && !loading ? (
                 <div className="text-center py-12">
-                    <p className="text-gray-500 dark:text-gray-400 text-lg">
+                    <p className="text-hint text-lg">
                     No hay libros disponibles en este momento.
                     </p>
                 </div>
@@ -339,10 +339,10 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
                 
                 {posts.length === 0 && !postsLoading ? (
                     <div className="text-center py-12">
-                        <p className="text-gray-500 dark:text-gray-400 text-lg">
+                        <p className="text-hint text-lg">
                             {postsMessage || "No hay publicaciones recientes de tus comunidades."}
                         </p>
-                        <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
+                        <p className="text-hint text-sm mt-2">
                              ¡Únete a más comunidades para ver contenido aquí!
                         </p>
                     </div>

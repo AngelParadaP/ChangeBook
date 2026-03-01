@@ -55,11 +55,11 @@ interface BookRecommendationSidebarProps {
 function RecommendationSkeleton() {
   return (
     <div className="flex gap-3 animate-pulse">
-      <div className="w-12 h-16 rounded-lg bg-gray-200 dark:bg-zinc-700 flex-shrink-0" />
+      <div className="w-12 h-16 rounded-lg bg-dim flex-shrink-0" />
       <div className="flex-1 min-w-0 space-y-1.5">
-        <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-3/4" />
-        <div className="h-2.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-1/2" />
-        <div className="h-2 bg-gray-200 dark:bg-zinc-700 rounded-full w-2/3" />
+        <div className="h-3 bg-dim rounded-full w-3/4" />
+        <div className="h-2.5 bg-dim rounded-full w-1/2" />
+        <div className="h-2 bg-dim rounded-full w-2/3" />
       </div>
     </div>
   );
@@ -134,16 +134,16 @@ function BookSelectionModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-700 overflow-hidden">
+      <div className="w-full max-w-md bg-card rounded-2xl shadow-2xl border border-card-border overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-zinc-800">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+        <div className="flex items-center justify-between p-4 border-b border-card-border">
+          <h3 className="font-bold text-lg text-heading flex items-center gap-2">
             <BookOpen size={20} className="text-primary" />
             Recomendar un libro
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-soft rounded-lg transition-colors"
           >
             <X size={18} />
           </button>
@@ -156,10 +156,10 @@ function BookSelectionModal({
               <Loader2 size={24} className="animate-spin text-primary" />
             </div>
           ) : myBooks.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-8 text-hint">
               <BookOpen
                 size={40}
-                className="mx-auto mb-3 text-gray-300 dark:text-zinc-600"
+                className="mx-auto mb-3 text-hint dark:text-zinc-600"
               />
               <p className="font-medium">
                 {hasGenreFilter
@@ -174,7 +174,7 @@ function BookSelectionModal({
             </div>
           ) : (
             <>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+              <p className="text-sm text-hint mb-3">
                 {hasGenreFilter
                   ? `Libros compatibles con los géneros de la comunidad:`
                   : "Elige uno de tus libros para compartir con la comunidad:"}
@@ -186,10 +186,10 @@ function BookSelectionModal({
                     onClick={() => setSelectedBookId(book.id)}
                     className={`w-full flex gap-3 p-3 rounded-xl border-2 text-left transition-all ${selectedBookId === book.id
                         ? "border-primary bg-primary-soft dark:bg-primary-dark/20"
-                        : "border-gray-100 dark:border-zinc-800 hover:border-gray-200 dark:hover:border-zinc-700"
+                        : "border-card-border hover:border-card-border"
                       }`}
                   >
-                    <div className="w-10 h-14 rounded-lg bg-gray-200 dark:bg-zinc-800 overflow-hidden relative flex-shrink-0">
+                    <div className="w-10 h-14 rounded-lg bg-dim overflow-hidden relative flex-shrink-0">
                       <Image
                         src={book.imageUrl}
                         alt={book.title}
@@ -198,10 +198,10 @@ function BookSelectionModal({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-gray-900 dark:text-white truncate">
+                      <p className="font-semibold text-sm text-heading truncate">
                         {book.title}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      <p className="text-xs text-hint truncate">
                         {book.author}
                       </p>
                       {book.genres && book.genres.length > 0 && (
@@ -230,7 +230,7 @@ function BookSelectionModal({
 
               {selectedBookId && (
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-body mb-1">
                     Mensaje (opcional)
                   </label>
                   <input
@@ -239,7 +239,7 @@ function BookSelectionModal({
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="¿Por qué recomiendas este libro?"
                     maxLength={150}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-zinc-700 rounded-lg bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="w-full px-3 py-2 text-sm border border-card-border rounded-lg bg-subtle text-heading placeholder:text-hint focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
                 </div>
               )}
@@ -249,10 +249,10 @@ function BookSelectionModal({
 
         {/* Footer */}
         {myBooks.length > 0 && (
-          <div className="p-4 border-t border-gray-100 dark:border-zinc-800 flex justify-end gap-2">
+          <div className="p-4 border-t border-card-border flex justify-end gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-caption hover:bg-soft rounded-lg transition-colors"
             >
               Cancelar
             </button>
@@ -373,7 +373,7 @@ export default function BookRecommendationSidebar({
   };
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 overflow-hidden flex flex-col max-h-[calc(100vh-8rem)]">
+    <div className="bg-card rounded-2xl shadow-sm border border-card-border overflow-hidden flex flex-col max-h-[calc(100vh-8rem)]">
       {/* Header */}
       <div className="p-4 bg-gradient-to-r from-primary to-primary-dark flex-shrink-0">
         <h3 className="font-bold text-white flex items-center gap-2">
@@ -397,15 +397,15 @@ export default function BookRecommendationSidebar({
           <div className="text-center py-4">
             <BookOpen
               size={32}
-              className="mx-auto mb-2 text-gray-300 dark:text-zinc-600"
+              className="mx-auto mb-2 text-hint dark:text-zinc-600"
             />
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-hint">
               {aggregated
                 ? "Aún no hay recomendaciones"
                 : "Nadie ha recomendado libros aún"}
             </p>
             {!aggregated && isMember && (
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              <p className="text-xs text-hint mt-1">
                 ¡Sé el primero en compartir un libro!
               </p>
             )}
@@ -416,11 +416,11 @@ export default function BookRecommendationSidebar({
               <Link
                 key={rec.id}
                 href={`/books/${rec.bookId}`}
-                className="group relative block rounded-xl p-2.5 -mx-1 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer"
+                className="group relative block rounded-xl p-2.5 -mx-1 hover:bg-subtle transition-colors cursor-pointer"
               >
                 <div className="flex gap-3">
                   {/* Book cover */}
-                  <div className="w-12 h-16 rounded-lg bg-gray-200 dark:bg-zinc-800 overflow-hidden relative flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
+                  <div className="w-12 h-16 rounded-lg bg-dim overflow-hidden relative flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
                     <Image
                       src={rec.bookImageUrl}
                       alt={rec.bookTitle}
@@ -431,10 +431,10 @@ export default function BookRecommendationSidebar({
 
                   {/* Book info */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-gray-900 dark:text-white leading-tight truncate group-hover:text-primary dark:group-hover:text-primary-light transition-colors">
+                    <p className="font-semibold text-sm text-heading leading-tight truncate group-hover:text-primary dark:group-hover:text-primary-light transition-colors">
                       {rec.bookTitle}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    <p className="text-xs text-hint truncate">
                       {rec.bookAuthor}
                     </p>
                     <div className="flex items-center gap-1.5 mt-1">
@@ -450,22 +450,22 @@ export default function BookRecommendationSidebar({
                       </span>
                       {aggregated && rec.communityName && (
                         <>
-                          <span className="text-gray-300 dark:text-zinc-600">
+                          <span className="text-hint dark:text-zinc-600">
                             •
                           </span>
-                          <span className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                          <span className="text-xs text-hint truncate">
                             c/{rec.communityName}
                           </span>
                         </>
                       )}
                     </div>
                     {rec.message && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic line-clamp-2">
+                      <p className="text-xs text-hint mt-1 italic line-clamp-2">
                         &quot;{rec.message}&quot;
                       </p>
                     )}
                     <span
-                      className="text-[10px] text-gray-400 mt-0.5 block"
+                      className="text-[10px] text-hint mt-0.5 block"
                       suppressHydrationWarning
                     >
                       {formatDistanceToNow(new Date(rec.createdAt), {

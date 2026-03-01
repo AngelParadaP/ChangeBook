@@ -270,15 +270,15 @@ export default function ImageCropper({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-md shadow-2xl border border-gray-200 dark:border-zinc-700 overflow-hidden">
+      <div className="bg-card rounded-2xl w-full max-w-md shadow-2xl border border-card-border overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-zinc-800">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-card-border">
+          <h3 className="text-lg font-bold text-heading">
             Recortar imagen
           </h3>
           <button
             onClick={onCancel}
-            className="p-1.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+            className="p-1.5 hover:bg-soft rounded-full transition-colors"
           >
             <X size={18} />
           </button>
@@ -286,9 +286,9 @@ export default function ImageCropper({
 
         {/* Aspect ratio selector */}
         {aspectRatios && aspectRatios.length > 1 && (
-          <div className="px-5 py-3 border-b border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/50">
+          <div className="px-5 py-3 border-b border-card-border bg-subtle">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mr-1">Proporción:</span>
+              <span className="text-xs text-hint font-medium mr-1">Proporción:</span>
               {aspectRatios.map((ratio) => {
                 const isActive = Math.abs(ratio.value - activeRatio) < 0.01;
                 return (
@@ -298,7 +298,7 @@ export default function ImageCropper({
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       isActive
                         ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-sm"
-                        : "bg-white dark:bg-zinc-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-600 border border-gray-200 dark:border-zinc-600"
+                        : "bg-card text-caption hover:bg-soft border border-card-border"
                     }`}
                   >
                     {getRatioIcon(ratio.icon)}
@@ -311,7 +311,7 @@ export default function ImageCropper({
         )}
 
         {/* Crop Area */}
-        <div className="flex flex-col items-center justify-center p-6 bg-gray-950">
+        <div className="flex flex-col items-center justify-center p-6 bg-background">
           <div
             ref={containerRef}
             className="relative overflow-hidden rounded-xl border-2 border-white/20 transition-all duration-200"
@@ -357,18 +357,18 @@ export default function ImageCropper({
           </div>
 
           {/* Aspect ratio indicator */}
-          <p className="text-xs text-gray-400 mt-3">
+          <p className="text-xs text-hint mt-3">
             {getAspectLabel()}
           </p>
         </div>
 
         {/* Controls */}
-        <div className="px-5 py-4 border-t border-gray-100 dark:border-zinc-800">
+        <div className="px-5 py-4 border-t border-card-border">
           {/* Zoom slider */}
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={handleZoomOut}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-gray-600 dark:text-gray-400"
+              className="p-2 hover:bg-soft rounded-lg transition-colors text-caption"
             >
               <ZoomOut size={18} />
             </button>
@@ -392,13 +392,13 @@ export default function ImageCropper({
             />
             <button
               onClick={handleZoomIn}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-gray-600 dark:text-gray-400"
+              className="p-2 hover:bg-soft rounded-lg transition-colors text-caption"
             >
               <ZoomIn size={18} />
             </button>
             <button
               onClick={handleReset}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-gray-600 dark:text-gray-400"
+              className="p-2 hover:bg-soft rounded-lg transition-colors text-caption"
               title="Resetear"
             >
               <RotateCcw size={16} />
@@ -409,7 +409,7 @@ export default function ImageCropper({
           <div className="flex justify-end gap-3">
             <button
               onClick={onCancel}
-              className="px-4 py-2.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium transition-colors"
+              className="px-4 py-2.5 text-hint hover:text-body font-medium transition-colors"
             >
               Cancelar
             </button>
