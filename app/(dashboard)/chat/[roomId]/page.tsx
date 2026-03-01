@@ -25,7 +25,7 @@ export default function ChatRoomPage() {
     return (
         <div className="h-full flex gap-4">
             {/* Lista de chats - visible solo en desktop y NO se recarga con roomId */}
-            <div className="hidden lg:block w-96 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm overflow-hidden">
+            <div className="hidden lg:block w-96 bg-card rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-6 bg-gradient-to-r from-light-purple to-dark-purple">
                     <h1 className="text-2xl font-bold text-white">Mensajes</h1>
                     <p className="text-white/80 text-sm mt-1">Tus conversaciones</p>

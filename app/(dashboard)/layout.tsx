@@ -9,7 +9,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const { isOpen } = useSidebar();
 
   return (
-    <div className="h-screen bg-yellowed-white dark:bg-zinc-800 overflow-hidden">
+    <div className="h-screen bg-yellowed-white dark:bg-background overflow-hidden">
       <Sidebar />
 
       <div

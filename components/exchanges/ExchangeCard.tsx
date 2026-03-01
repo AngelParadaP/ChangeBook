@@ -42,7 +42,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.R
     },
     cancelado: {
         label: "Cancelado",
-        color: "bg-gray-100 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400",
+        color: "bg-soft text-caption",
         icon: <Ban size={10} />,
     },
 };
@@ -74,15 +74,15 @@ function ConfirmModal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
             <div
-                className="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-sm p-6 shadow-2xl border border-gray-200 dark:border-zinc-700 animate-in fade-in zoom-in-95 duration-200"
+                className="bg-card rounded-2xl w-full max-w-sm p-6 shadow-2xl border border-card-border animate-in fade-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="text-center mb-5">
                     <div className="flex justify-center mb-3">{icon}</div>
-                    <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">
+                    <h3 className="text-lg font-bold text-heading mb-2">
                         {title}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                    <p className="text-sm text-hint leading-relaxed">
                         {description}
                     </p>
                 </div>
@@ -90,7 +90,7 @@ function ConfirmModal({
                     <button
                         onClick={onClose}
                         disabled={loading}
-                        className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 rounded-xl font-medium transition-colors text-gray-700 dark:text-gray-200 text-sm"
+                        className="flex-1 px-4 py-2.5 bg-soft hover:bg-dim rounded-xl font-medium transition-colors text-body text-sm"
                     >
                         Volver
                     </button>
@@ -172,7 +172,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
 
     return (
         <>
-            <div className="bg-white dark:bg-zinc-800/50 rounded-2xl border border-gray-100 dark:border-zinc-700/50 p-4 hover:shadow-md transition-all duration-300 group">
+            <div className="bg-card/50 rounded-2xl border border-card-border/50 p-4 hover:shadow-md transition-all duration-300 group">
                 <div className="flex gap-4">
                     {/* Book Image */}
                     <Link href={`/books/${exchange.bookId}`} className="flex-shrink-0">
@@ -198,11 +198,11 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                             <div className="min-w-0">
                                 <Link
                                     href={`/books/${exchange.bookId}`}
-                                    className="font-bold text-gray-800 dark:text-gray-100 hover:text-light-purple dark:hover:text-light-pink transition-colors truncate block text-sm"
+                                    className="font-bold text-heading hover:text-light-purple dark:hover:text-light-pink transition-colors truncate block text-sm"
                                 >
                                     {exchange.bookTitle}
                                 </Link>
-                                <p className="text-xs text-gray-400 dark:text-gray-500">{exchange.bookAuthor}</p>
+                                <p className="text-xs text-hint">{exchange.bookAuthor}</p>
                             </div>
 
                             {/* Status Badge */}
@@ -213,7 +213,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
 
                         {/* Other user */}
                         <div className="flex items-center gap-2 mt-2">
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-hint">
                                 {isOwner ? "Solicitado por" : "Dueño"}: {" "}
                                 <Link
                                     href={`/user/${otherUser.username}`}
@@ -226,10 +226,10 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
 
                         {/* Dates & Location */}
                         <div className="flex flex-wrap gap-2 mt-2">
-                            <span className="text-[10px] bg-gray-50 dark:bg-zinc-700/50 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-lg">
+                            <span className="text-[10px] bg-subtle text-caption px-2 py-1 rounded-lg">
                                 <CalendarDays size={10} className="inline mr-0.5" /> {formatDate(exchange.startDate)} → {formatDate(exchange.endDate)}
                             </span>
-                            <span className="text-[10px] bg-gray-50 dark:bg-zinc-700/50 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-lg">
+                            <span className="text-[10px] bg-subtle text-caption px-2 py-1 rounded-lg">
                                 <MapPin size={10} className="inline mr-0.5" /> {exchange.meetingLocation}
                             </span>
                             {(exchange.status === "en_curso" || exchange.status === "aceptado") && (
@@ -244,12 +244,12 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
 
                         {/* Notes */}
                         {exchange.requesterNote && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 italic">
+                            <p className="text-xs text-hint mt-2 italic">
                                 <MessageSquare size={10} className="inline mr-0.5" /> “{exchange.requesterNote}”
                             </p>
                         )}
                         {exchange.ownerNote && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 italic">
+                            <p className="text-xs text-hint mt-1 italic">
                                 <MessageSquare size={10} className="inline mr-0.5" /> Respuesta: “{exchange.ownerNote}”
                             </p>
                         )}
@@ -257,7 +257,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                         {/* Progress bar for active exchanges */}
                         {(exchange.status === "en_curso" || exchange.status === "aceptado") && (
                             <div className="mt-3">
-                                <div className="h-1.5 bg-gray-100 dark:bg-zinc-700 rounded-full overflow-hidden">
+                                <div className="h-1.5 bg-soft rounded-full overflow-hidden">
                                     <div
                                         className="h-full bg-gradient-to-r from-light-purple to-dark-purple rounded-full transition-all"
                                         style={{
@@ -275,7 +275,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                 <>
                                     <button
                                         onClick={() => setShowNote(!showNote)}
-                                        className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
+                                        className="px-3 py-1.5 text-xs font-medium bg-soft text-caption rounded-lg hover:bg-dim transition-colors"
                                     >
                                         <MessageSquare size={12} className="inline mr-0.5" /> Nota
                                     </button>
@@ -341,7 +341,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                 <button
                                     onClick={() => handleAction("cancelado")}
                                     disabled={loading}
-                                    className="px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                                    className="px-3 py-1.5 text-xs font-medium text-hint hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
                                 >
                                     Cancelar
                                 </button>
@@ -361,7 +361,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                         )
                                     }
                                     disabled={loading}
-                                    className="px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                                    className="px-3 py-1.5 text-xs font-medium text-hint hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
                                 >
                                     Cancelar
                                 </button>
@@ -377,7 +377,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     placeholder="Escribe una nota de respuesta..."
                                     rows={2}
                                     maxLength={200}
-                                    className="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple resize-none"
+                                    className="w-full px-3 py-2 bg-subtle border border-card-border rounded-lg text-xs text-body focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple resize-none"
                                 />
                             </div>
                         )}

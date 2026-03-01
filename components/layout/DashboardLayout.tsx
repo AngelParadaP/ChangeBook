@@ -13,7 +13,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isOpen, sidebarMargin } = useSidebar();
 
   return (
-    <div className="h-screen bg-yellowed-white dark:bg-zinc-800 overflow-hidden">
+    <div className="h-screen bg-yellowed-white dark:bg-background overflow-hidden">
       <Sidebar />
 
       <div
@@ -26,7 +26,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Content Container - Scrollable with custom scrollbar */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 flex-1 overflow-y-auto custom-scrollbar">
+        <div className="bg-card rounded-2xl shadow-sm p-6 flex-1 overflow-y-auto custom-scrollbar">
           {children}
         </div>
       </div>

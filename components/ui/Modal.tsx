@@ -46,11 +46,11 @@ export function Modal({ children }: { children: React.ReactNode }) {
     >
       <div
         ref={wrapper}
-        className="w-full max-w-4xl h-full max-h-[90vh] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden relative flex flex-col animate-in fade-in zoom-in-95 duration-200"
+        className="w-full max-w-4xl h-full max-h-[90vh] bg-card rounded-2xl shadow-2xl overflow-hidden relative flex flex-col animate-in fade-in zoom-in-95 duration-200"
       >
         <button
           onClick={onDismiss}
-          className="absolute top-4 right-4 z-10 p-2 bg-black/10 hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20 rounded-full transition-colors text-gray-500 dark:text-gray-400"
+          className="absolute top-4 right-4 z-10 p-2 bg-black/10 hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20 rounded-full transition-colors text-hint"
         >
           <X size={20} />
         </button>

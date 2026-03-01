@@ -139,7 +139,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
 
     if (loading || !otherUser) {
         return (
-            <div className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm overflow-hidden">
+            <div className="flex flex-col h-full bg-card rounded-2xl shadow-sm overflow-hidden">
                 {/* Header con información del usuario */}
                 <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-light-purple to-dark-purple text-white">
                     <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
@@ -155,15 +155,15 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
                 <ChatSkeleton count={6} />
 
                 {/* Input placeholder */}
-                <div className="p-4 border-t border-gray-200 dark:border-zinc-700">
-                    <div className="h-12 bg-gray-200 dark:bg-zinc-700 rounded-xl animate-pulse" />
+                <div className="p-4 border-t border-card-border">
+                    <div className="h-12 bg-dim rounded-xl animate-pulse" />
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm overflow-hidden">
+        <div className="flex flex-col h-full bg-card rounded-2xl shadow-sm overflow-hidden">
             {/* Header */}
             <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-light-purple to-dark-purple text-white">
                 <UserAvatar
@@ -181,7 +181,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
             {/* Messages Container */}
             <div
                 ref={chatContainerRef}
-                className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50 dark:bg-zinc-800"
+                className="flex-1 overflow-y-auto p-4 space-y-2 bg-subtle"
                 style={{
                     scrollbarWidth: "thin",
                     scrollbarColor: "var(--chat-scrollbar-thumb) var(--chat-scrollbar-track)",
@@ -189,7 +189,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
             >
                 {messages.length === 0 ? (
                     <div className="flex items-center justify-center h-full">
-                        <p className="text-gray-500 dark:text-gray-400">
+                        <p className="text-hint">
                             No hay mensajes aún. ¡Envía el primero!
                         </p>
                     </div>

@@ -15,7 +15,7 @@ export function ChatRoomList() {
             <div className="flex items-center justify-center h-full">
                 <div className="text-center">
                     <Loader2 size={32} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-2" />
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">Cargando chats...</p>
+                    <p className="text-caption text-sm">Cargando chats...</p>
                 </div>
             </div>
         );
@@ -25,11 +25,11 @@ export function ChatRoomList() {
         return (
             <div className="flex items-center justify-center h-full p-6">
                 <div className="text-center">
-                    <div className="mb-3 flex justify-center"><MessageSquare size={48} className="text-gray-300 dark:text-gray-600" /></div>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    <div className="mb-3 flex justify-center"><MessageSquare size={48} className="text-hint" /></div>
+                    <p className="text-caption text-sm">
                         No tienes conversaciones aún
                     </p>
-                    <p className="text-gray-500 dark:text-gray-500 text-xs mt-2">
+                    <p className="text-hint text-xs mt-2">
                         Visita el perfil de un usuario para iniciar un chat
                     </p>
                 </div>
@@ -43,7 +43,7 @@ export function ChatRoomList() {
                 <button
                     key={room.id}
                     onClick={() => router.push(`/chat/${room.id}`)}
-                    className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-left"
+                    className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-soft transition-colors text-left"
                 >
                     {/* Avatar */}
                     <UserAvatar
@@ -56,11 +56,11 @@ export function ChatRoomList() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2 mb-1">
-                            <h3 className="font-bold text-gray-900 dark:text-gray-100 truncate">
+                            <h3 className="font-bold text-heading truncate">
                                 {room.otherUser.name}
                             </h3>
                             {room.lastMessage && (
-                                <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
+                                <span className="text-xs text-hint flex-shrink-0">
                                     {new Date(room.lastMessage.createdAt).toLocaleDateString('es-MX', {
                                         month: 'short',
                                         day: 'numeric',
@@ -68,11 +68,11 @@ export function ChatRoomList() {
                                 </span>
                             )}
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                        <p className="text-sm text-caption truncate">
                             @{room.otherUser.username}
                         </p>
                         {room.lastMessage && (
-                            <p className="text-sm text-gray-500 dark:text-gray-500 truncate mt-1">
+                            <p className="text-sm text-hint truncate mt-1">
                                 {room.lastMessage.content}
                             </p>
                         )}

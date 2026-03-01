@@ -53,7 +53,7 @@ export function BookCard({ title, author, imageUrl, genres, ownerUsername, onCli
   return (
     <div
       onClick={onClick}
-      className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-light-purple dark:border-dark-purple p-4 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+      className="bg-card rounded-2xl border-2 border-light-purple dark:border-dark-purple p-4 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
     >
       {/* Book Cover */}
       <div className="aspect-[2/3] bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 rounded-xl mb-3 overflow-hidden relative">
@@ -75,10 +75,10 @@ export function BookCard({ title, author, imageUrl, genres, ownerUsername, onCli
 
       {/* Book Info */}
       <div className="space-y-1">
-        <h3 className="font-semibold text-gray-800 dark:text-gray-100 line-clamp-2 text-sm">
+        <h3 className="font-semibold text-heading line-clamp-2 text-sm">
           {title}
         </h3>
-        <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">
+        <p className="text-xs text-caption line-clamp-1">
           {author}
         </p>
         {ownerUsername && (
@@ -101,7 +101,7 @@ export function BookCard({ title, author, imageUrl, genres, ownerUsername, onCli
               </span>
             ))}
             {genres.length > 2 && (
-              <span className="text-xs px-2 py-1 text-gray-500 dark:text-gray-400">
+              <span className="text-xs px-2 py-1 text-hint">
                 +{genres.length - 2}
               </span>
             )}

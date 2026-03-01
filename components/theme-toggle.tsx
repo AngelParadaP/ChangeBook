@@ -23,7 +23,7 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
       <button
         className={`${inline
             ? "p-2.5 rounded-xl"
-            : "fixed bottom-4 right-4 p-3 rounded-full shadow-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+            : "fixed bottom-4 right-4 p-3 rounded-full shadow-lg border border-card-border bg-card"
           } opacity-0`}
         aria-hidden="true"
       >
@@ -36,11 +36,11 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
     return (
       <button
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className="p-2.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-all group"
+        className="p-2.5 hover:bg-soft rounded-xl transition-all group"
         aria-label="Cambiar tema"
       >
         <div
-          className="w-5 h-5 bg-gray-500 dark:bg-gray-400 group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+          className="w-5 h-5 bg-caption group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
           style={{
             maskImage: `url(${iconSrc})`,
             maskRepeat: "no-repeat",
@@ -60,14 +60,14 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className="fixed bottom-4 right-4 p-3 rounded-full shadow-lg 
-                 bg-white dark:bg-zinc-800 
-                 text-gray-800 dark:text-gray-200
-                 border border-gray-200 dark:border-zinc-700
+                 bg-card 
+                 text-heading
+                 border border-card-border
                  hover:scale-110 transition-all z-50 group"
       aria-label="Cambiar tema"
     >
       <div
-        className="w-6 h-6 bg-gray-600 dark:bg-gray-300 group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+        className="w-6 h-6 bg-body group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
         style={{
           maskImage: `url(${iconSrc})`,
           maskRepeat: "no-repeat",

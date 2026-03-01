@@ -28,7 +28,7 @@
   --color-primary-glow: color-mix(in srgb, var(--color-primary) 25%, transparent);
 
   /* Neutrales de marca */
-  --color-surface: #E4F5F7;
+  --color-surface: #E3EDF5;
   --color-muted: #3D7A8C;
 
   /* ── Aliases legacy (para que el código antiguo siga funcionando) ─── */
@@ -42,12 +42,32 @@
   /* Sincronizamos con tus variables de fondo/texto */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* ── Theme-aware surface tokens (bg-card, bg-card-alt, etc.) ── */
+  --color-card: var(--card-bg);
+  --color-card-alt: var(--card-bg-alt);
+  --color-card-border: var(--card-border);
+
+  /* ── Input / form field backgrounds ── */
+  --color-input: var(--neutral-100);
+  --color-input-border: var(--neutral-200);
+
+  /* ── Theme-aware text tokens (text-heading, text-body, etc.) ── */
+  --color-heading: var(--text-primary);
+  --color-body: var(--text-secondary);
+  --color-caption: var(--text-muted);
+  --color-hint: var(--text-faint);
+
+  /* ── Theme-aware neutral bg tokens ── */
+  --color-soft: var(--neutral-100);
+  --color-dim: var(--neutral-200);
+  --color-subtle: var(--neutral-50);
 }
 
 :root {
-  /* Variables de estado para Light Mode */
-  --background: #E4F5F7;
-  --foreground: #011C40;
+  /* Variables de estado para Light Mode — Paleta Azul Sereno */
+  --background: #E3EDF5;
+  --foreground: #1A2B3D;
 
   /* ── Sidebar gradient ── */
   --sidebar-gradient-start: #011C40;
@@ -69,36 +89,36 @@
   --scrollbar-thumb-active: var(--color-primary);
 
   /* ── Card / Surface colors ── */
-  --card-bg: #ffffff;
-  --card-bg-alt: #f9fafb;
-  --card-border: #e5e7eb;
+  --card-bg: #F5F8FB;
+  --card-bg-alt: #EDF2F8;
+  --card-border: #CBD6E1;
 
   /* ── Neutral text ── */
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --text-muted: #6b7280;
-  --text-faint: #9ca3af;
+  --text-primary: #1A2B3D;
+  --text-secondary: #3D5468;
+  --text-muted: #6B8299;
+  --text-faint: #94A7B8;
 
   /* ── Neutral backgrounds ── */
-  --neutral-50: #f9fafb;
-  --neutral-100: #f3f4f6;
-  --neutral-200: #e5e7eb;
-  --neutral-700: #374151;
-  --neutral-800: #1f2937;
+  --neutral-50: #F0F4F8;
+  --neutral-100: #E8EFF5;
+  --neutral-200: #D3DEE8;
+  --neutral-700: #3D5468;
+  --neutral-800: #1A2B3D;
 
   /* ── Prose link colors ── */
-  --prose-link: #2563eb;
-  --prose-link-visited: #7c3aed;
-  --prose-link-hover: #1d4ed8;
+  --prose-link: #1a6b8a;
+  --prose-link-visited: #6b4e8a;
+  --prose-link-hover: #0e4f6a;
 
   /* ── Chat scrollbar ── */
   --chat-scrollbar-thumb: var(--color-primary-muted);
-  --chat-scrollbar-track: #f3f4f6;
+  --chat-scrollbar-track: #E8EFF5;
 }
 
 .dark {
   /* Variables de estado para Dark Mode */
-  --background: #011C40;
+  --background: #0D1B2A;
   --foreground: #A7EBF2;
 
   /* ── Sidebar gradient (dark) ── */
@@ -115,28 +135,28 @@
   --auth-gradient-4: #54ACBF;
 
   /* ── Scrollbar colors (dark) ── */
-  --scrollbar-track: #3f3f46;
+  --scrollbar-track: #162A3C;
   --scrollbar-thumb: var(--color-primary-muted);
   --scrollbar-thumb-hover: var(--color-primary-light);
   --scrollbar-thumb-active: var(--color-primary);
 
   /* ── Card / Surface colors (dark) ── */
-  --card-bg: #18181b;
-  --card-bg-alt: #27272a;
-  --card-border: #3f3f46;
+  --card-bg: #142536;
+  --card-bg-alt: #112030;
+  --card-border: #1E3A50;
 
   /* ── Neutral text (dark) ── */
-  --text-primary: #f3f4f6;
-  --text-secondary: #d1d5db;
-  --text-muted: #9ca3af;
-  --text-faint: #6b7280;
+  --text-primary: #E8F1F8;
+  --text-secondary: #B8CCDB;
+  --text-muted: #7A95AB;
+  --text-faint: #4E6A80;
 
   /* ── Neutral backgrounds (dark) ── */
-  --neutral-50: #18181b;
-  --neutral-100: #27272a;
-  --neutral-200: #3f3f46;
-  --neutral-700: #a1a1aa;
-  --neutral-800: #d4d4d8;
+  --neutral-50: #112030;
+  --neutral-100: #162A3C;
+  --neutral-200: #1E3A50;
+  --neutral-700: #B8CCDB;
+  --neutral-800: #E8F1F8;
 
   /* ── Prose link colors (dark) ── */
   --prose-link: #60a5fa;
@@ -145,7 +165,7 @@
 
   /* ── Chat scrollbar (dark) ── */
   --chat-scrollbar-thumb: var(--color-primary-muted);
-  --chat-scrollbar-track: #27272a;
+  --chat-scrollbar-track: #162A3C;
 }
 
 /* Variante de Dark Mode para Tailwind 4 */

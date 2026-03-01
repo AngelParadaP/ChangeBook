@@ -188,34 +188,34 @@ export default function BookDetailPage() {
 
     if (loading) {
         return (
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
+            <div className="bg-card rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
                 <div className="animate-pulse">
                     {/* Back button skeleton */}
-                    <div className="h-10 w-32 bg-gray-200 dark:bg-zinc-700 rounded-xl mb-6" />
+                    <div className="h-10 w-32 bg-dim rounded-xl mb-6" />
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* Image skeleton */}
-                        <div className="aspect-[2/3] max-h-[500px] bg-gray-200 dark:bg-zinc-700 rounded-2xl" />
+                        <div className="aspect-[2/3] max-h-[500px] bg-dim rounded-2xl" />
 
                         {/* Info skeleton */}
                         <div className="space-y-6">
-                            <div className="h-8 bg-gray-200 dark:bg-zinc-700 rounded-full w-3/4" />
-                            <div className="h-5 bg-gray-200 dark:bg-zinc-700 rounded-full w-1/2" />
+                            <div className="h-8 bg-dim rounded-full w-3/4" />
+                            <div className="h-5 bg-dim rounded-full w-1/2" />
                             <div className="flex gap-2">
-                                <div className="h-8 w-24 bg-gray-200 dark:bg-zinc-700 rounded-full" />
-                                <div className="h-8 w-20 bg-gray-200 dark:bg-zinc-700 rounded-full" />
+                                <div className="h-8 w-24 bg-dim rounded-full" />
+                                <div className="h-8 w-20 bg-dim rounded-full" />
                             </div>
                             <div className="space-y-3">
-                                <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded-full w-full" />
-                                <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded-full w-5/6" />
-                                <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded-full w-4/6" />
+                                <div className="h-4 bg-dim rounded-full w-full" />
+                                <div className="h-4 bg-dim rounded-full w-5/6" />
+                                <div className="h-4 bg-dim rounded-full w-4/6" />
                             </div>
                             {/* Owner skeleton */}
-                            <div className="flex items-center gap-3 p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl">
-                                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-zinc-700" />
+                            <div className="flex items-center gap-3 p-4 bg-soft rounded-xl">
+                                <div className="w-12 h-12 rounded-full bg-dim" />
                                 <div className="space-y-2">
-                                    <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded-full w-24" />
-                                    <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-16" />
+                                    <div className="h-4 bg-dim rounded-full w-24" />
+                                    <div className="h-3 bg-dim rounded-full w-16" />
                                 </div>
                             </div>
                         </div>
@@ -247,11 +247,11 @@ export default function BookDetailPage() {
                 />
             )}
 
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
+            <div className="bg-card rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
                 {/* Back button */}
                 <button
                     onClick={() => router.back()}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-all mb-6 text-sm font-medium"
+                    className="flex items-center gap-2 px-4 py-2 text-caption hover:text-heading hover:bg-soft rounded-xl transition-all mb-6 text-sm font-medium"
                 >
                     <ArrowLeft size={18} /> Volver
                 </button>
@@ -290,7 +290,7 @@ export default function BookDetailPage() {
                                 <span className="inline-flex items-center gap-1">{book.status === "disponible" ? <><CircleCheck size={14} /> Disponible</> : book.status === "ocupado" ? <><CirclePause size={14} /> Ocupado</> : <><CircleX size={14} /> Intercambiado</>}</span>
                             </span>
                             {publishedDate && (
-                                <span className="text-xs text-gray-400 dark:text-gray-500">
+                                <span className="text-xs text-hint">
                                     Publicado el {publishedDate}
                                 </span>
                             )}
@@ -301,7 +301,7 @@ export default function BookDetailPage() {
                     <div className="space-y-5">
                         {/* Title */}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                            <label className="block text-xs font-semibold text-hint uppercase tracking-wide mb-1">
                                 Título
                             </label>
                             {isEditing ? (
@@ -309,10 +309,10 @@ export default function BookDetailPage() {
                                     type="text"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full px-4 py-2 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                                    className="w-full px-4 py-2 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
                                 />
                             ) : (
-                                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                                <h1 className="text-2xl font-bold text-heading">
                                     {book.title}
                                 </h1>
                             )}
@@ -320,7 +320,7 @@ export default function BookDetailPage() {
 
                         {/* Author */}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                            <label className="block text-xs font-semibold text-hint uppercase tracking-wide mb-1">
                                 Autor
                             </label>
                             {isEditing ? (
@@ -328,17 +328,17 @@ export default function BookDetailPage() {
                                     type="text"
                                     value={formData.author}
                                     onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                                    className="w-full px-4 py-2 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                                    className="w-full px-4 py-2 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
                                 />
                             ) : (
-                                <p className="text-lg text-gray-700 dark:text-gray-300">{book.author}</p>
+                                <p className="text-lg text-body">{book.author}</p>
                             )}
                         </div>
 
                         {/* Publisher & Year */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                <label className="block text-xs font-semibold text-hint uppercase tracking-wide mb-1">
                                     Editorial
                                 </label>
                                 {isEditing ? (
@@ -346,16 +346,16 @@ export default function BookDetailPage() {
                                         type="text"
                                         value={formData.publisher}
                                         onChange={(e) => setFormData({ ...formData, publisher: e.target.value })}
-                                        className="w-full px-4 py-2 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                                        className="w-full px-4 py-2 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
                                     />
                                 ) : (
-                                    <p className="text-gray-700 dark:text-gray-300">
+                                    <p className="text-body">
                                         {book.publisher || "No especificada"}
                                     </p>
                                 )}
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                <label className="block text-xs font-semibold text-hint uppercase tracking-wide mb-1">
                                     Año
                                 </label>
                                 {isEditing ? (
@@ -365,10 +365,10 @@ export default function BookDetailPage() {
                                         onChange={(e) => setFormData({ ...formData, year: e.target.value })}
                                         min="1000"
                                         max={new Date().getFullYear() + 1}
-                                        className="w-full px-4 py-2 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                                        className="w-full px-4 py-2 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
                                     />
                                 ) : (
-                                    <p className="text-gray-700 dark:text-gray-300">
+                                    <p className="text-body">
                                         {book.year || "No especificado"}
                                     </p>
                                 )}
@@ -377,11 +377,11 @@ export default function BookDetailPage() {
 
                         {/* Genres */}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                            <label className="block text-xs font-semibold text-hint uppercase tracking-wide mb-2">
                                 Géneros
                             </label>
                             {isEditing ? (
-                                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar p-2 bg-gray-50 dark:bg-zinc-800 rounded-xl">
+                                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar p-2 bg-subtle rounded-xl">
                                     {BOOK_GENRES.map((genre) => {
                                         const isSelected = formData.genres.includes(genre);
                                         return (
@@ -391,7 +391,7 @@ export default function BookDetailPage() {
                                                 onClick={() => toggleGenre(genre)}
                                                 className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${isSelected
                                                     ? "bg-light-purple text-white"
-                                                    : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-gray-300"
+                                                    : "bg-dim text-body"
                                                     } cursor-pointer hover:scale-105`}
                                             >
                                                 {genre}
@@ -411,7 +411,7 @@ export default function BookDetailPage() {
                                             </span>
                                         ))
                                     ) : (
-                                        <span className="text-sm text-gray-400 dark:text-gray-500">Sin géneros</span>
+                                        <span className="text-sm text-hint">Sin géneros</span>
                                     )}
                                 </div>
                             )}
@@ -419,7 +419,7 @@ export default function BookDetailPage() {
 
                         {/* Description */}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                            <label className="block text-xs font-semibold text-hint uppercase tracking-wide mb-2">
                                 Descripción
                             </label>
                             {isEditing ? (
@@ -427,10 +427,10 @@ export default function BookDetailPage() {
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={5}
-                                    className="w-full px-4 py-2 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200 resize-none"
+                                    className="w-full px-4 py-2 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading resize-none"
                                 />
                             ) : (
-                                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                                <p className="text-body text-sm leading-relaxed">
                                     {book.description}
                                 </p>
                             )}
@@ -439,13 +439,13 @@ export default function BookDetailPage() {
                         {/* Status (edit mode) */}
                         {isEditing && (
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                <label className="block text-xs font-semibold text-hint uppercase tracking-wide mb-1">
                                     Estado
                                 </label>
                                 <select
                                     value={formData.status}
                                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                    className="w-full px-4 py-2 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                                    className="w-full px-4 py-2 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
                                     disabled={book?.status === "ocupado"}
                                 >
                                     <option value="disponible">Disponible</option>
@@ -456,8 +456,8 @@ export default function BookDetailPage() {
                         )}
 
                         {/* ─── Owner Card ──────────────────────────────────────────── */}
-                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-4 border border-gray-200 dark:border-zinc-700">
-                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
+                        <div className="bg-subtle rounded-2xl p-4 border border-card-border">
+                            <label className="block text-xs font-semibold text-hint uppercase tracking-wide mb-3">
                                 Publicado por
                             </label>
                             <Link
@@ -471,7 +471,7 @@ export default function BookDetailPage() {
                                     className="group-hover:ring-2 group-hover:ring-light-purple dark:group-hover:ring-dark-purple transition-all"
                                 />
                                 <div>
-                                    <p className="font-semibold text-gray-800 dark:text-gray-100 group-hover:text-light-purple dark:group-hover:text-light-pink transition-colors">
+                                    <p className="font-semibold text-heading group-hover:text-light-purple dark:group-hover:text-light-pink transition-colors">
                                         {book.ownerName || "Usuario"}
                                     </p>
                                     <p className="text-sm text-light-purple dark:text-light-pink">
@@ -489,7 +489,7 @@ export default function BookDetailPage() {
                                         <button
                                             onClick={handleCancel}
                                             disabled={isSaving}
-                                            className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-gray-800 dark:text-gray-200 font-semibold rounded-xl transition-all"
+                                            className="flex-1 px-6 py-3 bg-dim text-heading font-semibold rounded-xl transition-all"
                                         >
                                             Cancelar
                                         </button>
@@ -533,7 +533,7 @@ export default function BookDetailPage() {
                                                 router.push(`/chat/${result.roomId}`);
                                             }
                                         }}
-                                        className="w-full px-6 py-2.5 font-medium rounded-xl transition-all text-sm flex items-center justify-center gap-2 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700"
+                                        className="w-full px-6 py-2.5 font-medium rounded-xl transition-all text-sm flex items-center justify-center gap-2 bg-soft text-body hover:bg-dim border border-card-border"
                                     >
                                         <MessageSquare size={16} className="inline mr-1" /> Enviar Mensaje al Dueño
                                     </button>
@@ -543,7 +543,7 @@ export default function BookDetailPage() {
                                         disabled={favLoading}
                                         className={`w-full px-6 py-2.5 font-medium rounded-xl transition-all text-sm flex items-center justify-center gap-2 ${isFav
                                             ? "bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800/30"
-                                            : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700"
+                                            : "bg-soft text-caption hover:bg-dim border border-card-border"
                                             }`}
                                     >
                                         {favLoading ? "..." : isFav ? <><Heart size={14} className="inline mr-1 fill-current" /> En favoritos</> : <><Heart size={14} className="inline mr-1" /> Agregar a favoritos</>}

@@ -33,31 +33,31 @@ const POST_ASPECT_RATIOS: AspectRatioOption[] = [
 
 function PostCardSkeleton() {
     return (
-        <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-4 shadow-sm mb-4 animate-pulse">
+        <div className="bg-card border border-card-border rounded-xl p-4 shadow-sm mb-4 animate-pulse">
             {/* Header */}
             <div className="flex items-center gap-2 mb-3">
-                <div className="w-4 h-4 rounded-full bg-gray-200 dark:bg-zinc-700" />
-                <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-28" />
-                <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-3" />
-                <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-36" />
-                <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-3" />
-                <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-20" />
+                <div className="w-4 h-4 rounded-full bg-dim" />
+                <div className="h-3 bg-dim rounded-full w-28" />
+                <div className="h-3 bg-dim rounded-full w-3" />
+                <div className="h-3 bg-dim rounded-full w-36" />
+                <div className="h-3 bg-dim rounded-full w-3" />
+                <div className="h-3 bg-dim rounded-full w-20" />
             </div>
             {/* Content */}
             <div className="space-y-2 mb-3">
-                <div className="h-3.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-full" />
-                <div className="h-3.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-5/6" />
-                <div className="h-3.5 bg-gray-200 dark:bg-zinc-700 rounded-full w-2/3" />
+                <div className="h-3.5 bg-dim rounded-full w-full" />
+                <div className="h-3.5 bg-dim rounded-full w-5/6" />
+                <div className="h-3.5 bg-dim rounded-full w-2/3" />
             </div>
             {/* Actions */}
-            <div className="flex items-center gap-4 border-t border-gray-100 dark:border-zinc-800/50 pt-3">
+            <div className="flex items-center gap-4 border-t border-card-border/50 pt-3">
                 <div className="flex items-center gap-1.5">
-                    <div className="w-[18px] h-[18px] rounded bg-gray-200 dark:bg-zinc-700" />
-                    <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-6" />
+                    <div className="w-[18px] h-[18px] rounded bg-dim" />
+                    <div className="h-3 bg-dim rounded-full w-6" />
                 </div>
                 <div className="flex items-center gap-1.5">
-                    <div className="w-[18px] h-[18px] rounded bg-gray-200 dark:bg-zinc-700" />
-                    <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-20" />
+                    <div className="w-[18px] h-[18px] rounded bg-dim" />
+                    <div className="h-3 bg-dim rounded-full w-20" />
                 </div>
             </div>
         </div>
@@ -472,18 +472,18 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
 
     return (
         <>
-            <div ref={scrollContainerRef} className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm h-full overflow-y-auto custom-scrollbar relative">
+            <div ref={scrollContainerRef} className="bg-card rounded-2xl shadow-sm h-full overflow-y-auto custom-scrollbar relative">
                 {/* Compact Sticky Header (appears on scroll) */}
                 <div className={`sticky top-0 z-30 transition-all duration-300 overflow-hidden ${headerCollapsed ? "max-h-16 opacity-100" : "max-h-0 opacity-0"}`}>
-                    <div className="flex items-center gap-3 px-4 py-2.5 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-b border-gray-100 dark:border-zinc-800 shadow-sm">
-                        <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-zinc-800 overflow-hidden relative flex-shrink-0">
+                    <div className="flex items-center gap-3 px-4 py-2.5 bg-card/95 backdrop-blur-md border-b border-card-border shadow-sm">
+                        <div className="w-8 h-8 rounded-lg bg-dim overflow-hidden relative flex-shrink-0">
                             {community.imageUrl ? (
                                 <Image src={community.imageUrl} alt={community.name} fill className="object-cover" />
                             ) : (
-                                <span className="flex items-center justify-center w-full h-full"><Users size={16} className="text-gray-400 dark:text-gray-500" /></span>
+                                <span className="flex items-center justify-center w-full h-full"><Users size={16} className="text-hint" /></span>
                             )}
                         </div>
-                        <h2 className="font-bold text-gray-900 dark:text-white text-sm truncate flex-1">{community.name}</h2>
+                        <h2 className="font-bold text-heading text-sm truncate flex-1">{community.name}</h2>
                         <div className="flex items-center gap-1.5">
                             {DETAIL_TABS.map((tab) => (
                                 <button
@@ -491,7 +491,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                     onClick={() => handleTabChange(tab.key)}
                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${activeTab === tab.key
                                         ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-sm"
-                                        : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
+                                        : "text-hint hover:bg-soft"
                                         }`}
                                 >
                                     {tab.icon}
@@ -499,14 +499,14 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 </button>
                             ))}
                         </div>
-                        <button onClick={scrollToTop} className="p-1.5 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg text-gray-400 transition-colors" title="Volver arriba">
+                        <button onClick={scrollToTop} className="p-1.5 hover:bg-soft rounded-lg text-hint transition-colors" title="Volver arriba">
                             <ChevronUp size={16} />
                         </button>
                     </div>
                 </div>
 
                 {/* Cover/Header */}
-                <div ref={headerRef} className="relative h-48 bg-gray-200 dark:bg-zinc-800">
+                <div ref={headerRef} className="relative h-48 bg-dim">
                     {community.imageUrl && (
                         <Image src={community.imageUrl} alt={community.name} fill className="object-cover opacity-50" />
                     )}
@@ -548,9 +548,9 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                 </div>
 
                 {/* Actions Bar */}
-                <div className="p-4 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-start bg-gray-50 dark:bg-zinc-800/50">
+                <div className="p-4 border-b border-card-border flex justify-between items-start bg-subtle">
                     <div className="flex-1 min-w-0">
-                        <p className="text-gray-600 dark:text-gray-300 max-w-2xl text-sm">
+                        <p className="text-caption max-w-2xl text-sm">
                             {community.description || "Sin descripción"}
                         </p>
                         {community.genres && community.genres.length > 0 && (
@@ -567,7 +567,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                         {joined && (
                             <button
                                 onClick={() => setShowPostModal(true)}
-                                className="px-4 py-2 bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                                className="px-4 py-2 bg-dim hover:bg-dim rounded-lg text-sm font-medium transition-colors cursor-pointer"
                             >
                                 + Crear Publicación
                             </button>
@@ -603,14 +603,14 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                 </div>
 
                 {/* Detail Tabs */}
-                <div className="flex items-center gap-2 px-6 pt-4 pb-3 border-b border-gray-100 dark:border-zinc-800">
+                <div className="flex items-center gap-2 px-6 pt-4 pb-3 border-b border-card-border">
                     {DETAIL_TABS.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => handleTabChange(tab.key)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${activeTab === tab.key
                                 ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg shadow-primary-glow"
-                                : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-700 dark:hover:text-gray-200"
+                                : "text-hint hover:bg-soft hover:text-heading"
                                 }`}
                         >
                             {tab.icon}
@@ -620,7 +620,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 bg-gray-50 dark:bg-zinc-950">
+                <div className="flex-1 bg-subtle">
                     {/* Posts Tab */}
                     {activeTab === "posts" && (
                         <div className="p-6">
@@ -628,7 +628,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 {/* Main Posts Column */}
                                 <div className="w-full max-w-2xl">
                                     {posts.length === 0 ? (
-                                        <div className="text-center py-12 text-gray-500">
+                                        <div className="text-center py-12 text-hint">
                                             Aún no hay publicaciones en esta comunidad. ¡Sé el primero!
                                         </div>
                                     ) : (
@@ -672,7 +672,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             <div className="mb-6 max-w-2xl mx-auto">
                                 <form onSubmit={handleMemberSearch}>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-hint">
                                             <Search size={18} />
                                         </span>
                                         <input
@@ -680,7 +680,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                             value={memberSearch}
                                             onChange={(e) => setMemberSearch(e.target.value)}
                                             placeholder="Buscar miembros por nombre o usuario..."
-                                            className="w-full pl-12 pr-4 py-4 bg-gray-100 dark:bg-zinc-800 border-2 border-gray-200 dark:border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted focus:border-primary dark:focus:border-primary-muted focus:bg-white dark:focus:bg-zinc-900 transition-all text-gray-800 dark:text-gray-200 text-lg"
+                                            className="w-full pl-12 pr-4 py-4 bg-soft border-2 border-card-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted focus:border-primary dark:focus:border-primary-muted focus:bg-card transition-all text-heading text-lg"
                                         />
                                     </div>
                                 </form>
@@ -689,7 +689,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             {/* Members Count */}
                             {!membersLoading && members.length > 0 && (
                                 <div className="max-w-2xl mx-auto mb-4">
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    <p className="text-sm text-hint">
                                         {members.length} {members.length === 1 ? "miembro encontrado" : "miembros encontrados"}
                                     </p>
                                 </div>
@@ -699,12 +699,12 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             {membersLoading && (
                                 <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {Array.from({ length: 6 }).map((_, i) => (
-                                        <div key={i} className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-gray-200 dark:border-zinc-700 p-5 animate-pulse">
+                                        <div key={i} className="bg-card rounded-2xl border-2 border-card-border p-5 animate-pulse">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-zinc-700" />
+                                                <div className="w-14 h-14 rounded-full bg-dim" />
                                                 <div className="flex-1 space-y-2">
-                                                    <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded-full w-32" />
-                                                    <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded-full w-24" />
+                                                    <div className="h-4 bg-dim rounded-full w-32" />
+                                                    <div className="h-3 bg-dim rounded-full w-24" />
                                                 </div>
                                             </div>
                                         </div>
@@ -724,11 +724,11 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             {/* No members found */}
                             {!membersLoading && membersLoaded && members.length === 0 && (
                                 <div className="text-center py-12">
-                                    <div className="mb-4 flex justify-center"><Users size={48} className="text-gray-300 dark:text-gray-600" /></div>
-                                    <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                    <div className="mb-4 flex justify-center"><Users size={48} className="text-hint" /></div>
+                                    <h3 className="text-xl font-semibold text-body mb-2">
                                         {memberSearch ? "Sin resultados" : "No hay miembros"}
                                     </h3>
-                                    <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+                                    <p className="text-hint max-w-sm mx-auto">
                                         {memberSearch
                                             ? `No se encontraron miembros para "${memberSearch}". Intenta con otra búsqueda.`
                                             : "Esta comunidad aún no tiene miembros."
@@ -747,10 +747,10 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                 {/* Create Post Modal */}
                 {showPostModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto custom-scrollbar border border-gray-200 dark:border-zinc-700">
+                        <div className="bg-card rounded-2xl w-full max-w-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto custom-scrollbar border border-card-border">
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Crear Publicación</h2>
-                                <button onClick={closePostModal} className="p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full">
+                                <h2 className="text-xl font-bold text-heading">Crear Publicación</h2>
+                                <button onClick={closePostModal} className="p-1 hover:bg-soft rounded-full">
                                     <X size={20} />
                                 </button>
                             </div>
@@ -765,7 +765,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             </div>
 
                             {previewUrl ? (
-                                <div className="relative w-full h-64 bg-gray-100 dark:bg-zinc-800 rounded-xl overflow-hidden mb-4 group border border-gray-200 dark:border-zinc-700">
+                                <div className="relative w-full h-64 bg-soft rounded-xl overflow-hidden mb-4 group border border-card-border">
                                     <Image src={previewUrl} alt="Upload preview" fill className="object-contain" />
                                     <button
                                         onClick={removeImage}
@@ -777,13 +777,13 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             ) : (
                                 <div
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="mb-4 border-2 border-dashed border-gray-200 dark:border-zinc-700 rounded-xl p-8 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group"
+                                    className="mb-4 border-2 border-dashed border-card-border rounded-xl p-8 flex flex-col items-center justify-center text-hint hover:bg-subtle transition-colors cursor-pointer group"
                                 >
-                                    <div className="p-3 bg-gray-100 dark:bg-zinc-800 rounded-full mb-2 group-hover:scale-110 transition-transform">
-                                        <Upload size={24} className="text-gray-400 group-hover:text-primary" />
+                                    <div className="p-3 bg-soft rounded-full mb-2 group-hover:scale-110 transition-transform">
+                                        <Upload size={24} className="text-hint group-hover:text-primary" />
                                     </div>
                                     <span className="text-sm font-medium">Click para subir una imagen</span>
-                                    <span className="text-xs text-gray-400 mt-1">PNG, JPG, WebP (Máx 4MB)</span>
+                                    <span className="text-xs text-hint mt-1">PNG, JPG, WebP (Máx 4MB)</span>
                                     <input
                                         type="file"
                                         ref={fileInputRef}
@@ -794,8 +794,8 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 </div>
                             )}
 
-                            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-zinc-800">
-                                <button onClick={closePostModal} className="px-4 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Cancelar</button>
+                            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-card-border">
+                                <button onClick={closePostModal} className="px-4 py-2 text-hint hover:text-body">Cancelar</button>
                                 <button
                                     onClick={handleCreatePost}
                                     disabled={posting || !postContent.trim()}
@@ -811,23 +811,23 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                 {/* Edit Community Modal */}
                 {showEditModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-lg p-6 shadow-xl border border-gray-200 dark:border-zinc-700 max-h-[90vh] overflow-y-auto custom-scrollbar">
+                        <div className="bg-card rounded-2xl w-full max-w-lg p-6 shadow-xl border border-card-border max-h-[90vh] overflow-y-auto custom-scrollbar">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Editar Comunidad</h2>
-                                <button onClick={closeEditModal} className="p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
+                                <h2 className="text-xl font-bold text-heading">Editar Comunidad</h2>
+                                <button onClick={closeEditModal} className="p-1 hover:bg-soft rounded-full transition-colors">
                                     <X size={20} />
                                 </button>
                             </div>
 
                             {/* Community Image Upload */}
                             <div className="mb-5">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-body mb-2">
                                     Imagen de la comunidad
                                 </label>
                                 <div className="flex items-center gap-4">
                                     <div
                                         onClick={() => editImageInputRef.current?.click()}
-                                        className="w-24 h-24 rounded-xl bg-gray-100 dark:bg-zinc-800 border-2 border-dashed border-gray-300 dark:border-zinc-600 overflow-hidden relative flex-shrink-0 cursor-pointer group hover:border-primary dark:hover:border-primary-muted transition-colors"
+                                        className="w-24 h-24 rounded-xl bg-soft border-2 border-dashed border-card-border overflow-hidden relative flex-shrink-0 cursor-pointer group hover:border-primary dark:hover:border-primary-muted transition-colors"
                                     >
                                         {editImagePreview ? (
                                             <>
@@ -844,17 +844,17 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                                 </div>
                                             </>
                                         ) : (
-                                            <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 group-hover:text-primary transition-colors">
+                                            <div className="w-full h-full flex flex-col items-center justify-center text-hint group-hover:text-primary transition-colors">
                                                 <Camera size={24} />
                                                 <span className="text-xs mt-1">Subir</span>
                                             </div>
                                         )}
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        <p className="text-sm text-hint">
                                             Haz clic en la imagen para cambiarla
                                         </p>
-                                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                        <p className="text-xs text-hint mt-1">
                                             JPG, PNG o WebP. Máximo 4MB.
                                         </p>
                                         {editImageFile && (
@@ -879,11 +879,11 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
 
                             {/* Name */}
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-body mb-2">
                                     Nombre
                                 </label>
                                 <input
-                                    className="w-full px-4 py-2.5 border rounded-xl dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                    className="w-full px-4 py-2.5 border rounded-xl dark:bg-card dark:border-card-border focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                                     placeholder="Nombre de la comunidad"
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
@@ -892,11 +892,11 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
 
                             {/* Description */}
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-body mb-2">
                                     Descripción
                                 </label>
                                 <textarea
-                                    className="w-full px-4 py-2.5 border rounded-xl dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none"
+                                    className="w-full px-4 py-2.5 border rounded-xl dark:bg-card dark:border-card-border focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none"
                                     placeholder="Descripción de la comunidad"
                                     rows={3}
                                     value={editDescription}
@@ -907,10 +907,10 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             {/* Genres (read-only) */}
                             {community.genres && community.genres.length > 0 && (
                                 <div className="mb-6">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium text-body mb-2">
                                         Géneros literarios
                                     </label>
-                                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">
+                                    <p className="text-xs text-hint mb-2">
                                         Los géneros se definen al crear la comunidad y no pueden modificarse
                                     </p>
                                     <div className="flex flex-wrap gap-2">
@@ -923,10 +923,10 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 </div>
                             )}
 
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-zinc-800">
+                            <div className="flex justify-end gap-3 pt-4 border-t border-card-border">
                                 <button
                                     onClick={closeEditModal}
-                                    className="px-4 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                                    className="px-4 py-2 text-hint hover:text-body transition-colors"
                                 >
                                     Cancelar
                                 </button>
@@ -945,16 +945,16 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                 {/* Delete Confirmation Modal */}
                 {showDeleteConfirm && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-md p-6 shadow-xl border border-gray-200 dark:border-zinc-700">
+                        <div className="bg-card rounded-2xl w-full max-w-md p-6 shadow-xl border border-card-border">
                             <div className="text-center mb-6">
                                 <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
                                     <Trash2 size={28} className="text-red-500" />
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+                                <h2 className="text-xl font-bold text-heading mb-2">
                                     ¿Eliminar comunidad?
                                 </h2>
-                                <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto">
-                                    Esta acción eliminará permanentemente la comunidad <strong className="text-gray-700 dark:text-gray-200">&quot;{community.name}&quot;</strong>,
+                                <p className="text-hint text-sm max-w-sm mx-auto">
+                                    Esta acción eliminará permanentemente la comunidad <strong className="text-body">&quot;{community.name}&quot;</strong>,
                                     {" "}incluyendo todas sus publicaciones, comentarios y miembros. Esta acción no se puede deshacer.
                                 </p>
                             </div>
@@ -962,7 +962,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 <button
                                     onClick={() => setShowDeleteConfirm(false)}
                                     disabled={deleting}
-                                    className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 rounded-xl font-medium transition-colors text-gray-700 dark:text-gray-200"
+                                    className="flex-1 px-4 py-2.5 bg-soft hover:bg-dim rounded-xl font-medium transition-colors text-body"
                                 >
                                     Cancelar
                                 </button>
@@ -1058,7 +1058,7 @@ function MemberCard({
     return (
         <Link
             href={`/user/${member.username}`}
-            className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-primary/30 dark:border-primary-dark/30 p-5 hover:shadow-xl hover:shadow-primary-glow hover:scale-[1.02] hover:border-primary dark:hover:border-primary-muted transition-all duration-300 cursor-pointer group block relative"
+            className="bg-card rounded-2xl border-2 border-primary/30 dark:border-primary-dark/30 p-5 hover:shadow-xl hover:shadow-primary-glow hover:scale-[1.02] hover:border-primary dark:hover:border-primary-muted transition-all duration-300 cursor-pointer group block relative"
         >
             <div className="flex items-center gap-4">
                 <UserAvatar
@@ -1070,7 +1070,7 @@ function MemberCard({
 
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-gray-800 dark:text-gray-100 truncate text-sm">
+                        <h3 className="font-bold text-heading truncate text-sm">
                             {member.name}
                         </h3>
                         {getRoleBadge(member.role)}
@@ -1078,7 +1078,7 @@ function MemberCard({
                     <p className="text-sm text-primary dark:text-primary-light truncate">
                         @{member.username}
                     </p>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                    <span className="text-xs text-hint">
                         Desde {joinedDate}
                     </span>
                 </div>

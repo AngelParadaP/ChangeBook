@@ -25,7 +25,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
     };
 
     return (
-        <div className="flex items-end gap-2 p-4 bg-white dark:bg-zinc-800 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-end gap-2 p-4 bg-card border-t border-card-border dark:border-card-border">
             <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -33,7 +33,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
                 placeholder="Escribe un mensaje..."
                 disabled={disabled}
                 rows={1}
-                className="flex-1 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple resize-none max-h-32 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 rounded-xl border border-card-border dark:border-card-border bg-card text-heading focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple resize-none max-h-32 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                     minHeight: "40px",
                     maxHeight: "128px",

@@ -77,7 +77,7 @@ export default function PublishBookPage() {
             <div className="h-full flex items-center justify-center">
                 <div className="text-center">
                     <Loader2 size={48} className="animate-spin text-primary mx-auto mb-4" />
-                    <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando...</p>
+                    <p className="text-caption text-lg">Cargando...</p>
                 </div>
             </div>
         );
@@ -244,17 +244,17 @@ export default function PublishBookPage() {
                 <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
             )}
 
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 sm:p-6 overflow-y-auto custom-scrollbar h-full">
+            <div className="bg-card rounded-2xl shadow-sm p-4 sm:p-6 overflow-y-auto custom-scrollbar h-full">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 sm:p-2.5 bg-primary-soft rounded-xl">
                         <BookOpen size={24} className="text-primary" />
                     </div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-heading">
                         Publicar un libro
                     </h1>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 mb-6 ml-[44px] sm:ml-[52px] text-sm sm:text-base">
+                <p className="text-caption mb-6 ml-[44px] sm:ml-[52px] text-sm sm:text-base">
                     Comparte tu libro con la comunidad de Kyboo
                 </p>
 
@@ -263,7 +263,7 @@ export default function PublishBookPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6">
                         {/* Image Upload */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-body mb-2">
                                 Portada del libro <span className="text-red-500">*</span>
                             </label>
                             <div className="flex sm:flex-row flex-col items-center sm:items-start gap-4">
@@ -283,7 +283,7 @@ export default function PublishBookPage() {
                                             <div className="p-2.5 bg-primary-soft rounded-full mb-2 group-hover:scale-110 transition-transform">
                                                 <Upload size={22} className="text-primary" />
                                             </div>
-                                            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                                            <span className="text-xs text-caption font-medium">
                                                 Click para subir
                                             </span>
                                         </div>
@@ -297,10 +297,10 @@ export default function PublishBookPage() {
                                     className="hidden"
                                 />
                                 <div className="text-center sm:text-left">
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                    <p className="text-sm text-caption mb-2">
                                         Sube una imagen de la portada
                                     </p>
-                                    <ul className="text-xs text-gray-500 dark:text-gray-500 space-y-1">
+                                    <ul className="text-xs text-hint space-y-1">
                                         <li>• Formatos: JPG, PNG, WebP</li>
                                         <li>• Se recortará a proporción 2:3</li>
                                         <li>• Recomendado: 400×600px o mayor</li>
@@ -327,7 +327,7 @@ export default function PublishBookPage() {
                         <div className="space-y-5">
                             {/* Title */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-body mb-2">
                                     Título <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -336,9 +336,9 @@ export default function PublishBookPage() {
                                     onChange={(e) => handleTextField("title", e.target.value)}
                                     required
                                     maxLength={200}
-                                    className={`w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 dark:text-gray-200 transition-all ${errors.title
+                                    className={`w-full px-4 py-3 bg-soft border rounded-xl focus:outline-none focus:ring-2 text-heading transition-all ${errors.title
                                         ? "border-red-400 focus:ring-red-400"
-                                        : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
+                                        : "border-card-border focus:ring-primary dark:focus:ring-primary-muted"
                                         }`}
                                     placeholder="Ej: El Principito"
                                 />
@@ -349,7 +349,7 @@ export default function PublishBookPage() {
 
                             {/* Author */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-body mb-2">
                                     Autor <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -358,9 +358,9 @@ export default function PublishBookPage() {
                                     onChange={(e) => handleTextField("author", e.target.value)}
                                     required
                                     maxLength={150}
-                                    className={`w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 dark:text-gray-200 transition-all ${errors.author
+                                    className={`w-full px-4 py-3 bg-soft border rounded-xl focus:outline-none focus:ring-2 text-heading transition-all ${errors.author
                                         ? "border-red-400 focus:ring-red-400"
-                                        : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
+                                        : "border-card-border focus:ring-primary dark:focus:ring-primary-muted"
                                         }`}
                                     placeholder="Ej: Antoine de Saint-Exupéry"
                                 />
@@ -372,7 +372,7 @@ export default function PublishBookPage() {
                             {/* Publisher and Year */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium text-body mb-2">
                                         Editorial
                                     </label>
                                     <input
@@ -380,9 +380,9 @@ export default function PublishBookPage() {
                                         value={formData.publisher}
                                         onChange={(e) => handleTextField("publisher", e.target.value)}
                                         maxLength={150}
-                                        className={`w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 dark:text-gray-200 transition-all ${errors.publisher
+                                        className={`w-full px-4 py-3 bg-soft border rounded-xl focus:outline-none focus:ring-2 text-heading transition-all ${errors.publisher
                                             ? "border-red-400 focus:ring-red-400"
-                                            : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
+                                            : "border-card-border focus:ring-primary dark:focus:ring-primary-muted"
                                             }`}
                                         placeholder="Ej: Penguin Random House"
                                     />
@@ -391,7 +391,7 @@ export default function PublishBookPage() {
                                     )}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium text-body mb-2">
                                         Año de publicación
                                     </label>
                                     <input
@@ -400,9 +400,9 @@ export default function PublishBookPage() {
                                         value={formData.year}
                                         onChange={(e) => handleYearChange(e.target.value)}
                                         maxLength={4}
-                                        className={`w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 dark:text-gray-200 transition-all ${errors.year
+                                        className={`w-full px-4 py-3 bg-soft border rounded-xl focus:outline-none focus:ring-2 text-heading transition-all ${errors.year
                                             ? "border-red-400 focus:ring-red-400"
-                                            : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
+                                            : "border-card-border focus:ring-primary dark:focus:ring-primary-muted"
                                             }`}
                                         placeholder="Ej: 1943"
                                     />
@@ -418,10 +418,10 @@ export default function PublishBookPage() {
 
                     {/* Genres */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-body mb-2">
                             Géneros <span className="text-red-500">*</span>
                         </label>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        <p className="text-sm text-caption mb-3">
                             Selecciona uno o más géneros
                             {formData.genres.length > 0 && (
                                 <span className="ml-1.5 text-xs font-semibold text-primary bg-primary-soft px-2 py-0.5 rounded-full">
@@ -432,7 +432,7 @@ export default function PublishBookPage() {
 
                         {/* Genre search */}
                         <div className="relative mb-3">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hint">
                                 <Search size={16} />
                             </span>
                             <input
@@ -440,13 +440,13 @@ export default function PublishBookPage() {
                                 value={genreSearch}
                                 onChange={(e) => setGenreSearch(e.target.value)}
                                 placeholder="Buscar género..."
-                                className="w-full pl-10 pr-8 py-2.5 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 text-sm"
+                                className="w-full pl-10 pr-8 py-2.5 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading text-sm"
                             />
                             {genreSearch && (
                                 <button
                                     type="button"
                                     onClick={() => setGenreSearch("")}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption"
                                 >
                                     <X size={14} />
                                 </button>
@@ -471,9 +471,9 @@ export default function PublishBookPage() {
                         )}
 
                         {/* Genre grid */}
-                        <div className="flex flex-wrap gap-1.5 sm:gap-2 max-h-52 overflow-y-auto custom-scrollbar p-2.5 sm:p-3 bg-gray-50 dark:bg-zinc-800/60 rounded-xl border border-gray-100 dark:border-zinc-700/50">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2 max-h-52 overflow-y-auto custom-scrollbar p-2.5 sm:p-3 bg-subtle/60 rounded-xl border border-card-border/50">
                             {filteredGenres.length === 0 ? (
-                                <p className="text-sm text-gray-400 dark:text-gray-500 py-2 w-full text-center">
+                                <p className="text-sm text-hint py-2 w-full text-center">
                                     No se encontraron géneros para &quot;{genreSearch}&quot;
                                 </p>
                             ) : (
@@ -486,7 +486,7 @@ export default function PublishBookPage() {
                                             onClick={() => toggleGenre(genre)}
                                             className={`px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer border ${isSelected
                                                 ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
-                                                : "bg-white dark:bg-zinc-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-600 hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
+                                                : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
                                                 }`}
                                         >
                                             {isSelected && <span className="mr-1">✓</span>}
@@ -500,7 +500,7 @@ export default function PublishBookPage() {
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-body mb-2">
                             Descripción <span className="text-red-500">*</span>
                         </label>
                         <textarea
@@ -509,10 +509,10 @@ export default function PublishBookPage() {
                             required
                             rows={5}
                             maxLength={2000}
-                            className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 resize-none transition-all"
+                            className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading resize-none transition-all"
                             placeholder="Describe el libro, su condición y cualquier detalle relevante..."
                         />
-                        <p className="text-xs text-gray-400 mt-1 text-right">
+                        <p className="text-xs text-hint mt-1 text-right">
                             {formData.description.length}/2000
                         </p>
                     </div>
@@ -530,7 +530,7 @@ export default function PublishBookPage() {
                             type="button"
                             onClick={() => router.push("/home")}
                             disabled={isSubmitting}
-                            className="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-gray-800 dark:text-gray-200 font-semibold rounded-xl transition-all disabled:opacity-50"
+                            className="px-6 py-3 bg-dim text-heading font-semibold rounded-xl transition-all disabled:opacity-50"
                         >
                             Cancelar
                         </button>

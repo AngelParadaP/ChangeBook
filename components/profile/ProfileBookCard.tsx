@@ -61,7 +61,7 @@ export function ProfileBookCard({
   const shouldShowImage = isValidImageUrl(imageUrl) && !imageError;
 
   return (
-    <div className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-light-purple dark:border-dark-purple p-4 flex gap-4">
+    <div className="bg-card rounded-2xl border-2 border-light-purple dark:border-dark-purple p-4 flex gap-4">
       {/* Book Cover */}
       <div className="w-24 h-36 flex-shrink-0 bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 rounded-xl overflow-hidden relative">
         {shouldShowImage ? (
@@ -83,14 +83,14 @@ export function ProfileBookCard({
       {/* Book Info */}
       <div className="flex-1 flex flex-col">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg line-clamp-2">
+          <h3 className="font-bold text-heading text-lg line-clamp-2">
             {title}
           </h3>
           {status && (
             <span
               className={`text-xs px-3 py-1 rounded-full flex-shrink-0 ${status === "disponible"
                   ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400"
+                  : "bg-soft text-body"
                 }`}
             >
               {status === "disponible" ? "Disponible" : "Intercambiado"}
@@ -98,13 +98,13 @@ export function ProfileBookCard({
           )}
         </div>
 
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+        <p className="text-sm text-caption mb-2">
           {author}
           {publisher && ` • ${publisher}`}
           {year && ` • ${year}`}
         </p>
 
-        <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 mb-3">
+        <p className="text-sm text-body line-clamp-2 mb-3">
           {description}
         </p>
 

@@ -58,25 +58,25 @@ export default function TestRegisterPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-yellowed-white dark:bg-zinc-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-yellowed-white dark:bg-card flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="mb-4 flex justify-center"><BookOpen size={48} className="text-light-purple dark:text-light-pink" /></div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+            <h1 className="text-3xl font-bold text-heading mb-2">
               Registro de Prueba
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-caption">
               Solo para testing - No requiere SIIAU
             </p>
           </div>
 
           {/* Form Card */}
-          <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg p-8 border-2 border-light-purple dark:border-dark-purple">
+          <div className="bg-card rounded-2xl shadow-lg p-8 border-2 border-light-purple dark:border-dark-purple">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Student Code */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-body mb-2">
                   Código de Estudiante
                 </label>
                 <input
@@ -84,14 +84,14 @@ export default function TestRegisterPage() {
                   value={form.studentCode}
                   onChange={(e) => setForm({ ...form, studentCode: e.target.value })}
                   required
-                  className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
                   placeholder="Ej: 123456789"
                 />
               </div>
 
               {/* Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-body mb-2">
                   Nombre Completo
                 </label>
                 <input
@@ -99,14 +99,14 @@ export default function TestRegisterPage() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
-                  className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
                   placeholder="Ej: Juan Pérez"
                 />
               </div>
 
               {/* Username */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-body mb-2">
                   Nombre de Usuario
                 </label>
                 <input
@@ -114,17 +114,17 @@ export default function TestRegisterPage() {
                   value={form.username}
                   onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase().replace(/\s/g, "") })}
                   required
-                  className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
                   placeholder="Ej: juanperez"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-hint mt-1">
                   Sin espacios, mínimo 3 caracteres
                 </p>
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-body mb-2">
                   Contraseña
                 </label>
                 <input
@@ -132,7 +132,7 @@ export default function TestRegisterPage() {
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
-                  className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-gray-800 dark:text-gray-200"
+                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
                   placeholder="Mínimo 6 caracteres"
                 />
               </div>
@@ -163,7 +163,7 @@ export default function TestRegisterPage() {
 
             {/* Links */}
             <div className="mt-6 text-center space-y-2">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-caption">
                 ¿Ya tienes cuenta?{" "}
                 <button
                   onClick={() => router.push("/login")}

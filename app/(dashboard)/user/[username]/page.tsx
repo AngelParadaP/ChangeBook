@@ -151,7 +151,7 @@ export default function UserProfilePage() {
             <div className="h-full flex items-center justify-center">
                 <div className="text-center">
                     <Loader2 size={48} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-4" />
-                    <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando perfil...</p>
+                    <p className="text-caption text-lg">Cargando perfil...</p>
                 </div>
             </div>
         );
@@ -178,16 +178,16 @@ export default function UserProfilePage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-full overflow-hidden">
                 {/* Left Column - User Info & Preferences */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar">
-                    <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+                <div className="bg-card rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar">
+                    <h1 className="text-3xl font-bold text-heading mb-2">
                         Perfil de @{profile.username}
                     </h1>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    <p className="text-caption mb-6">
                         Información del usuario
                     </p>
 
                     <div className="space-y-6">
-                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50 shadow-inner">
+                        <div className="bg-subtle rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50 shadow-inner">
                             <div className="flex flex-col md:flex-row gap-6 items-center">
                                 <div className="flex flex-col items-center gap-4">
                                     <div className="w-44 h-44 rounded-full p-[6px] bg-gradient-to-br from-primary-light/80 to-primary-muted dark:from-primary-dark dark:to-primary flex items-center justify-center relative shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
@@ -204,18 +204,18 @@ export default function UserProfilePage() {
 
                                 <div className="flex-1 space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre</label>
-                                        <p className="text-lg text-gray-800 dark:text-gray-100">{profile.name}</p>
+                                        <label className="block text-sm font-medium text-body mb-2">Nombre</label>
+                                        <p className="text-lg text-heading">{profile.name}</p>
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre de usuario</label>
-                                        <p className="text-lg text-gray-800 dark:text-gray-100">@{profile.username}</p>
+                                        <label className="block text-sm font-medium text-body mb-2">Nombre de usuario</label>
+                                        <p className="text-lg text-heading">@{profile.username}</p>
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Código de alumno</label>
-                                        <p className="text-lg text-gray-800 dark:text-gray-100">{profile.studentCode}</p>
+                                        <label className="block text-sm font-medium text-body mb-2">Código de alumno</label>
+                                        <p className="text-lg text-heading">{profile.studentCode}</p>
                                     </div>
 
                                     {/* Botón para enviar mensaje */}
@@ -232,14 +232,14 @@ export default function UserProfilePage() {
                                 </div>
                             </div>
 
-                            <hr className="my-8 border-gray-200 dark:border-zinc-700" />
+                            <hr className="my-8 border-card-border" />
 
                             <div>
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Preferencias de lectura</h2>
-                                <span className="text-sm text-gray-500 dark:text-gray-400">{profile.preferences.length} géneros</span>
+                                <h2 className="text-2xl font-bold text-heading">Preferencias de lectura</h2>
+                                <span className="text-sm text-hint">{profile.preferences.length} géneros</span>
                             </div>
-                            <p className="text-gray-600 dark:text-gray-400 mb-6">
+                            <p className="text-caption mb-6">
                                 Géneros favoritos de este usuario
                             </p>
 
@@ -254,7 +254,7 @@ export default function UserProfilePage() {
                                         </span>
                                     ))
                                 ) : (
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm italic py-2 w-full text-center">
+                                    <p className="text-hint text-sm italic py-2 w-full text-center">
                                         Este usuario no ha seleccionado preferencias aún
                                     </p>
                                 )}
@@ -265,15 +265,15 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* Right Column - Published Books */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar flex flex-col">
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+                <div className="bg-card rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar flex flex-col">
+                    <h2 className="text-2xl font-bold text-heading mb-4">
                         Libros publicados
                     </h2>
 
                     {/* Book Search Bar */}
                     {books.length > 0 && (
                         <div className="relative mb-6">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hint">
                                 <Search size={18} />
                             </span>
                             <input
@@ -284,7 +284,7 @@ export default function UserProfilePage() {
                                     setBooksToShow(10); // Reset pagination when searching
                                 }}
                                 placeholder="Buscar por título, autor o género..."
-                                className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-gray-800 dark:text-gray-200 transition-all font-medium"
+                                className="w-full pl-10 pr-10 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading transition-all font-medium"
                             />
                             {bookSearch && (
                                 <button
@@ -293,7 +293,7 @@ export default function UserProfilePage() {
                                         setBookSearch("");
                                         setBooksToShow(10);
                                     }}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption transition-colors"
                                 >
                                     <X size={16} />
                                 </button>
@@ -304,11 +304,11 @@ export default function UserProfilePage() {
                     {loadingBooks ? (
                         <div className="text-center py-8">
                             <Loader2 size={32} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-2" />
-                            <p className="text-gray-500 dark:text-gray-400">Cargando libros...</p>
+                            <p className="text-hint">Cargando libros...</p>
                         </div>
                     ) : books.length === 0 ? (
                         <div className="text-center py-8">
-                            <p className="text-gray-500 dark:text-gray-400 text-lg">
+                            <p className="text-hint text-lg">
                                 Este usuario no ha publicado libros aún
                             </p>
                         </div>
@@ -327,7 +327,7 @@ export default function UserProfilePage() {
                                 if (filteredBooks.length === 0) {
                                     return (
                                         <div className="text-center py-8">
-                                            <p className="text-gray-500 dark:text-gray-400 text-lg">
+                                            <p className="text-hint text-lg">
                                                 No se encontraron libros que coincidan con tu búsqueda.
                                             </p>
                                         </div>
@@ -359,7 +359,7 @@ export default function UserProfilePage() {
                                             <div className="pt-6 pb-2 text-center">
                                                 <button
                                                     onClick={() => setBooksToShow((prev) => prev + 10)}
-                                                    className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-all"
+                                                    className="px-6 py-2.5 bg-soft hover:bg-dim text-body font-semibold rounded-xl transition-all"
                                                 >
                                                     Cargar 10 más
                                                 </button>

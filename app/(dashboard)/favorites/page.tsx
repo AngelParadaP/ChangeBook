@@ -70,31 +70,31 @@ export default function FavoritesPage() {
     };
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
+        <div className="bg-card rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
             {/* Header */}
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-heading flex items-center gap-3">
                     <Heart size={24} className="text-red-500 fill-red-500" /> Mis Favoritos
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                <p className="text-hint text-sm mt-1">
                     Libros que te interesan para intercambiar
                 </p>
             </div>
 
             {/* Stats bar */}
-            <div className="flex gap-4 mb-6 p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-xl border border-gray-100 dark:border-zinc-700/50">
+            <div className="flex gap-4 mb-6 p-4 bg-subtle rounded-xl border border-card-border/50">
                 <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
-                    <p className="text-xl font-bold text-gray-800 dark:text-gray-100">{favorites.length}</p>
+                    <p className="text-xs text-hint">Total</p>
+                    <p className="text-xl font-bold text-heading">{favorites.length}</p>
                 </div>
-                <div className="border-l border-gray-200 dark:border-zinc-700 pl-4">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Disponibles</p>
+                <div className="border-l border-card-border pl-4">
+                    <p className="text-xs text-hint">Disponibles</p>
                     <p className="text-xl font-bold text-green-600 dark:text-green-400">
                         {favorites.filter((f) => f.bookStatus === "disponible").length}
                     </p>
                 </div>
-                <div className="border-l border-gray-200 dark:border-zinc-700 pl-4">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Ocupados</p>
+                <div className="border-l border-card-border pl-4">
+                    <p className="text-xs text-hint">Ocupados</p>
                     <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
                         {favorites.filter((f) => f.bookStatus === "ocupado").length}
                     </p>
@@ -105,23 +105,23 @@ export default function FavoritesPage() {
             {loading ? (
                 <div className="space-y-3">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="animate-pulse flex items-center gap-4 p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl">
-                            <div className="w-14 h-20 bg-gray-200 dark:bg-zinc-700 rounded-xl" />
+                        <div key={i} className="animate-pulse flex items-center gap-4 p-4 bg-subtle rounded-2xl">
+                            <div className="w-14 h-20 bg-dim rounded-xl" />
                             <div className="flex-1 space-y-2">
-                                <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded w-3/4" />
-                                <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded w-1/2" />
-                                <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded w-1/3" />
+                                <div className="h-4 bg-dim rounded w-3/4" />
+                                <div className="h-3 bg-dim rounded w-1/2" />
+                                <div className="h-3 bg-dim rounded w-1/3" />
                             </div>
                         </div>
                     ))}
                 </div>
             ) : favorites.length === 0 ? (
                 <div className="text-center py-16">
-                    <div className="mb-4 flex justify-center"><BookOpenCheck size={56} className="text-gray-300 dark:text-gray-600" /></div>
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <div className="mb-4 flex justify-center"><BookOpenCheck size={56} className="text-hint" /></div>
+                    <h3 className="text-lg font-semibold text-body mb-2">
                         No tienes favoritos aún
                     </h3>
-                    <p className="text-gray-400 dark:text-gray-500 text-sm mb-4">
+                    <p className="text-hint text-sm mb-4">
                         Explora libros y agrega los que te interesen a tus favoritos
                     </p>
                     <Link
@@ -191,7 +191,7 @@ function FavoriteCard({
     });
 
     return (
-        <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-2xl border border-gray-100 dark:border-zinc-700/50 hover:shadow-md transition-all duration-300 group">
+        <div className="flex items-center gap-4 p-4 bg-subtle rounded-2xl border border-card-border/50 hover:shadow-md transition-all duration-300 group">
             {/* Book Image */}
             <Link href={`/books/${favorite.bookId}`} className="flex-shrink-0">
                 <div className="w-14 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 relative shadow-sm group-hover:shadow-md transition-shadow">
@@ -216,11 +216,11 @@ function FavoriteCard({
                     <div className="min-w-0">
                         <Link
                             href={`/books/${favorite.bookId}`}
-                            className="font-bold text-sm text-gray-800 dark:text-gray-100 hover:text-light-purple dark:hover:text-light-pink transition-colors truncate block"
+                            className="font-bold text-sm text-heading hover:text-light-purple dark:hover:text-light-pink transition-colors truncate block"
                         >
                             {favorite.bookTitle}
                         </Link>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">{favorite.bookAuthor}</p>
+                        <p className="text-xs text-hint">{favorite.bookAuthor}</p>
                     </div>
 
                     {/* Status Badge */}
@@ -229,7 +229,7 @@ function FavoriteCard({
                             ? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400"
                             : favorite.bookStatus === "ocupado"
                                 ? "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400"
-                                : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                                : "bg-soft text-hint"
                             }`}
                     >
                         <span className="inline-flex items-center gap-1">
@@ -244,7 +244,7 @@ function FavoriteCard({
 
                 {/* Owner info */}
                 <div className="flex items-center gap-2 mt-1">
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500">
+                    <p className="text-[10px] text-hint">
                         {isOwn ? "Tu libro" : (
                             <>
                                 De{" "}
@@ -278,7 +278,7 @@ function FavoriteCard({
                     <button
                         onClick={onRemove}
                         disabled={isRemoving}
-                        className="ml-auto px-3 py-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                        className="ml-auto px-3 py-1.5 text-xs text-hint hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
                     >
                         {isRemoving ? "..." : <><Trash2 size={12} className="inline mr-0.5" /> Quitar</>}
                     </button>
