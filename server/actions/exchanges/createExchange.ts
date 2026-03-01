@@ -110,7 +110,7 @@ export async function createExchange(data: CreateExchangeData) {
         await db.insert(notifications).values({
             userId: book.ownerId,
             type: "exchange_requested",
-            message: `📬 @${requesterName} quiere intercambiar "${book.title}". ¡Revisa la solicitud!`,
+            message: `@${requesterName} quiere intercambiar "${book.title}". ¡Revisa la solicitud!`,
             exchangeId: newExchange.id,
         });
 

@@ -20,6 +20,7 @@ import {
   deleteAllNotifications,
   NotificationItem,
 } from "@/server/actions/notifications";
+import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X } from "lucide-react";
 
 interface BookResult {
   id: string;
@@ -79,7 +80,7 @@ const ThumbnailImage = ({ src, alt }: { src: string; alt: string }) => {
   if (isInvalid || hasError) {
     return (
       <div className="w-full h-full flex items-center justify-center text-xs bg-gray-200 dark:bg-zinc-700">
-        📚
+        <BookOpen size={14} className="text-gray-400" />
       </div>
     );
   }
@@ -96,14 +97,14 @@ const ThumbnailImage = ({ src, alt }: { src: string; alt: string }) => {
 };
 
 // Configuración de iconos y colores por tipo de notificación
-const notificationConfig: Record<string, { icon: string; color: string }> = {
-  exchange_requested: { icon: "📬", color: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400" },
-  exchange_accepted: { icon: "✅", color: "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400" },
-  exchange_rejected: { icon: "❌", color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
-  exchange_auto_rejected: { icon: "🔄", color: "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400" },
-  exchange_started: { icon: "🚀", color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
-  exchange_completed: { icon: "🎉", color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400" },
-  exchange_cancelled: { icon: "🚫", color: "bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400" },
+const notificationConfig: Record<string, { icon: React.ReactNode; color: string }> = {
+  exchange_requested: { icon: <Mailbox size={14} />, color: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400" },
+  exchange_accepted: { icon: <CheckCircle2 size={14} />, color: "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400" },
+  exchange_rejected: { icon: <XCircle size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
+  exchange_auto_rejected: { icon: <RefreshCw size={14} />, color: "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400" },
+  exchange_started: { icon: <Rocket size={14} />, color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
+  exchange_completed: { icon: <PartyPopper size={14} />, color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400" },
+  exchange_cancelled: { icon: <Ban size={14} />, color: "bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400" },
 };
 
 function formatTimeAgo(date: Date): string {
@@ -383,7 +384,7 @@ export function Navbar() {
                     {hasBooks && (
                       <div>
                         <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 flex items-center gap-1.5">
-                          <span>📚</span> LIBROS
+                          <BookOpen size={14} /> LIBROS
                         </div>
                         <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                           {bookResults.map((book) => (
@@ -433,7 +434,7 @@ export function Navbar() {
                     {hasUsers && (
                       <div>
                         <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 flex items-center gap-1.5">
-                          <span>👤</span> USUARIOS
+                          <User size={14} /> USUARIOS
                         </div>
                         <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                           {userResults.map((user) => (
@@ -469,7 +470,7 @@ export function Navbar() {
                     {hasCommunities && (
                       <div>
                         <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 flex items-center gap-1.5">
-                          <span>👥</span> COMUNIDADES
+                          <Users size={14} /> COMUNIDADES
                         </div>
                         <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                           {communityResults.map((community) => (
@@ -489,7 +490,7 @@ export function Navbar() {
                                   />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-lg">
-                                    👥
+                                    <Users size={16} className="text-purple-300 dark:text-purple-600" />
                                   </div>
                                 )}
                               </div>
@@ -558,7 +559,7 @@ export function Navbar() {
                   {/* Header del panel */}
                   <div className="px-4 py-3 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">🔔</span>
+                      <Bell size={16} className="text-gray-600 dark:text-gray-300" />
                       <h3 className="font-bold text-sm text-gray-800 dark:text-gray-100">
                         Notificaciones
                       </h3>
@@ -586,7 +587,7 @@ export function Navbar() {
                       </div>
                     ) : notificationsList.length === 0 ? (
                       <div className="py-10 text-center">
-                        <span className="text-3xl block mb-2">🔕</span>
+                        <BellOff size={28} className="text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           No tienes notificaciones
                         </p>
@@ -595,7 +596,7 @@ export function Navbar() {
                       <div className="divide-y divide-gray-50 dark:divide-zinc-800">
                         {notificationsList.map((notif) => {
                           const config = notificationConfig[notif.type] || {
-                            icon: "📌",
+                            icon: <Pin size={14} />,
                             color: "bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400",
                           };
                           return (
@@ -635,7 +636,7 @@ export function Navbar() {
                                   className={`w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all ${notif.isRead === 0 ? 'hidden group-hover:flex' : 'opacity-0 group-hover:opacity-100'}`}
                                   title="Eliminar notificación"
                                 >
-                                  <span className="text-xs">✕</span>
+                                  <X size={12} />
                                 </button>
                               </div>
                             </div>
@@ -659,7 +660,7 @@ export function Navbar() {
                         onClick={handleDeleteAll}
                         className="px-4 py-2.5 text-xs font-medium text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors border-l border-gray-100 dark:border-zinc-800"
                       >
-                        🗑 Borrar todas
+                        <Trash2 size={12} className="inline mr-0.5" /> Borrar todas
                       </button>
                     </div>
                   )}

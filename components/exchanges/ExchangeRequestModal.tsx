@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { createExchange } from "@/server/actions/exchanges/createExchange";
 import { getBlockedDates } from "@/server/actions/exchanges/getBlockedDates";
+import { Mailbox, CalendarDays, MapPin, MessageSquare, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 interface BlockedRange {
     start: Date;
@@ -279,7 +280,7 @@ export function ExchangeRequestModal({
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                                📬 Solicitar Intercambio
+                                <Mailbox size={20} className="inline mr-1" /> Solicitar Intercambio
                             </h2>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 <span className="font-medium text-light-purple dark:text-light-pink">{bookTitle}</span>
@@ -290,7 +291,7 @@ export function ExchangeRequestModal({
                             onClick={onClose}
                             className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors text-gray-600 dark:text-gray-400"
                         >
-                            ✕
+                            <X size={16} />
                         </button>
                     </div>
                 </div>
@@ -299,7 +300,7 @@ export function ExchangeRequestModal({
                     {/* Calendar */}
                     <div>
                         <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-                            📅 Selecciona las fechas
+                            <CalendarDays size={14} className="inline mr-1" /> Selecciona las fechas
                         </label>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
                             {selectingEnd && startDate
@@ -313,7 +314,7 @@ export function ExchangeRequestModal({
                                 onClick={prevMonth}
                                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-gray-600 dark:text-gray-400"
                             >
-                                ←
+                                <ChevronLeft size={16} />
                             </button>
                             <span className="font-semibold text-gray-700 dark:text-gray-300">
                                 {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
@@ -322,7 +323,7 @@ export function ExchangeRequestModal({
                                 onClick={nextMonth}
                                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-gray-600 dark:text-gray-400"
                             >
-                                →
+                                <ChevronRight size={16} />
                             </button>
                         </div>
 
@@ -415,7 +416,7 @@ export function ExchangeRequestModal({
                     {/* Meeting Location */}
                     <div>
                         <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
-                            📍 Lugar de entrega en CUCEI
+                            <MapPin size={14} className="inline mr-1" /> Lugar de entrega en CUCEI
                         </label>
                         <select
                             value={meetingLocation}
@@ -434,7 +435,7 @@ export function ExchangeRequestModal({
                     {/* Note */}
                     <div>
                         <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
-                            💬 Nota (opcional)
+                            <MessageSquare size={14} className="inline mr-1" /> Nota (opcional)
                         </label>
                         <textarea
                             value={note}
@@ -450,12 +451,12 @@ export function ExchangeRequestModal({
                     {/* Error/Success messages */}
                     {error && (
                         <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-xl p-3 border border-red-100 dark:border-red-800/30">
-                            ⚠️ {error}
+                            <AlertTriangle size={14} className="inline mr-1" /> {error}
                         </div>
                     )}
                     {success && (
                         <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-sm rounded-xl p-3 border border-green-100 dark:border-green-800/30">
-                            ✅ {success}
+                            <CheckCircle2 size={14} className="inline mr-1" /> {success}
                         </div>
                     )}
 
@@ -471,7 +472,7 @@ export function ExchangeRequestModal({
                                 Enviando...
                             </>
                         ) : (
-                            <>📬 Enviar Solicitud</>
+                            <><Mailbox size={16} className="inline mr-1" /> Enviar Solicitud</>
                         )}
                     </button>
                 </div>

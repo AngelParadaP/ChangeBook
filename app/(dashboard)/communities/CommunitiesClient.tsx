@@ -7,7 +7,7 @@ import { joinCommunity } from "@/server/actions/communities/actions";
 import { createCommunity } from "@/server/actions/communities/createCommunity";
 import { getCommunities } from "@/server/actions/communities/getCommunities";
 import { toast } from "@/components/ui/GlobalToast";
-import { Search, Plus, Users, Compass } from "lucide-react";
+import { Search, Plus, Users, Compass, PartyPopper, Hand } from "lucide-react";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 
 interface Community {
@@ -217,7 +217,7 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
                     {community.imageUrl ? (
                       <Image src={community.imageUrl} alt={community.name} fill className="object-cover" />
                     ) : (
-                      <span className="flex items-center justify-center h-full text-2xl">👥</span>
+                      <span className="flex items-center justify-center h-full"><Users size={20} className="text-gray-400 dark:text-gray-500" /></span>
                     )}
                   </div>
                   <div>
@@ -255,7 +255,7 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
         <div className="text-center py-12">
           {activeTab === "discover" ? (
             <>
-              <div className="text-6xl mb-4">🎉</div>
+              <div className="mb-4 flex justify-center"><PartyPopper size={48} className="text-gray-300 dark:text-gray-600" /></div>
               <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                 ¡Ya estás en todas las comunidades!
               </h3>
@@ -265,7 +265,7 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
             </>
           ) : (
             <>
-              <div className="text-6xl mb-4">👋</div>
+              <div className="mb-4 flex justify-center"><Hand size={48} className="text-gray-300 dark:text-gray-600" /></div>
               <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                 No te has unido a ninguna comunidad
               </h3>

@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
-import { Search, X, BookOpen, Upload } from "lucide-react";
+import { Search, X, BookOpen, Upload, Loader2 } from "lucide-react";
 import { Toast } from "@/components/ui/Toast";
 import ImageCropper from "@/components/ui/ImageCropper";
 import { fileToDataUrl, blobToFile } from "@/lib/imageUtils";
@@ -76,7 +76,7 @@ export default function PublishBookPage() {
         return (
             <div className="h-full flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin text-6xl mb-4">📚</div>
+                    <Loader2 size={48} className="animate-spin text-primary mx-auto mb-4" />
                     <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando...</p>
                 </div>
             </div>
@@ -337,8 +337,8 @@ export default function PublishBookPage() {
                                     required
                                     maxLength={200}
                                     className={`w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 dark:text-gray-200 transition-all ${errors.title
-                                            ? "border-red-400 focus:ring-red-400"
-                                            : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
+                                        ? "border-red-400 focus:ring-red-400"
+                                        : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
                                         }`}
                                     placeholder="Ej: El Principito"
                                 />
@@ -359,8 +359,8 @@ export default function PublishBookPage() {
                                     required
                                     maxLength={150}
                                     className={`w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 dark:text-gray-200 transition-all ${errors.author
-                                            ? "border-red-400 focus:ring-red-400"
-                                            : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
+                                        ? "border-red-400 focus:ring-red-400"
+                                        : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
                                         }`}
                                     placeholder="Ej: Antoine de Saint-Exupéry"
                                 />
@@ -381,8 +381,8 @@ export default function PublishBookPage() {
                                         onChange={(e) => handleTextField("publisher", e.target.value)}
                                         maxLength={150}
                                         className={`w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 dark:text-gray-200 transition-all ${errors.publisher
-                                                ? "border-red-400 focus:ring-red-400"
-                                                : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
+                                            ? "border-red-400 focus:ring-red-400"
+                                            : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
                                             }`}
                                         placeholder="Ej: Penguin Random House"
                                     />
@@ -401,8 +401,8 @@ export default function PublishBookPage() {
                                         onChange={(e) => handleYearChange(e.target.value)}
                                         maxLength={4}
                                         className={`w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800 border rounded-xl focus:outline-none focus:ring-2 text-gray-800 dark:text-gray-200 transition-all ${errors.year
-                                                ? "border-red-400 focus:ring-red-400"
-                                                : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
+                                            ? "border-red-400 focus:ring-red-400"
+                                            : "border-gray-200 dark:border-zinc-700 focus:ring-primary dark:focus:ring-primary-muted"
                                             }`}
                                         placeholder="Ej: 1943"
                                     />
@@ -485,8 +485,8 @@ export default function PublishBookPage() {
                                             type="button"
                                             onClick={() => toggleGenre(genre)}
                                             className={`px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer border ${isSelected
-                                                    ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
-                                                    : "bg-white dark:bg-zinc-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-600 hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
+                                                ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
+                                                : "bg-white dark:bg-zinc-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-600 hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
                                                 }`}
                                         >
                                             {isSelected && <span className="mr-1">✓</span>}

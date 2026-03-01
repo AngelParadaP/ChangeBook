@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getMyFavorites, removeFavorite } from "@/server/actions/favorites";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModal";
+import { Heart, BookOpenCheck, Home, BookOpen, CircleCheck, CirclePause, CircleX, Mailbox, CalendarDays, Trash2 } from "lucide-react";
 
 interface FavoriteBook {
     id: string;
@@ -73,7 +74,7 @@ export default function FavoritesPage() {
             {/* Header */}
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3">
-                    ❤️ Mis Favoritos
+                    <Heart size={24} className="text-red-500 fill-red-500" /> Mis Favoritos
                 </h1>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                     Libros que te interesan para intercambiar
@@ -116,7 +117,7 @@ export default function FavoritesPage() {
                 </div>
             ) : favorites.length === 0 ? (
                 <div className="text-center py-16">
-                    <div className="text-6xl mb-4">📚</div>
+                    <div className="mb-4 flex justify-center"><BookOpenCheck size={56} className="text-gray-300 dark:text-gray-600" /></div>
                     <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
                         No tienes favoritos aún
                     </h3>
@@ -127,7 +128,7 @@ export default function FavoritesPage() {
                         href="/home"
                         className="inline-flex px-6 py-2.5 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25 text-sm"
                     >
-                        🏠 Explorar libros
+                        <Home size={16} className="inline mr-1" /> Explorar libros
                     </Link>
                 </div>
             ) : (
@@ -204,7 +205,7 @@ function FavoriteCard({
                             onError={() => setImgError(true)}
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-2xl">📖</div>
+                        <div className="w-full h-full flex items-center justify-center"><BookOpen size={22} className="text-purple-400" /></div>
                     )}
                 </div>
             </Link>
@@ -225,17 +226,19 @@ function FavoriteCard({
                     {/* Status Badge */}
                     <span
                         className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold ${favorite.bookStatus === "disponible"
-                                ? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400"
-                                : favorite.bookStatus === "ocupado"
-                                    ? "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400"
-                                    : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                            ? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400"
+                            : favorite.bookStatus === "ocupado"
+                                ? "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400"
+                                : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
                             }`}
                     >
-                        {favorite.bookStatus === "disponible"
-                            ? "📗 Disponible"
-                            : favorite.bookStatus === "ocupado"
-                                ? "📙 Ocupado"
-                                : "📕 Intercambiado"}
+                        <span className="inline-flex items-center gap-1">
+                            {favorite.bookStatus === "disponible"
+                                ? <><CircleCheck size={10} /> Disponible</>
+                                : favorite.bookStatus === "ocupado"
+                                    ? <><CirclePause size={10} /> Ocupado</>
+                                    : <><CircleX size={10} /> Intercambiado</>}
+                        </span>
                     </span>
                 </div>
 
@@ -264,12 +267,12 @@ function FavoriteCard({
                             onClick={onExchange}
                             className="px-3 py-1.5 bg-gradient-to-r from-light-purple to-dark-purple text-white text-xs font-bold rounded-lg hover:shadow-md transition-all"
                         >
-                            📬 Solicitar intercambio
+                            <Mailbox size={14} className="inline mr-0.5" /> Solicitar intercambio
                         </button>
                     )}
                     {favorite.bookStatus === "ocupado" && !isOwn && (
                         <span className="text-[10px] text-amber-500 dark:text-amber-400 self-center">
-                            📅 Puedes reservar en fechas disponibles
+                            <CalendarDays size={10} className="inline mr-0.5" /> Puedes reservar en fechas disponibles
                         </span>
                     )}
                     <button
@@ -277,7 +280,7 @@ function FavoriteCard({
                         disabled={isRemoving}
                         className="ml-auto px-3 py-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
                     >
-                        {isRemoving ? "..." : "🗑️ Quitar"}
+                        {isRemoving ? "..." : <><Trash2 size={12} className="inline mr-0.5" /> Quitar</>}
                     </button>
                 </div>
             </div>

@@ -14,6 +14,7 @@ import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModa
 import { addFavorite, removeFavorite, isFavorite as checkIsFavorite } from "@/server/actions/favorites";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { BookOpen, CircleCheck, CirclePause, CircleX, ArrowLeft, Pencil, Save, Mailbox, CalendarDays, MessageSquare, Heart } from "lucide-react";
 
 interface BookDetail {
     id: string;
@@ -89,7 +90,7 @@ export default function BookDetailPage() {
             const result = await addFavorite(book.id);
             if (result.success) {
                 setIsFav(true);
-                setToast({ message: "¡Agregado a favoritos! ❤️", type: "success" });
+                setToast({ message: "¡Agregado a favoritos!", type: "success" });
             }
         }
         setFavLoading(false);
@@ -252,7 +253,7 @@ export default function BookDetailPage() {
                     onClick={() => router.back()}
                     className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-all mb-6 text-sm font-medium"
                 >
-                    <span className="text-lg">←</span> Volver
+                    <ArrowLeft size={18} /> Volver
                 </button>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -271,7 +272,7 @@ export default function BookDetailPage() {
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center">
-                                    <span className="text-[120px]">📖</span>
+                                    <BookOpen size={80} className="text-purple-300 dark:text-purple-600" />
                                 </div>
                             )}
                         </div>
@@ -286,7 +287,7 @@ export default function BookDetailPage() {
                                         : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
                                     }`}
                             >
-                                {book.status === "disponible" ? "📗 Disponible" : book.status === "ocupado" ? "📙 Ocupado" : "📕 Intercambiado"}
+                                <span className="inline-flex items-center gap-1">{book.status === "disponible" ? <><CircleCheck size={14} /> Disponible</> : book.status === "ocupado" ? <><CirclePause size={14} /> Ocupado</> : <><CircleX size={14} /> Intercambiado</>}</span>
                             </span>
                             {publishedDate && (
                                 <span className="text-xs text-gray-400 dark:text-gray-500">
@@ -497,7 +498,7 @@ export default function BookDetailPage() {
                                             disabled={isSaving}
                                             className="flex-1 px-6 py-3 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all disabled:opacity-50 hover:shadow-lg hover:shadow-purple-500/25"
                                         >
-                                            {isSaving ? "Guardando..." : "💾 Guardar Cambios"}
+                                            {isSaving ? "Guardando..." : <><Save size={16} className="inline mr-1" /> Guardar Cambios</>}
                                         </button>
                                     </>
                                 ) : (
@@ -505,7 +506,7 @@ export default function BookDetailPage() {
                                         onClick={() => setIsEditing(true)}
                                         className="w-full px-6 py-3 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
                                     >
-                                        ✏️ Editar Libro
+                                        <Pencil size={16} className="inline mr-1" /> Editar Libro
                                     </button>
                                 )
                             ) : (
@@ -516,12 +517,12 @@ export default function BookDetailPage() {
                                             onClick={() => setShowExchangeModal(true)}
                                             className="w-full px-6 py-3 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
                                         >
-                                            📬 Solicitar Intercambio
+                                            <Mailbox size={16} className="inline mr-1" /> Solicitar Intercambio
                                         </button>
                                     )}
                                     {book.status === "ocupado" && (
                                         <p className="text-xs text-center text-amber-600 dark:text-amber-400">
-                                            📅 Este libro tiene fechas ocupadas. En el calendario podrás ver los días disponibles.
+                                            <CalendarDays size={14} className="inline mr-1" /> Este libro tiene fechas ocupadas. En el calendario podrás ver los días disponibles.
                                         </p>
                                     )}
                                     {/* Botón de mensaje */}
@@ -534,7 +535,7 @@ export default function BookDetailPage() {
                                         }}
                                         className="w-full px-6 py-2.5 font-medium rounded-xl transition-all text-sm flex items-center justify-center gap-2 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700"
                                     >
-                                        💬 Enviar Mensaje al Dueño
+                                        <MessageSquare size={16} className="inline mr-1" /> Enviar Mensaje al Dueño
                                     </button>
                                     {/* Botón de favorito */}
                                     <button
@@ -545,7 +546,7 @@ export default function BookDetailPage() {
                                             : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700"
                                             }`}
                                     >
-                                        {favLoading ? "..." : isFav ? "❤️ En favoritos" : "🤍 Agregar a favoritos"}
+                                        {favLoading ? "..." : isFav ? <><Heart size={14} className="inline mr-1 fill-current" /> En favoritos</> : <><Heart size={14} className="inline mr-1" /> Agregar a favoritos</>}
                                     </button>
                                 </div>
                             )}

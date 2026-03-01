@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { BookOpen } from "lucide-react";
 
 interface BookCardProps {
   id: string;
@@ -67,7 +68,7 @@ export function BookCard({ title, author, imageUrl, genres, ownerUsername, onCli
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-6xl">📖</span>
+            <BookOpen size={48} className="text-purple-300 dark:text-purple-600" />
           </div>
         )}
       </div>
