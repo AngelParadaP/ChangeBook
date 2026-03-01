@@ -54,29 +54,35 @@ select {
 
 /* ─── Link styles inside rich-text (prose) content ─────────────────────────── */
 .prose a {
-  color: #2563eb;           /* blue-600 */
+  color: #2563eb;
+  /* blue-600 */
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color 0.15s ease;
 }
 
 .prose a:visited {
-  color: #7c3aed;           /* violet-600 */
+  color: #7c3aed;
+  /* violet-600 */
 }
 
 .prose a:hover {
-  color: #1d4ed8;           /* blue-700 */
+  color: #1d4ed8;
+  /* blue-700 */
 }
 
 /* Dark mode */
 .dark .prose a {
-  color: #60a5fa;           /* blue-400 */
+  color: #60a5fa;
+  /* blue-400 */
 }
 
 .dark .prose a:visited {
-  color: #a78bfa;           /* violet-400 */
+  color: #a78bfa;
+  /* violet-400 */
 }
 
 .dark .prose a:hover {
-  color: #93bbfd;           /* blue-300ish */
+  color: #93bbfd;
+  /* blue-300ish */
 }

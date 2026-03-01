@@ -7,6 +7,7 @@ import { ChatBubble } from "./ChatBubble";
 import { ChatInput } from "./ChatInput";
 import { ChatSkeleton } from "./ChatSkeleton";
 import { getMessages, sendMessage, markAsRead, getChatRooms } from "@/server/actions/chat";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 interface Message {
     id: string;
@@ -164,17 +165,12 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
         <div className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm overflow-hidden">
             {/* Header */}
             <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-light-purple to-dark-purple text-white">
-                {otherUser.imageURL ? (
-                    <img
-                        src={otherUser.imageURL}
-                        alt={otherUser.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                    />
-                ) : (
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">
-                        👤
-                    </div>
-                )}
+                <UserAvatar
+                    imageURL={otherUser.imageURL}
+                    name={otherUser.name}
+                    size="sm"
+                    useNextImage={false}
+                />
                 <div>
                     <h2 className="font-bold text-lg">{otherUser.name}</h2>
                     <p className="text-sm text-white/80">@{otherUser.username}</p>

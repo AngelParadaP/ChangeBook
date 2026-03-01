@@ -22,6 +22,7 @@ export async function updateUserProfile(formData: FormData) {
     const username = formData.get("username") as string | null;
     const preferencesRaw = formData.get("preferences") as string | null;
     const imageFile = formData.get("image") as File | null;
+    const removeImage = formData.get("removeImage") === "true";
 
     // Parse preferences
     const preferences = preferencesRaw
@@ -85,7 +86,29 @@ export async function updateUserProfile(formData: FormData) {
     if (name !== null && name.trim()) updateData.name = name.trim();
     if (username !== null && username.trim()) updateData.username = username.trim();
     if (preferences !== undefined) updateData.preferences = preferences;
-    if (imageURL !== undefined) updateData.imageURL = imageURL;
+    // Handle removing profile image
+    if (removeImage) {
+      // Get current user image to delete from UploadThing
+      const [currentUserData] = await db
+        .select({ imageURL: users.imageURL })
+        .from(users)
+        .where(eq(users.id, user.id))
+        .limit(1);
+
+      if (currentUserData?.imageURL) {
+        try {
+          const fileKey = currentUserData.imageURL.split("/").pop();
+          if (fileKey) {
+            await utapi.deleteFiles(fileKey);
+          }
+        } catch (deleteError) {
+          console.error("Failed to delete old profile image:", deleteError);
+        }
+      }
+      imageURL = null as unknown as string;
+    }
+
+    if (imageURL !== undefined) updateData.imageURL = imageURL as string | null;
 
     if (Object.keys(updateData).length === 0) {
       return { success: false, error: "No hay datos para actualizar" };

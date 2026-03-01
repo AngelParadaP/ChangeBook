@@ -11,6 +11,7 @@ import { getCommunities } from "@/server/actions/communities/getCommunities";
 import { updateBook } from "@/server/actions/books";
 import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Users } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -227,21 +228,12 @@ function SearchUserCard({ user }: { user: UserResult }) {
         >
             {/* Header */}
             <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex-shrink-0 relative group-hover:ring-2 group-hover:ring-light-purple dark:group-hover:ring-dark-purple transition-all">
-                    {showImage ? (
-                        <Image
-                            src={user.imageURL!}
-                            alt={user.name}
-                            fill
-                            className="object-cover"
-                            onError={() => setImgError(true)}
-                        />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center text-3xl">
-                            👤
-                        </div>
-                    )}
-                </div>
+                <UserAvatar
+                    imageURL={user.imageURL}
+                    name={user.name}
+                    size="lg"
+                    className="group-hover:ring-2 group-hover:ring-light-purple dark:group-hover:ring-dark-purple transition-all"
+                />
 
                 <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-gray-800 dark:text-gray-100 truncate text-base">

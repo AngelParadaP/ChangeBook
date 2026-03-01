@@ -7,8 +7,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSidebar } from "./SidebarContext";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { searchBooks } from "@/server/actions/books/searchBooks";
 import { searchUsers } from "@/server/actions/user/searchUsers";
+import { searchCommunities } from "@/server/actions/communities/searchCommunities";
 import {
   getNotifications,
   getUnreadNotificationCount,
@@ -59,6 +61,14 @@ interface UserResult {
   username: string;
   studentCode: string;
   imageURL: string | null;
+}
+
+interface CommunityResult {
+  id: string;
+  name: string;
+  description: string | null;
+  imageUrl: string | null;
+  memberCount: number;
 }
 
 // Helper component for safe image rendering
@@ -114,6 +124,7 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [bookResults, setBookResults] = useState<BookResult[]>([]);
   const [userResults, setUserResults] = useState<UserResult[]>([]);
+  const [communityResults, setCommunityResults] = useState<CommunityResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -239,9 +250,10 @@ export function Navbar() {
         setIsSearching(true);
         setShowResults(true);
 
-        const [booksResult, usersResult] = await Promise.all([
+        const [booksResult, usersResult, communitiesResult] = await Promise.all([
           searchBooks(searchQuery, 4),
           searchUsers(searchQuery, 4),
+          searchCommunities(searchQuery, 4),
         ]);
 
         if (booksResult.success && booksResult.books) {
@@ -250,11 +262,15 @@ export function Navbar() {
         if (usersResult.success && usersResult.users) {
           setUserResults(usersResult.users as UserResult[]);
         }
+        if (communitiesResult.success && communitiesResult.communities) {
+          setCommunityResults(communitiesResult.communities as CommunityResult[]);
+        }
 
         setIsSearching(false);
       } else {
         setBookResults([]);
         setUserResults([]);
+        setCommunityResults([]);
         setShowResults(false);
       }
     }, 500);
@@ -303,19 +319,13 @@ export function Navbar() {
     }
   };
 
-  /* Iniciales del usuario para el avatar */
-  const initials = session?.user?.name
-    ? session.user.name
-      .split(" ")
-      .slice(0, 2)
-      .map((w) => w[0])
-      .join("")
-      .toUpperCase()
-    : "?";
+  /* Nombre del usuario para el avatar */
+  const userName = session?.user?.name || "Usuario";
 
   const hasBooks = bookResults.length > 0;
   const hasUsers = userResults.length > 0;
-  const hasAnyResults = hasBooks || hasUsers;
+  const hasCommunities = communityResults.length > 0;
+  const hasAnyResults = hasBooks || hasUsers || hasCommunities;
 
   return (
     <nav className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl shadow-sm relative z-40">
@@ -433,20 +443,11 @@ export function Navbar() {
                               onClick={() => setShowResults(false)}
                               className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
                             >
-                              <div className="w-10 h-10 relative flex-shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800">
-                                {user.imageURL ? (
-                                  <Image
-                                    src={user.imageURL}
-                                    alt={user.name}
-                                    fill
-                                    className="object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-lg">
-                                    👤
-                                  </div>
-                                )}
-                              </div>
+                              <UserAvatar
+                                imageURL={user.imageURL}
+                                name={user.name}
+                                size="sm"
+                              />
                               <div className="min-w-0 flex-1">
                                 <p className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
                                   {user.name}
@@ -458,6 +459,49 @@ export function Navbar() {
                               <span className="text-[11px] bg-gray-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-400 px-2 py-0.5 rounded-full whitespace-nowrap font-mono">
                                 {user.studentCode}
                               </span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Community Results Section */}
+                    {hasCommunities && (
+                      <div>
+                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 flex items-center gap-1.5">
+                          <span>👥</span> COMUNIDADES
+                        </div>
+                        <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                          {communityResults.map((community) => (
+                            <Link
+                              key={community.id}
+                              href={`/communities/${community.id}`}
+                              onClick={() => setShowResults(false)}
+                              className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+                            >
+                              <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex-shrink-0 relative">
+                                {community.imageUrl ? (
+                                  <Image
+                                    src={community.imageUrl}
+                                    alt={community.name}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-lg">
+                                    👥
+                                  </div>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
+                                  {community.name}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                  {community.memberCount} miembro{community.memberCount !== 1 ? "s" : ""}
+                                  {community.description ? ` · ${community.description}` : ""}
+                                </p>
+                              </div>
                             </Link>
                           ))}
                         </div>
@@ -634,22 +678,11 @@ export function Navbar() {
                 className="flex items-center gap-2 p-1 rounded-full transition-all hover:ring-2 hover:ring-light-purple/30 dark:hover:ring-dark-pink/30"
                 aria-label="Menú de usuario"
               >
-                <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center relative"
-                  style={{ background: "linear-gradient(135deg, #26658C, #54ACBF)" }}
-                >
-                  {session?.user?.image ? (
-                    <Image
-                      src={session.user.image}
-                      alt={session.user.name || "User"}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <span className="text-white text-xs font-bold tracking-wide">
-                      {initials}
-                    </span>
-                  )}
-                </div>
+                <UserAvatar
+                  imageURL={session?.user?.image}
+                  name={userName}
+                  size="xs"
+                />
               </button>
 
               {/* Dropdown */}
