@@ -19,9 +19,9 @@ export function Toast({ message, type, onClose, duration = 3000 }: ToastProps) {
   }, [duration, onClose]);
 
   return (
-    <div className="animate-in slide-in-from-right-4 fade-in duration-300">
+    <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-right-4 fade-in duration-300 pointer-events-none">
       <div
-        className={`px-6 py-4 rounded-xl shadow-2xl border-2 flex items-center gap-3 min-w-[300px] ${
+        className={`pointer-events-auto px-6 py-4 rounded-xl shadow-2xl border-2 flex items-center gap-3 min-w-[300px] ${
           type === "success"
             ? "bg-green-50 dark:bg-green-900/20 border-green-500 dark:border-green-700"
             : "bg-red-50 dark:bg-red-900/20 border-red-500 dark:border-red-700"

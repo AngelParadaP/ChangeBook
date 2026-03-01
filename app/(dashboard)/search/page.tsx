@@ -391,6 +391,12 @@ function SearchPageContent() {
         }
     };
 
+    const handleDeleteBook = (bookId: string) => {
+        setBookResults((prev) => prev.filter((b) => b.id !== bookId));
+        setToast({ message: "Libro eliminado exitosamente", type: "success" });
+        setIsModalOpen(false);
+    };
+
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/login");
@@ -654,6 +660,7 @@ function SearchPageContent() {
                     currentUserId={session?.user?.id}
                     onRequestBook={handleRequestBook}
                     onUpdateBook={handleUpdateBook}
+                    onDeleteBook={handleDeleteBook}
                 />
             )}
         </>

@@ -251,6 +251,12 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
     }
   };
 
+  const handleDeleteBook = (bookId: string) => {
+    setBooks((prev) => prev.filter((book) => book.id !== bookId));
+    setToast({ message: "Libro eliminado exitosamente", type: "success" });
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       {toast && (
@@ -390,6 +396,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
           currentUserId={session?.user?.id}
           onRequestBook={handleRequestBook}
           onUpdateBook={handleUpdateBook}
+          onDeleteBook={handleDeleteBook}
         />
       )}
     </>
