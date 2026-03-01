@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Toast } from "@/components/ui/Toast";
+import ImageCropper from "@/components/ui/ImageCropper";
+import { fileToDataUrl, blobToFile } from "@/lib/imageUtils";
 import { createBookAction } from "@/server/actions/books/createBook";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 
@@ -27,6 +29,9 @@ export default function PublishBookPage() {
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropperSrc, setCropperSrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -63,25 +68,25 @@ export default function PublishBookPage() {
       return;
     }
 
-    // Validate file size
-    const maxSize = 4 * 1024 * 1024; // 4MB
-    if (file.size > maxSize) {
-      setToast({
-        message: "El archivo es demasiado grande. Tamaño máximo: 4MB.",
-        type: "error",
-      });
-      return;
-    }
+    // Open cropper instead of just previewing
+    const dataUrl = await fileToDataUrl(file);
+    setCropperSrc(dataUrl);
+    setShowCropper(true);
+  };
 
-    // Just show preview, don't upload yet
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-    
-    // Store the file for later upload
+  const handleCropComplete = (blob: Blob, previewUrl: string) => {
+    setImagePreview(previewUrl);
+    setCroppedFile(blobToFile(blob, "book-cover"));
     setFormData({ ...formData, imageUrl: "pending" });
+    setShowCropper(false);
+    setCropperSrc(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setCropperSrc(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const toggleGenre = (genre: string) => {
@@ -98,10 +103,8 @@ export default function PublishBookPage() {
     setIsSubmitting(true);
 
     try {
-      // Get the image file from the file input
-      const imageFile = fileInputRef.current?.files?.[0];
-      
-      if (!imageFile) {
+      // Use the cropped file instead of raw file input
+      if (!croppedFile) {
         setToast({ message: "Por favor selecciona una imagen", type: "error" });
         setIsSubmitting(false);
         return;
@@ -113,7 +116,7 @@ export default function PublishBookPage() {
       submitData.append("author", formData.author);
       submitData.append("publisher", formData.publisher);
       submitData.append("year", formData.year);
-      submitData.append("image", imageFile); // Send the file, not the URL
+      submitData.append("image", croppedFile);
       submitData.append("description", formData.description);
       submitData.append("genres", formData.genres.join(","));
 
@@ -132,6 +135,7 @@ export default function PublishBookPage() {
           genres: [],
         });
         setImagePreview(null);
+        setCroppedFile(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -337,6 +341,17 @@ export default function PublishBookPage() {
           </div>
         </form>
       </div>
+
+      {/* Image Cropper Modal */}
+      {showCropper && cropperSrc && (
+        <ImageCropper
+          imageSrc={cropperSrc}
+          aspectRatio={2 / 3}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          quality={0.85}
+        />
+      )}
     </>
   );
 }

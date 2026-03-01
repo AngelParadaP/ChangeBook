@@ -11,7 +11,7 @@ const auth = async () => {
 }
 
 export const ourFileRouter = {
-  imageUploader: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
+  imageUploader: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
     .middleware(async () => {
       const user = await auth();
       return { userId: user.userId };

@@ -4,7 +4,7 @@ import { UploadThingError } from "uploadthing/server";
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  bookImageUploader: f({ image: { maxFileSize: "4MB" } })
+  bookImageUploader: f({ image: { maxFileSize: "8MB" } })
     .middleware(async ({ req }) => {
       return { uploadedBy: "user" };
     })

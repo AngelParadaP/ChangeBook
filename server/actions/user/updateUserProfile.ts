@@ -53,7 +53,7 @@ export async function updateUserProfile(formData: FormData) {
         };
       }
 
-      const maxSize = 4 * 1024 * 1024; // 4MB
+      const maxSize = 8 * 1024 * 1024; // 8MB (client compresses, this is safety net)
       if (imageFile.size > maxSize) {
         return {
           success: false,

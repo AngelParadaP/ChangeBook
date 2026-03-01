@@ -44,7 +44,7 @@ export async function createPostAction(formData: FormData) {
     if (image instanceof File && image.size > 0) {
         // Validate type/size if needed (already done in createBook, can reuse logic)
         // 4MB limit
-        if (image.size > 4 * 1024 * 1024) {
+        if (image.size > 8 * 1024 * 1024) {
             return { success: false, error: "La imagen excede 4MB" };
         }
         

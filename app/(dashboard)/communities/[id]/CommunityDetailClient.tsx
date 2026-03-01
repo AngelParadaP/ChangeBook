@@ -16,6 +16,16 @@ import { toast } from "@/components/ui/GlobalToast";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import BookRecommendationSidebar from "@/components/community/BookRecommendationSidebar";
 import { X, Upload, Users, MessageSquare, Search, Settings, Trash2, Camera, LogOut, ChevronUp, Slash } from "lucide-react";
+import ImageCropper, { type AspectRatioOption } from "@/components/ui/ImageCropper";
+import { fileToDataUrl, blobToFile } from "@/lib/imageUtils";
+
+const POST_ASPECT_RATIOS: AspectRatioOption[] = [
+  { label: "1:1", value: 1, icon: "square" },
+  { label: "4:3", value: 4 / 3, icon: "landscape" },
+  { label: "3:2", value: 3 / 2, icon: "landscape" },
+  { label: "16:9", value: 16 / 9, icon: "landscape" },
+  { label: "2:3", value: 2 / 3, icon: "portrait" },
+];
 
 // ─── Skeleton Components ─────────────────────────────────────────────────────
 
@@ -130,6 +140,14 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Cropper state for community edit image
+  const [showEditCropper, setShowEditCropper] = useState(false);
+  const [editCropperSrc, setEditCropperSrc] = useState<string | null>(null);
+
+  // Cropper state for post images
+  const [showPostCropper, setShowPostCropper] = useState(false);
+  const [postCropperSrc, setPostCropperSrc] = useState<string | null>(null);
+
   const isAdmin = community.role === "admin";
   const isOwner = session?.user?.id === community.ownerId;
   const [leaving, setLeaving] = useState(false);
@@ -189,16 +207,32 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
-          if (file.size > 4 * 1024 * 1024) {
-              toast("La imagen es demasiado grande (Máx 4MB)", "error");
+          const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+          if (!validTypes.includes(file.type)) {
+              toast("Tipo de archivo no válido. Solo JPG, PNG y WebP.", "error");
               return;
           }
-          setImageFile(file);
-          setPreviewUrl(URL.createObjectURL(file));
+          // Open cropper for post images
+          const dataUrl = await fileToDataUrl(file);
+          setPostCropperSrc(dataUrl);
+          setShowPostCropper(true);
+          if (fileInputRef.current) fileInputRef.current.value = "";
       }
+  };
+
+  const handlePostCropComplete = (blob: Blob, preview: string) => {
+      setImageFile(blobToFile(blob, "post-image"));
+      setPreviewUrl(preview);
+      setShowPostCropper(false);
+      setPostCropperSrc(null);
+  };
+
+  const handlePostCropCancel = () => {
+      setShowPostCropper(false);
+      setPostCropperSrc(null);
   };
 
   const removeImage = () => {
@@ -321,21 +355,32 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
 
   // ─── Edit/Delete Handlers ──────────────────────────────────────────────────────
 
-  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 4 * 1024 * 1024) {
-        toast("La imagen es demasiado grande (Máx 4MB)", "error");
-        return;
-      }
       const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
       if (!validTypes.includes(file.type)) {
         toast("Tipo de archivo no válido. Solo JPG, PNG y WebP.", "error");
         return;
       }
-      setEditImageFile(file);
-      setEditImagePreview(URL.createObjectURL(file));
+      // Open cropper instead of directly setting
+      const dataUrl = await fileToDataUrl(file);
+      setEditCropperSrc(dataUrl);
+      setShowEditCropper(true);
+      if (editImageInputRef.current) editImageInputRef.current.value = "";
     }
+  };
+
+  const handleEditCropComplete = (blob: Blob, previewUrl: string) => {
+    setEditImageFile(blobToFile(blob, "community-image"));
+    setEditImagePreview(previewUrl);
+    setShowEditCropper(false);
+    setEditCropperSrc(null);
+  };
+
+  const handleEditCropCancel = () => {
+    setShowEditCropper(false);
+    setEditCropperSrc(null);
   };
 
   const removeEditImage = () => {
@@ -424,6 +469,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
   ];
 
   return (
+    <>
     <div ref={scrollContainerRef} className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm h-full overflow-y-auto custom-scrollbar relative">
        {/* Compact Sticky Header (appears on scroll) */}
        <div className={`sticky top-0 z-30 transition-all duration-300 overflow-hidden ${headerCollapsed ? "max-h-16 opacity-100" : "max-h-0 opacity-0"}`}>
@@ -737,7 +783,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 <Upload size={24} className="text-gray-400 group-hover:text-light-purple" />
                             </div>
                             <span className="text-sm font-medium">Click para subir una imagen</span>
-                            <span className="text-xs text-gray-400 mt-1">PNG, JPG, WebP (Máx 4MB)</span>
+                            <span className="text-xs text-gray-400 mt-1">PNG, JPG, WebP — se recortará</span>
                             <input 
                                 type="file" 
                                 ref={fileInputRef} 
@@ -932,6 +978,30 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
          </div>
        )}
     </div>
+
+      {/* Image Cropper Modal for community edit */}
+      {showEditCropper && editCropperSrc && (
+        <ImageCropper
+          imageSrc={editCropperSrc!}
+          aspectRatio={1}
+          onCropComplete={handleEditCropComplete}
+          onCancel={handleEditCropCancel}
+          quality={0.85}
+        />
+      )}
+
+      {/* Image Cropper Modal for post images */}
+      {showPostCropper && postCropperSrc && (
+        <ImageCropper
+          imageSrc={postCropperSrc!}
+          aspectRatio={1}
+          onCropComplete={handlePostCropComplete}
+          onCancel={handlePostCropCancel}
+          quality={0.85}
+          aspectRatios={POST_ASPECT_RATIOS}
+        />
+      )}
+    </>
   );
 }
 

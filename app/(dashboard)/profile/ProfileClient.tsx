@@ -7,6 +7,8 @@ import Image from "next/image";
 import { ProfileBookCard } from "@/components/profile/ProfileBookCard";
 import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
+import ImageCropper from "@/components/ui/ImageCropper";
+import { fileToDataUrl, blobToFile } from "@/lib/imageUtils";
 import { updateUserProfile } from "@/server/actions/user/updateUserProfile";
 import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getUserProfile } from "@/server/actions/user/getUserProfile";
@@ -57,6 +59,9 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropperSrc, setCropperSrc] = useState<string | null>(null);
 
   // Book modal state
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
@@ -102,7 +107,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -111,38 +116,41 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       setToast({
         message: "Tipo de archivo no válido. Solo se permiten JPG, PNG y WebP.",
         type: "error",
-        });
-      return;
-    }
-
-    const maxSize = 4 * 1024 * 1024; // 4MB
-    if (file.size > maxSize) {
-      setToast({
-        message: "El archivo es demasiado grande. Tamaño máximo: 4MB.",
-        type: "error",
       });
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    // No size limit check here - the cropper will compress it
+    const dataUrl = await fileToDataUrl(file);
+    setCropperSrc(dataUrl);
+    setShowCropper(true);
+  };
+
+  const handleCropComplete = (blob: Blob, previewUrl: string) => {
+    setImagePreview(previewUrl);
+    setCroppedFile(blobToFile(blob, "profile-image"));
+    setShowCropper(false);
+    setCropperSrc(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setCropperSrc(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const imageFile = fileInputRef.current?.files?.[0];
-      
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("username", formData.username);
       submitData.append("preferences", formData.preferences.join(","));
       
-      if (imageFile) {
-        submitData.append("image", imageFile);
+      // Use the cropped file instead of the raw file input
+      if (croppedFile) {
+        submitData.append("image", croppedFile);
       }
 
       const result = await updateUserProfile(submitData);
@@ -150,6 +158,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
         setToast({ message: "Perfil actualizado exitosamente", type: "success" });
         setIsEditing(false);
         setImagePreview(null);
+        setCroppedFile(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -178,6 +187,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       });
     }
     setImagePreview(null);
+    setCroppedFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -303,7 +313,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                   />
                   {isEditing && isOwner && (
                     <p className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-[160px]">
-                      Click en la imagen para cambiar (JPG, PNG, WebP - max 4MB)
+                      Click en la imagen para cambiar (JPG, PNG, WebP)
                     </p>
                   )}
                 </div>
@@ -468,6 +478,17 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
           isOwner={selectedBook.ownerId === session?.user?.id}
           currentUserId={session?.user?.id}
           onUpdateBook={handleUpdateBook}
+        />
+      )}
+
+      {/* Image Cropper Modal */}
+      {showCropper && cropperSrc && (
+        <ImageCropper
+          imageSrc={cropperSrc}
+          aspectRatio={1}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          quality={0.85}
         />
       )}
     </>
