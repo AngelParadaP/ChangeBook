@@ -17,9 +17,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sidebar />
 
       <div
-        className={`transition-all duration-300 h-screen flex flex-col ${
-          isOpen ? sidebarMargin : "ml-0"
-        } p-3`}
+        className={`transition-all duration-300 h-screen flex flex-col ${isOpen ? sidebarMargin : "ml-0"
+          } p-3`}
       >
         {/* Navbar - Fixed height */}
         <div className="mb-3 flex-shrink-0">
@@ -55,22 +54,22 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb:active {
-          background: #d4a5f0;
+          background: var(--scrollbar-thumb-active);
         }
 
         /* Dark mode scrollbar */
         .dark .custom-scrollbar::-webkit-scrollbar-track {
-          background: #3f3f46;
+          background: var(--scrollbar-track);
         }
 
         .dark .custom-scrollbar::-webkit-scrollbar-thumb {
           background: var(--color-dark-pink);
-          border-color: #3f3f46;
+          border-color: var(--scrollbar-track);
         }
 
         .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: var(--color-light-pink);
-          border-color: #3f3f46;
+          border-color: var(--scrollbar-track);
         }
 
         /* Firefox scrollbar */
@@ -80,7 +79,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         }
 
         .dark .custom-scrollbar {
-          scrollbar-color: var(--color-dark-pink) #3f3f46;
+          scrollbar-color: var(--color-dark-pink) var(--scrollbar-track);
         }
       `}</style>
     </div>

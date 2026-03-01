@@ -13,9 +13,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       <Sidebar />
 
       <div
-        className={`transition-all duration-300 h-screen flex flex-col ${
-          isOpen ? "ml-65" : "ml-0"
-        } p-3`}
+        className={`transition-all duration-300 h-screen flex flex-col ${isOpen ? "ml-65" : "ml-0"
+          } p-3`}
       >
         <div className="mb-3 flex-shrink-0">
           <Navbar />
@@ -49,16 +48,16 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb:active {
-          background: #d4a5f0;
+          background: var(--scrollbar-thumb-active);
         }
 
         .dark .custom-scrollbar::-webkit-scrollbar-track {
-          background: #3f3f46;
+          background: var(--scrollbar-track);
         }
 
         .dark .custom-scrollbar::-webkit-scrollbar-thumb {
           background: var(--color-dark-pink);
-          border-color: #3f3f46;
+          border-color: var(--scrollbar-track);
         }
 
         .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
@@ -71,7 +70,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         }
 
         .dark .custom-scrollbar {
-          scrollbar-color: var(--color-dark-pink) #3f3f46;
+          scrollbar-color: var(--color-dark-pink) var(--scrollbar-track);
         }
       `}</style>
     </div>

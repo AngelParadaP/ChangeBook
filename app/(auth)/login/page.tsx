@@ -40,17 +40,17 @@ export default function LoginPage() {
       className="min-h-screen w-full flex items-center justify-center p-4 relative font-nunito font-semibold tracking-normal overflow-hidden"
       style={{
         background:
-          "linear-gradient(135deg, #011C40 0%, #023859 40%, #26658C 70%, #54ACBF 100%)",
+          "linear-gradient(135deg, var(--auth-gradient-1) 0%, var(--auth-gradient-2) 40%, var(--auth-gradient-3) 70%, var(--auth-gradient-4) 100%)",
       }}
     >
       {/* Decorative blurred circles */}
       <div
         className="absolute top-[-120px] left-[-120px] w-[400px] h-[400px] rounded-full opacity-20 blur-3xl pointer-events-none"
-        style={{ background: "#A7EBF2" }}
+        style={{ background: "var(--color-primary-light, #A7EBF2)" }}
       />
       <div
         className="absolute bottom-[-100px] right-[-100px] w-[350px] h-[350px] rounded-full opacity-15 blur-3xl pointer-events-none"
-        style={{ background: "#54ACBF" }}
+        style={{ background: "var(--color-primary-muted, #54ACBF)" }}
       />
 
       {/* Card */}

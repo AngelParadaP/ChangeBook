@@ -102,18 +102,18 @@ export function Sidebar() {
         className={`fixed left-0 top-0 bottom-0 z-40 flex flex-col transition-all duration-300 rounded-r-3xl overflow-hidden shadow-2xl ${isOpen ? sidebarWidth : "w-0"
           }`}
         style={{
-          background: "linear-gradient(160deg, #011C40 0%, #023859 50%, #1a4f73 100%)",
+          background: "linear-gradient(160deg, var(--sidebar-gradient-start) 0%, var(--sidebar-gradient-mid) 50%, var(--sidebar-gradient-end) 100%)",
         }}
       >
         {/* Decorative blurred circle — top */}
         <div
           className="absolute -top-16 -left-16 w-48 h-48 rounded-full pointer-events-none opacity-10 blur-3xl"
-          style={{ background: "#A7EBF2" }}
+          style={{ background: "var(--sidebar-text)" }}
         />
         {/* Decorative blurred circle — bottom */}
         <div
           className="absolute -bottom-16 -right-8 w-40 h-40 rounded-full pointer-events-none opacity-10 blur-3xl"
-          style={{ background: "#54ACBF" }}
+          style={{ background: "var(--sidebar-accent)" }}
         />
 
         {/* ── Logo ── */}
@@ -128,7 +128,7 @@ export function Sidebar() {
           />
           <span
             className="text-4xl font-bold tracking-tight"
-            style={{ color: "#A7EBF2" }}
+            style={{ color: "var(--sidebar-text)" }}
           >
             yboo
           </span>

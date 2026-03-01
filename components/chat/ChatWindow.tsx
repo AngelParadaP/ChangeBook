@@ -184,7 +184,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
                 className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50 dark:bg-zinc-800"
                 style={{
                     scrollbarWidth: "thin",
-                    scrollbarColor: "#a87bc7 #f3f4f6",
+                    scrollbarColor: "var(--chat-scrollbar-thumb) var(--chat-scrollbar-track)",
                 }}
             >
                 {messages.length === 0 ? (
