@@ -90,9 +90,9 @@ export function Sidebar() {
     { name: "Inicio", href: "/home", icon: "/icons/home.svg" },
     { name: "Chats", href: "/chat", icon: "/icons/chat.svg", badge: unreadCount },
     { name: "Publicar", href: "/publish", icon: "/icons/book-open.svg" },
-    { name: "Intercambios", href: "/exchanges", icon: "/icons/clock.svg", badge: exchangeCount },
-    { name: "Favoritos", href: "/favorites", icon: "/icons/bell.svg" },
-    { name: "Comunidades", href: "/communities", icon: "/icons/user.svg" },
+    { name: "Intercambios", href: "/exchanges", icon: "/icons/exchange.svg", badge: exchangeCount },
+    { name: "Favoritos", href: "/favorites", icon: "/icons/favoritos.svg" },
+    { name: "Comunidades", href: "/communities", icon: "/icons/comunities.svg" },
     { name: "Mi Perfil", href: "/profile", icon: "/icons/user.svg" },
     { name: "Buscar", href: "/search", icon: "/icons/search.svg" },
   ];

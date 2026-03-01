@@ -42,7 +42,7 @@ export async function addFavorite(bookId: string) {
             userId,
         });
 
-        return { success: true, message: "Libro agregado a favoritos ❤️" };
+        return { success: true, message: "Libro agregado a favoritos" };
     } catch (error) {
         console.error("Error adding favorite:", error);
         return { success: false, error: "Error al agregar a favoritos" };

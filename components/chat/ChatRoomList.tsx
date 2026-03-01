@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useChatRooms } from "@/contexts/ChatContext";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { MessageSquare, Loader2 } from "lucide-react";
 
 export function ChatRoomList() {
     const router = useRouter();
@@ -13,7 +14,7 @@ export function ChatRoomList() {
         return (
             <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                    <div className="animate-spin text-4xl mb-2">💬</div>
+                    <Loader2 size={32} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-2" />
                     <p className="text-gray-600 dark:text-gray-400 text-sm">Cargando chats...</p>
                 </div>
             </div>
@@ -24,7 +25,7 @@ export function ChatRoomList() {
         return (
             <div className="flex items-center justify-center h-full p-6">
                 <div className="text-center">
-                    <div className="text-6xl mb-3">💭</div>
+                    <div className="mb-3 flex justify-center"><MessageSquare size={48} className="text-gray-300 dark:text-gray-600" /></div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">
                         No tienes conversaciones aún
                     </p>

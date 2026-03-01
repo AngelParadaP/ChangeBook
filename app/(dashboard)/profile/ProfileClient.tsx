@@ -15,6 +15,7 @@ import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getUserProfile } from "@/server/actions/user/getUserProfile";
 import { updateBook } from "@/server/actions/books";
 import { BOOK_GENRES } from "@/lib/constants/genres";
+import { Loader2, Trash2, Undo2, AlertTriangle } from "lucide-react";
 import { Search, X } from "lucide-react";
 
 export interface UserProfile {
@@ -166,7 +167,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       submitData.append("name", formData.name);
       submitData.append("username", formData.username);
       submitData.append("preferences", formData.preferences.join(","));
-      
+
       // Use the cropped file instead of the raw file input
       if (croppedFile) {
         submitData.append("image", croppedFile);
@@ -278,7 +279,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin text-6xl mb-4">📚</div>
+          <Loader2 size={48} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-4" />
           <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando...</p>
         </div>
       </div>
@@ -365,7 +366,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                           }}
                           className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium flex items-center gap-1 transition-colors"
                         >
-                          🗑 Quitar foto de perfil
+                          <Trash2 size={12} className="inline mr-0.5" /> Quitar foto de perfil
                         </button>
                       )}
                       {wantsRemoveImage && (
@@ -374,7 +375,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                           onClick={() => setWantsRemoveImage(false)}
                           className="text-xs text-light-purple hover:text-dark-purple dark:text-light-pink font-medium flex items-center gap-1 transition-colors"
                         >
-                          ↩ Restaurar foto
+                          <Undo2 size={12} className="inline mr-0.5" /> Restaurar foto
                         </button>
                       )}
                     </div>
@@ -597,7 +598,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
 
           {loadingBooks ? (
             <div className="text-center py-8">
-              <div className="animate-spin text-4xl mb-2">📚</div>
+              <Loader2 size={32} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-2" />
               <p className="text-gray-500 dark:text-gray-400">Cargando libros...</p>
             </div>
           ) : books.length === 0 ? (

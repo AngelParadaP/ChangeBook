@@ -16,7 +16,7 @@ import { toast } from "@/components/ui/GlobalToast";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import BookRecommendationSidebar from "@/components/community/BookRecommendationSidebar";
-import { X, Upload, Users, MessageSquare, Search, Settings, Trash2, Camera, LogOut, ChevronUp, Slash } from "lucide-react";
+import { X, Upload, Users, MessageSquare, Search, Settings, Trash2, Camera, LogOut, ChevronUp, Slash, Crown, Check } from "lucide-react";
 import ImageCropper, { type AspectRatioOption } from "@/components/ui/ImageCropper";
 import { fileToDataUrl, blobToFile } from "@/lib/imageUtils";
 import { BOOK_GENRES } from "@/lib/constants/genres";
@@ -480,7 +480,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             {community.imageUrl ? (
                                 <Image src={community.imageUrl} alt={community.name} fill className="object-cover" />
                             ) : (
-                                <span className="flex items-center justify-center w-full h-full text-sm">👥</span>
+                                <span className="flex items-center justify-center w-full h-full"><Users size={16} className="text-gray-400 dark:text-gray-500" /></span>
                             )}
                         </div>
                         <h2 className="font-bold text-gray-900 dark:text-white text-sm truncate flex-1">{community.name}</h2>
@@ -516,7 +516,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 {community.imageUrl ? (
                                     <Image src={community.imageUrl} alt={community.name} fill className="object-cover rounded-xl" />
                                 ) : (
-                                    <span>👥</span>
+                                    <Users size={28} className="text-white/70" />
                                 )}
                             </div>
                             <div className="flex-1">
@@ -586,7 +586,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 className="px-6 py-2 bg-yellow-500/10 text-yellow-600 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm font-medium cursor-default flex items-center gap-1.5"
                                 title="Eres el creador de esta comunidad"
                             >
-                                👑 Creador
+                                <Crown size={14} className="inline" /> Creador
                             </button>
                         )}
                         {joined && !isOwner && (
@@ -595,7 +595,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 disabled={leaving}
                                 className="group px-6 py-2 bg-green-500/10 text-green-600 border border-green-200 dark:border-green-800 hover:bg-red-500/10 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5"
                             >
-                                <span className="group-hover:hidden">{leaving ? "Saliendo..." : "✓ Miembro"}</span>
+                                <span className="group-hover:hidden flex items-center gap-1">{leaving ? "Saliendo..." : <><Check size={14} /> Miembro</>}</span>
                                 <span className="hidden group-hover:inline-flex items-center gap-1.5"><LogOut size={14} /> Abandonar</span>
                             </button>
                         )}
@@ -724,7 +724,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             {/* No members found */}
                             {!membersLoading && membersLoaded && members.length === 0 && (
                                 <div className="text-center py-12">
-                                    <div className="text-6xl mb-4">👥</div>
+                                    <div className="mb-4 flex justify-center"><Users size={48} className="text-gray-300 dark:text-gray-600" /></div>
                                     <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                                         {memberSearch ? "Sin resultados" : "No hay miembros"}
                                     </h3>

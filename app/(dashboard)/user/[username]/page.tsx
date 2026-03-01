@@ -12,6 +12,7 @@ import { getUserProfileByUsername } from "@/server/actions/user/getUserProfileBy
 import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getOrCreateRoom } from "@/server/actions/chat";
 import { BOOK_GENRES } from "@/lib/constants/genres";
+import { Loader2 } from "lucide-react";
 import { Search, X } from "lucide-react";
 
 interface UserProfile {
@@ -149,7 +150,7 @@ export default function UserProfilePage() {
         return (
             <div className="h-full flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin text-6xl mb-4">📚</div>
+                    <Loader2 size={48} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-4" />
                     <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando perfil...</p>
                 </div>
             </div>
@@ -186,7 +187,7 @@ export default function UserProfilePage() {
                     </p>
 
                     <div className="space-y-6">
-                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-light-purple dark:border-dark-purple">
+                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50">
                             <div className="flex flex-col md:flex-row gap-6 items-start">
                                 <div className="flex flex-col items-center gap-4">
                                     <div className="w-32 h-32 flex items-center justify-center">
@@ -299,7 +300,7 @@ export default function UserProfilePage() {
 
                     {loadingBooks ? (
                         <div className="text-center py-8">
-                            <div className="animate-spin text-4xl mb-2">📚</div>
+                            <Loader2 size={32} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-2" />
                             <p className="text-gray-500 dark:text-gray-400">Cargando libros...</p>
                         </div>
                     ) : books.length === 0 ? (

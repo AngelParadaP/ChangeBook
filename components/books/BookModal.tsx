@@ -10,7 +10,7 @@ import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModa
 import { addFavorite, removeFavorite, isFavorite as checkIsFavorite } from "@/server/actions/favorites";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
 import { deleteBook } from "@/server/actions/books/deleteBook";
-import { Search, X, Trash2, Edit2, MessageSquare, ExternalLink } from "lucide-react";
+import { Search, X, Trash2, Edit2, MessageSquare, ExternalLink, BookOpen, CircleCheck, CirclePause, CircleX, CheckCircle2 } from "lucide-react";
 
 interface Book {
   id: string;
@@ -195,7 +195,7 @@ export function BookModal({
   const handleConfirmDelete = async () => {
     setIsDeleting(true);
     const result = await deleteBook(book.id);
-    
+
     if (result.success) {
       if (onDeleteBook) {
         onDeleteBook(book.id);
@@ -282,7 +282,7 @@ export function BookModal({
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-8xl">📖</span>
+                    <BookOpen size={64} className="text-primary-muted dark:text-primary-dark" />
                   </div>
                 )}
               </div>
@@ -318,19 +318,19 @@ export function BookModal({
 
             {/* Right Column - Details */}
             <div className="space-y-5">
-              
+
               {/* Status indicator inline */}
               <div className="inline-flex">
-                 <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${book.status === "disponible"
-                      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 ring-1 ring-green-600/20"
-                      : book.status === "ocupado"
-                        ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 ring-1 ring-amber-600/20"
-                        : "bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300 ring-1 ring-gray-600/20"
-                      }`}
-                  >
-                    {book.status === "disponible" ? "📗 Disponible" : book.status === "ocupado" ? "📙 Ocupado" : "📕 Intercambiado"}
-                  </span>
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${book.status === "disponible"
+                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 ring-1 ring-green-600/20"
+                    : book.status === "ocupado"
+                      ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 ring-1 ring-amber-600/20"
+                      : "bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300 ring-1 ring-gray-600/20"
+                    }`}
+                >
+                  {book.status === "disponible" ? <><CircleCheck size={14} className="inline mr-1" /> Disponible</> : book.status === "ocupado" ? <><CirclePause size={14} className="inline mr-1" /> Ocupado</> : <><CircleX size={14} className="inline mr-1" /> Intercambiado</>}
+                </span>
               </div>
 
               {/* Title */}
@@ -434,69 +434,69 @@ export function BookModal({
                   <div className="space-y-3">
                     {/* Genre search */}
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                            <Search size={16} />
-                        </span>
-                        <input
-                            type="text"
-                            value={genreSearch}
-                            onChange={(e) => setGenreSearch(e.target.value)}
-                            placeholder="Buscar género..."
-                            className="w-full pl-10 pr-8 py-2 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 text-sm"
-                        />
-                        {genreSearch && (
-                            <button
-                                type="button"
-                                onClick={() => setGenreSearch("")}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                            >
-                                <X size={14} />
-                            </button>
-                        )}
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <Search size={16} />
+                      </span>
+                      <input
+                        type="text"
+                        value={genreSearch}
+                        onChange={(e) => setGenreSearch(e.target.value)}
+                        placeholder="Buscar género..."
+                        className="w-full pl-10 pr-8 py-2 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-gray-800 dark:text-gray-200 text-sm"
+                      />
+                      {genreSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setGenreSearch("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
                     </div>
 
                     {/* Selected genres */}
                     {formData.genres.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                            {formData.genres.map((genre) => (
-                                <button
-                                    key={`selected-${genre}`}
-                                    type="button"
-                                    onClick={() => toggleGenre(genre)}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm hover:bg-primary-dark transition-all group"
-                                >
-                                    {genre}
-                                    <X size={12} className="opacity-70 group-hover:opacity-100" />
-                                </button>
-                            ))}
-                        </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {formData.genres.map((genre) => (
+                          <button
+                            key={`selected-${genre}`}
+                            type="button"
+                            onClick={() => toggleGenre(genre)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm hover:bg-primary-dark transition-all group"
+                          >
+                            {genre}
+                            <X size={12} className="opacity-70 group-hover:opacity-100" />
+                          </button>
+                        ))}
+                      </div>
                     )}
 
                     {/* Genre grid */}
                     <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto custom-scrollbar p-2 bg-gray-50 dark:bg-zinc-800/60 rounded-xl border border-gray-100 dark:border-zinc-700/50">
-                        {filteredGenres.length === 0 ? (
-                            <p className="text-sm text-gray-400 dark:text-gray-500 py-2 w-full text-center">
-                                No se encontraron géneros
-                            </p>
-                        ) : (
-                            filteredGenres.map((genre) => {
-                                const isSelected = formData.genres.includes(genre);
-                                return (
-                                    <button
-                                        key={genre}
-                                        type="button"
-                                        onClick={() => toggleGenre(genre)}
-                                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
-                                                ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
-                                                : "bg-white dark:bg-zinc-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-600 hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
-                                            }`}
-                                    >
-                                        {isSelected && <span className="mr-1">✓</span>}
-                                        {genre}
-                                    </button>
-                                );
-                            })
-                        )}
+                      {filteredGenres.length === 0 ? (
+                        <p className="text-sm text-gray-400 dark:text-gray-500 py-2 w-full text-center">
+                          No se encontraron géneros
+                        </p>
+                      ) : (
+                        filteredGenres.map((genre) => {
+                          const isSelected = formData.genres.includes(genre);
+                          return (
+                            <button
+                              key={genre}
+                              type="button"
+                              onClick={() => toggleGenre(genre)}
+                              className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
+                                ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
+                                : "bg-white dark:bg-zinc-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-600 hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
+                                }`}
+                            >
+                              {isSelected && <span className="mr-1">✓</span>}
+                              {genre}
+                            </button>
+                          );
+                        })
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -580,9 +580,9 @@ export function BookModal({
               // Non-owner actions
               <>
                 {exchangeToast && (
-                  <span className="text-sm text-green-600 dark:text-green-400 font-medium mr-2">✅ {exchangeToast}</span>
+                  <span className="text-sm text-green-600 dark:text-green-400 font-medium mr-2"><CheckCircle2 size={16} className="inline mr-1" /> {exchangeToast}</span>
                 )}
-                
+
                 {(book.status === "disponible" || book.status === "ocupado") && (
                   <button
                     onClick={() => setShowExchangeModal(true)}

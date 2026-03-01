@@ -8,6 +8,7 @@ import { ChatInput } from "./ChatInput";
 import { ChatSkeleton } from "./ChatSkeleton";
 import { getMessages, sendMessage, markAsRead, getChatRooms } from "@/server/actions/chat";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { User } from "lucide-react";
 
 interface Message {
     id: string;
@@ -142,7 +143,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
                 {/* Header con información del usuario */}
                 <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-light-purple to-dark-purple text-white">
                     <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
-                        👤
+                        <User size={20} className="text-white/60" />
                     </div>
                     <div className="flex-1">
                         <div className="h-5 bg-white/20 rounded w-32 mb-2 animate-pulse" />

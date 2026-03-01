@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { simpleRegister } from "@/server/actions/test/simpleRegister";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BookOpen, AlertTriangle } from "lucide-react";
 
 export default function TestRegisterPage() {
   const router = useRouter();
@@ -61,7 +62,7 @@ export default function TestRegisterPage() {
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="text-6xl mb-4">📚</div>
+            <div className="mb-4 flex justify-center"><BookOpen size={48} className="text-light-purple dark:text-light-pink" /></div>
             <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
               Registro de Prueba
             </h1>
@@ -139,13 +140,12 @@ export default function TestRegisterPage() {
               {/* Status Message */}
               {status.msg && (
                 <div
-                  className={`p-4 rounded-xl text-sm ${
-                    status.type === "error"
+                  className={`p-4 rounded-xl text-sm ${status.type === "error"
                       ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
                       : status.type === "success"
-                      ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
-                      : "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
-                  }`}
+                        ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                        : "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
+                    }`}
                 >
                   {status.msg}
                 </div>
@@ -173,7 +173,7 @@ export default function TestRegisterPage() {
                 </button>
               </p>
               <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                ⚠️ Solo para testing - Los usuarios creados aquí no están validados con SIIAU
+                <AlertTriangle size={14} className="inline mr-1" /> Solo para testing - Los usuarios creados aquí no están validados con SIIAU
               </p>
             </div>
           </div>
