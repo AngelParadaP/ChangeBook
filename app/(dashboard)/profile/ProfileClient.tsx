@@ -7,6 +7,8 @@ import Image from "next/image";
 import { ProfileBookCard } from "@/components/profile/ProfileBookCard";
 import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
+import ImageCropper from "@/components/ui/ImageCropper";
+import { fileToDataUrl, blobToFile } from "@/lib/imageUtils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { updateUserProfile } from "@/server/actions/user/updateUserProfile";
 import { getUserBooks } from "@/server/actions/user/getUserBooks";
@@ -58,6 +60,9 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropperSrc, setCropperSrc] = useState<string | null>(null);
   const [wantsRemoveImage, setWantsRemoveImage] = useState(false);
 
   // Book modal state
@@ -104,7 +109,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -126,11 +131,24 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    // No size limit check here - the cropper will compress it
+    const dataUrl = await fileToDataUrl(file);
+    setCropperSrc(dataUrl);
+    setShowCropper(true);
+  };
+
+  const handleCropComplete = (blob: Blob, previewUrl: string) => {
+    setImagePreview(previewUrl);
+    setCroppedFile(blobToFile(blob, "profile-image"));
+    setShowCropper(false);
+    setCropperSrc(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setCropperSrc(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSave = async () => {
@@ -142,8 +160,11 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       submitData.append("name", formData.name);
       submitData.append("username", formData.username);
       submitData.append("preferences", formData.preferences.join(","));
-
-      if (wantsRemoveImage) {
+      
+      // Use the cropped file instead of the raw file input
+      if (croppedFile) {
+        submitData.append("image", croppedFile);
+      } else if (wantsRemoveImage) {
         submitData.append("removeImage", "true");
       } else if (imageFile) {
         submitData.append("image", imageFile);
@@ -154,6 +175,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
         setToast({ message: "Perfil actualizado exitosamente", type: "success" });
         setIsEditing(false);
         setImagePreview(null);
+        setCroppedFile(null);
         setWantsRemoveImage(false);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
@@ -183,6 +205,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       });
     }
     setImagePreview(null);
+    setCroppedFile(null);
     setWantsRemoveImage(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -502,6 +525,17 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
           isOwner={selectedBook.ownerId === session?.user?.id}
           currentUserId={session?.user?.id}
           onUpdateBook={handleUpdateBook}
+        />
+      )}
+
+      {/* Image Cropper Modal */}
+      {showCropper && cropperSrc && (
+        <ImageCropper
+          imageSrc={cropperSrc}
+          aspectRatio={1}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          quality={0.85}
         />
       )}
     </>

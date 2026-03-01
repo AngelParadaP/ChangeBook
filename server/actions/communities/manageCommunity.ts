@@ -72,7 +72,7 @@ export async function updateCommunity(formData: FormData) {
         };
       }
 
-      if (image.size > 4 * 1024 * 1024) {
+      if (image.size > 8 * 1024 * 1024) {
         return { success: false, error: "La imagen excede 4MB" };
       }
 
