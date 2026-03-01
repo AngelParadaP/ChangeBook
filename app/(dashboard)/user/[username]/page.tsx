@@ -187,13 +187,14 @@ export default function UserProfilePage() {
 
                     <div className="space-y-6">
                         <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-light-purple dark:border-dark-purple">
-                            <div className="flex flex-col md:flex-row gap-6 items-start">
+                            <div className="flex flex-col md:flex-row gap-6 items-center">
                                 <div className="flex flex-col items-center gap-4">
-                                    <div className="w-32 h-32 flex items-center justify-center">
+                                    <div className="w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex items-center justify-center relative">
                                         <UserAvatar
                                             imageURL={profile.imageURL}
                                             name={profile.name}
-                                            size="xl"
+                                            size="2xl"
+                                            className="w-full h-full"
                                         />
                                     </div>
                                 </div>
