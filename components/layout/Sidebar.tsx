@@ -165,7 +165,7 @@ export function Sidebar() {
                 </span>
 
                 {/* Badge de notificaciones (chats/intercambios) */}
-                {item.badge && item.badge > 0 && (
+                {item.badge != null && item.badge > 0 && (
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-light-pink animate-pulse" />
                 )}
               </Link>
