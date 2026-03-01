@@ -7,6 +7,7 @@ import Image from "next/image";
 import { ProfileBookCard } from "@/components/profile/ProfileBookCard";
 import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { updateUserProfile } from "@/server/actions/user/updateUserProfile";
 import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getUserProfile } from "@/server/actions/user/getUserProfile";
@@ -47,7 +48,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
   const { data: session, update: updateSession } = useSession();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [profile, setProfile] = useState<UserProfile | null>(initialProfile);
   const [books, setBooks] = useState<Book[]>(initialBooks);
   // Loading states initialized to false because we have data
@@ -57,6 +58,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [wantsRemoveImage, setWantsRemoveImage] = useState(false);
 
   // Book modal state
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
@@ -111,7 +113,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       setToast({
         message: "Tipo de archivo no válido. Solo se permiten JPG, PNG y WebP.",
         type: "error",
-        });
+      });
       return;
     }
 
@@ -135,13 +137,15 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
     setSaving(true);
     try {
       const imageFile = fileInputRef.current?.files?.[0];
-      
+
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("username", formData.username);
       submitData.append("preferences", formData.preferences.join(","));
-      
-      if (imageFile) {
+
+      if (wantsRemoveImage) {
+        submitData.append("removeImage", "true");
+      } else if (imageFile) {
         submitData.append("image", imageFile);
       }
 
@@ -150,12 +154,13 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
         setToast({ message: "Perfil actualizado exitosamente", type: "success" });
         setIsEditing(false);
         setImagePreview(null);
+        setWantsRemoveImage(false);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
-        
+
         await updateSession();
-        
+
         if (session?.user?.id) {
           await loadProfile(session.user.id);
         }
@@ -178,6 +183,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       });
     }
     setImagePreview(null);
+    setWantsRemoveImage(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -249,7 +255,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
   }
 
   // We can assume session user id is same as profile id in this context
-  const isOwner = true; 
+  const isOwner = true;
 
   return (
     <>
@@ -277,16 +283,18 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                 <div className="flex flex-col items-center gap-4">
                   <div
                     onClick={() => isEditing && isOwner && fileInputRef.current?.click()}
-                    className={`w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex items-center justify-center relative ${
-                      isEditing && isOwner ? "cursor-pointer hover:opacity-80 transition-opacity" : ""
-                    }`}
+                    className={`w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex items-center justify-center relative ${isEditing && isOwner ? "cursor-pointer hover:opacity-80 transition-opacity" : ""
+                      }`}
                   >
                     {imagePreview ? (
                       <Image src={imagePreview} alt="Preview" fill className="object-cover" />
-                    ) : profile.imageURL ? (
-                      <Image src={profile.imageURL} alt={profile.name} fill className="object-cover" />
                     ) : (
-                      <span className="text-6xl">👤</span>
+                      <UserAvatar
+                        imageURL={wantsRemoveImage ? null : profile.imageURL}
+                        name={profile.name}
+                        size="2xl"
+                        className="w-full h-full"
+                      />
                     )}
                     {isEditing && isOwner && (
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
@@ -302,9 +310,35 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                     className="hidden"
                   />
                   {isEditing && isOwner && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-[160px]">
-                      Click en la imagen para cambiar (JPG, PNG, WebP - max 4MB)
-                    </p>
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-[160px]">
+                        Click en la imagen para cambiar (JPG, PNG, WebP - max 4MB)
+                      </p>
+                      {(profile.imageURL || imagePreview) && !wantsRemoveImage && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setWantsRemoveImage(true);
+                            setImagePreview(null);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
+                            }
+                          }}
+                          className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium flex items-center gap-1 transition-colors"
+                        >
+                          🗑 Quitar foto de perfil
+                        </button>
+                      )}
+                      {wantsRemoveImage && (
+                        <button
+                          type="button"
+                          onClick={() => setWantsRemoveImage(false)}
+                          className="text-xs text-light-purple hover:text-dark-purple dark:text-light-pink font-medium flex items-center gap-1 transition-colors"
+                        >
+                          ↩ Restaurar foto
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
 

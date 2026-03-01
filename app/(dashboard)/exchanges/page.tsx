@@ -8,6 +8,7 @@ import { getMyExchanges, ExchangeWithDetails } from "@/server/actions/exchanges/
 import { searchAvailableBooks, getChatContacts } from "@/server/actions/exchanges/searchExchange";
 import { ExchangeCard } from "@/components/exchanges/ExchangeCard";
 import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModal";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -395,12 +396,12 @@ function ExchangesPageContent() {
                                         ← Volver a contactos
                                     </button>
                                     <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-zinc-800 rounded-xl">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 overflow-hidden relative">
-                                            {selectedContact.imageURL && isValidImageUrl(selectedContact.imageURL) ? (
-                                                <Image src={selectedContact.imageURL} alt={selectedContact.name} fill className="object-cover" sizes="40px" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-lg">👤</div>
-                                            )}
+                                        <div className="w-10 h-10">
+                                            <UserAvatar
+                                                imageURL={selectedContact.imageURL}
+                                                name={selectedContact.name}
+                                                size="sm"
+                                            />
                                         </div>
                                         <div>
                                             <p className="font-semibold text-sm text-gray-700 dark:text-gray-300">{selectedContact.name}</p>
@@ -451,13 +452,11 @@ function ExchangesPageContent() {
                                                 onClick={() => loadContactBooks(contact)}
                                                 className="w-full flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700/50 transition-colors text-left"
                                             >
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 overflow-hidden relative flex-shrink-0">
-                                                    {contact.imageURL && isValidImageUrl(contact.imageURL) ? (
-                                                        <Image src={contact.imageURL} alt={contact.name} fill className="object-cover" sizes="40px" />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-lg">👤</div>
-                                                    )}
-                                                </div>
+                                                <UserAvatar
+                                                    imageURL={contact.imageURL}
+                                                    name={contact.name}
+                                                    size="sm"
+                                                />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-semibold text-sm text-gray-700 dark:text-gray-300 truncate">{contact.name}</p>
                                                     <p className="text-xs text-light-purple dark:text-light-pink">@{contact.username}</p>

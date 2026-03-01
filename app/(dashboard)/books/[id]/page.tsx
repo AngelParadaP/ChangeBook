@@ -13,6 +13,7 @@ import { BOOK_GENRES } from "@/lib/constants/genres";
 import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModal";
 import { addFavorite, removeFavorite, isFavorite as checkIsFavorite } from "@/server/actions/favorites";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 interface BookDetail {
     id: string;
@@ -462,21 +463,12 @@ export default function BookDetailPage() {
                                 href={`/user/${book.ownerUsername}`}
                                 className="flex items-center gap-3 group"
                             >
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex-shrink-0 relative group-hover:ring-2 group-hover:ring-light-purple dark:group-hover:ring-dark-purple transition-all">
-                                    {validOwnerImage ? (
-                                        <Image
-                                            src={book.ownerImageURL!}
-                                            alt={book.ownerName || ""}
-                                            fill
-                                            className="object-cover"
-                                            onError={() => setOwnerImgError(true)}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-xl">
-                                            👤
-                                        </div>
-                                    )}
-                                </div>
+                                <UserAvatar
+                                    imageURL={book.ownerImageURL}
+                                    name={book.ownerName || "Usuario"}
+                                    size="md"
+                                    className="group-hover:ring-2 group-hover:ring-light-purple dark:group-hover:ring-dark-purple transition-all"
+                                />
                                 <div>
                                     <p className="font-semibold text-gray-800 dark:text-gray-100 group-hover:text-light-purple dark:group-hover:text-light-pink transition-colors">
                                         {book.ownerName || "Usuario"}

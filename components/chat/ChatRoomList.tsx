@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useChatRooms } from "@/contexts/ChatContext";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export function ChatRoomList() {
     const router = useRouter();
@@ -44,17 +45,12 @@ export function ChatRoomList() {
                     className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-left"
                 >
                     {/* Avatar */}
-                    {room.otherUser.imageURL ? (
-                        <img
-                            src={room.otherUser.imageURL}
-                            alt={room.otherUser.name}
-                            className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                        />
-                    ) : (
-                        <div className="w-12 h-12 rounded-full bg-light-purple/20 flex items-center justify-center text-2xl flex-shrink-0">
-                            👤
-                        </div>
-                    )}
+                    <UserAvatar
+                        imageURL={room.otherUser.imageURL}
+                        name={room.otherUser.name}
+                        size="md"
+                        useNextImage={false}
+                    />
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
