@@ -9,6 +9,7 @@ import ImageCropper from "@/components/ui/ImageCropper";
 import { fileToDataUrl, blobToFile } from "@/lib/imageUtils";
 import { createBookAction } from "@/server/actions/books/createBook";
 import { BOOK_GENRES } from "@/lib/constants/genres";
+import { Loader2, Camera } from "lucide-react";
 
 export default function PublishBookPage() {
   const { data: session, status } = useSession();
@@ -43,7 +44,7 @@ export default function PublishBookPage() {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin text-6xl mb-4">📚</div>
+          <Loader2 size={48} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-4" />
           <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando...</p>
         </div>
       </div>
@@ -190,7 +191,7 @@ export default function PublishBookPage() {
                   />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
-                    <span className="text-4xl mb-2">📷</span>
+                    <Camera size={32} className="text-purple-400 mb-2" />
                     <span className="text-xs text-gray-700 dark:text-gray-300">
                       Click para subir
                     </span>
@@ -293,11 +294,10 @@ export default function PublishBookPage() {
                     key={genre}
                     type="button"
                     onClick={() => toggleGenre(genre)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      isSelected
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${isSelected
                         ? "bg-light-purple text-white"
                         : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-gray-300"
-                    } cursor-pointer hover:scale-105`}
+                      } cursor-pointer hover:scale-105`}
                   >
                     {genre}
                   </button>

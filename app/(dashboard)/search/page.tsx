@@ -12,7 +12,7 @@ import { updateBook } from "@/server/actions/books";
 import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { Users } from "lucide-react";
+import { Users, BookOpen, User, Building2, Search, Loader2 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -52,10 +52,10 @@ interface CommunityResult {
     isMember: boolean;
 }
 
-const TABS: { key: SearchTab; label: string; icon: string }[] = [
-    { key: "books", label: "Libros", icon: "📚" },
-    { key: "users", label: "Usuarios", icon: "👤" },
-    { key: "communities", label: "Comunidades", icon: "🏘️" },
+const TABS: { key: SearchTab; label: string; icon: React.ReactNode }[] = [
+    { key: "books", label: "Libros", icon: <BookOpen size={16} /> },
+    { key: "users", label: "Usuarios", icon: <User size={16} /> },
+    { key: "communities", label: "Comunidades", icon: <Building2 size={16} /> },
 ];
 
 // ─── Skeleton Components ─────────────────────────────────────────────────────
@@ -154,7 +154,7 @@ function SearchBookCard({ book, onClick }: { book: BookResult; onClick: () => vo
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-6xl">📖</span>
+                        <BookOpen size={48} className="text-purple-300 dark:text-purple-600" />
                     </div>
                 )}
                 {/* Status badge */}
@@ -300,7 +300,7 @@ function SearchCommunityCard({ community }: { community: CommunityResult }) {
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-2xl">
-                            👥
+                            <Users size={24} className="text-purple-300 dark:text-purple-600" />
                         </div>
                     )}
                 </div>
@@ -493,9 +493,7 @@ function SearchPageContent() {
                 {/* Search Input */}
                 <div className="mb-6">
                     <div className="relative max-w-2xl">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-lg">
-                            🔍
-                        </span>
+                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                         <input
                             type="text"
                             value={query}
@@ -610,8 +608,8 @@ function SearchPageContent() {
                     hasSearched &&
                     currentResults.length === 0 && (
                         <div className="text-center py-16">
-                            <div className="text-6xl mb-4">
-                                {activeTab === "books" ? "📖" : activeTab === "users" ? "👥" : "🏘️"}
+                            <div className="mb-4 flex justify-center">
+                                {activeTab === "books" ? <BookOpen size={56} className="text-gray-300 dark:text-gray-600" /> : activeTab === "users" ? <Users size={56} className="text-gray-300 dark:text-gray-600" /> : <Building2 size={56} className="text-gray-300 dark:text-gray-600" />}
                             </div>
                             <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                                 Sin resultados
@@ -626,7 +624,7 @@ function SearchPageContent() {
                 {/* Initial state – no search entered yet */}
                 {!loading && !hasSearched && (
                     <div className="text-center py-16">
-                        <div className="text-7xl mb-6">🔍</div>
+                        <div className="mb-6 flex justify-center"><Search size={64} className="text-gray-300 dark:text-gray-600" /></div>
                         <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                             {activeTab === "books"
                                 ? "Busca libros por título o autor"
@@ -668,7 +666,7 @@ export default function SearchPage() {
             fallback={
                 <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 h-full flex items-center justify-center">
                     <div className="text-center">
-                        <div className="animate-spin text-6xl mb-4">🔍</div>
+                        <Loader2 size={48} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-4" />
                         <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando búsqueda...</p>
                     </div>
                 </div>

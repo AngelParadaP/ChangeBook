@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ExchangeWithDetails } from "@/server/actions/exchanges/getExchanges";
 import { updateExchangeStatus } from "@/server/actions/exchanges/updateExchange";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
+import { Clock, CheckCircle2, XCircle, BookOpen, PartyPopper, Ban, Rocket, MessageSquare, CalendarDays, MapPin, Timer, AlertTriangle } from "lucide-react";
 
 interface ExchangeCardProps {
     exchange: ExchangeWithDetails;
@@ -13,36 +14,36 @@ interface ExchangeCardProps {
     onUpdate: () => void;
 }
 
-const statusConfig: Record<string, { label: string; color: string; icon: string }> = {
+const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     pendiente: {
         label: "Pendiente",
         color: "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400",
-        icon: "⏳",
+        icon: <Clock size={10} />,
     },
     aceptado: {
         label: "Aceptado",
         color: "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400",
-        icon: "✅",
+        icon: <CheckCircle2 size={10} />,
     },
     rechazado: {
         label: "Rechazado",
         color: "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400",
-        icon: "❌",
+        icon: <XCircle size={10} />,
     },
     en_curso: {
         label: "En curso",
         color: "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400",
-        icon: "📖",
+        icon: <BookOpen size={10} />,
     },
     completado: {
         label: "Completado",
         color: "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400",
-        icon: "🎉",
+        icon: <PartyPopper size={10} />,
     },
     cancelado: {
         label: "Cancelado",
         color: "bg-gray-100 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400",
-        icon: "🚫",
+        icon: <Ban size={10} />,
     },
 };
 
@@ -62,7 +63,7 @@ function ConfirmModal({
     onClose: () => void;
     onConfirm: () => void;
     loading: boolean;
-    icon: string;
+    icon: React.ReactNode;
     title: string;
     description: string;
     confirmLabel: string;
@@ -77,7 +78,7 @@ function ConfirmModal({
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="text-center mb-5">
-                    <div className="text-4xl mb-3">{icon}</div>
+                    <div className="flex justify-center mb-3">{icon}</div>
                     <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">
                         {title}
                     </h3>
@@ -116,7 +117,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
     // Confirmation modal states
     const [confirmModal, setConfirmModal] = useState<{
         action: "en_curso" | "completado" | "cancelado";
-        icon: string;
+        icon: React.ReactNode;
         title: string;
         description: string;
         confirmLabel: string;
@@ -153,7 +154,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
 
     const openConfirm = (
         action: "en_curso" | "completado" | "cancelado",
-        icon: string,
+        icon: React.ReactNode,
         title: string,
         description: string,
         confirmLabel: string,
@@ -186,7 +187,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     onError={() => setImgError(true)}
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-2xl">📖</div>
+                                <div className="w-full h-full flex items-center justify-center"><BookOpen size={20} className="text-purple-400" /></div>
                             )}
                         </div>
                     </Link>
@@ -205,7 +206,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                             </div>
 
                             {/* Status Badge */}
-                            <span className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold ${config.color}`}>
+                            <span className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1 ${config.color}`}>
                                 {config.icon} {config.label}
                             </span>
                         </div>
@@ -226,17 +227,17 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                         {/* Dates & Location */}
                         <div className="flex flex-wrap gap-2 mt-2">
                             <span className="text-[10px] bg-gray-50 dark:bg-zinc-700/50 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-lg">
-                                📅 {formatDate(exchange.startDate)} → {formatDate(exchange.endDate)}
+                                <CalendarDays size={10} className="inline mr-0.5" /> {formatDate(exchange.startDate)} → {formatDate(exchange.endDate)}
                             </span>
                             <span className="text-[10px] bg-gray-50 dark:bg-zinc-700/50 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-lg">
-                                📍 {exchange.meetingLocation}
+                                <MapPin size={10} className="inline mr-0.5" /> {exchange.meetingLocation}
                             </span>
                             {(exchange.status === "en_curso" || exchange.status === "aceptado") && (
                                 <span className={`text-[10px] px-2 py-1 rounded-lg font-medium ${daysLeft <= 2
                                     ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
                                     : "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
                                     }`}>
-                                    ⏰ {daysLeft > 0 ? `${daysLeft} días restantes` : "¡Vence hoy!"}
+                                    <Timer size={10} className="inline mr-0.5" /> {daysLeft > 0 ? `${daysLeft} días restantes` : "¡Vence hoy!"}
                                 </span>
                             )}
                         </div>
@@ -244,12 +245,12 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                         {/* Notes */}
                         {exchange.requesterNote && (
                             <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 italic">
-                                💬 &ldquo;{exchange.requesterNote}&rdquo;
+                                <MessageSquare size={10} className="inline mr-0.5" /> “{exchange.requesterNote}”
                             </p>
                         )}
                         {exchange.ownerNote && (
                             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 italic">
-                                💬 Respuesta: &ldquo;{exchange.ownerNote}&rdquo;
+                                <MessageSquare size={10} className="inline mr-0.5" /> Respuesta: “{exchange.ownerNote}”
                             </p>
                         )}
 
@@ -276,21 +277,21 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                         onClick={() => setShowNote(!showNote)}
                                         className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
                                     >
-                                        💬 Nota
+                                        <MessageSquare size={12} className="inline mr-0.5" /> Nota
                                     </button>
                                     <button
                                         onClick={() => handleAction("aceptado")}
                                         disabled={loading}
                                         className="px-3 py-1.5 text-xs font-bold bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors disabled:opacity-50"
                                     >
-                                        ✅ Aceptar
+                                        <CheckCircle2 size={12} className="inline mr-0.5" /> Aceptar
                                     </button>
                                     <button
                                         onClick={() => handleAction("rechazado")}
                                         disabled={loading}
                                         className="px-3 py-1.5 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50"
                                     >
-                                        ❌ Rechazar
+                                        <XCircle size={12} className="inline mr-0.5" /> Rechazar
                                     </button>
                                 </>
                             )}
@@ -301,7 +302,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     onClick={() =>
                                         openConfirm(
                                             "en_curso",
-                                            "🚀",
+                                            <Rocket size={32} className="text-blue-500" />,
                                             "¿Iniciar intercambio?",
                                             `Se marcará como "en curso" el intercambio de "${exchange.bookTitle}" con @${otherUser.username}. Esto significa que el libro ya fue entregado.`,
                                             "Sí, iniciar",
@@ -311,7 +312,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     disabled={loading}
                                     className="px-3 py-1.5 text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50"
                                 >
-                                    🚀 Iniciar Intercambio
+                                    <Rocket size={12} className="inline mr-0.5" /> Iniciar Intercambio
                                 </button>
                             )}
 
@@ -321,7 +322,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     onClick={() =>
                                         openConfirm(
                                             "completado",
-                                            "🎉",
+                                            <PartyPopper size={32} className="text-purple-500" />,
                                             "¿Completar intercambio?",
                                             `Se marcará como completado el intercambio de "${exchange.bookTitle}". Confirma que el libro ha sido devuelto exitosamente.`,
                                             "Sí, completar",
@@ -331,7 +332,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     disabled={loading}
                                     className="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-light-purple to-dark-purple text-white rounded-lg transition-all hover:shadow-md disabled:opacity-50"
                                 >
-                                    🎉 Completar
+                                    <PartyPopper size={12} className="inline mr-0.5" /> Completar
                                 </button>
                             )}
 
@@ -352,7 +353,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     onClick={() =>
                                         openConfirm(
                                             "cancelado",
-                                            "⚠️",
+                                            <AlertTriangle size={32} className="text-amber-500" />,
                                             "¿Cancelar intercambio aceptado?",
                                             `Este intercambio de "${exchange.bookTitle}" ya fue aceptado. Al cancelarlo, la otra persona será notificada y las fechas se liberarán. ¿Estás seguro?`,
                                             "Sí, cancelar",
@@ -385,7 +386,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                         {actionError && (
                             <div className="mt-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
                                 <p className="text-xs text-red-600 dark:text-red-400 font-medium">
-                                    ⚠️ {actionError}
+                                    <AlertTriangle size={10} className="inline mr-0.5" /> {actionError}
                                 </p>
                             </div>
                         )}
@@ -399,7 +400,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                 onClose={() => setConfirmModal(null)}
                 onConfirm={() => confirmModal && handleAction(confirmModal.action)}
                 loading={loading}
-                icon={confirmModal?.icon || ""}
+                icon={confirmModal?.icon || <></>}
                 title={confirmModal?.title || ""}
                 description={confirmModal?.description || ""}
                 confirmLabel={confirmModal?.confirmLabel || ""}

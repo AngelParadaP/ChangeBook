@@ -12,6 +12,7 @@ import { getUserProfileByUsername } from "@/server/actions/user/getUserProfileBy
 import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getOrCreateRoom } from "@/server/actions/chat";
 import { BOOK_GENRES } from "@/lib/constants/genres";
+import { Loader2 } from "lucide-react";
 
 interface UserProfile {
     id: string;
@@ -144,7 +145,7 @@ export default function UserProfilePage() {
         return (
             <div className="h-full flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin text-6xl mb-4">📚</div>
+                    <Loader2 size={48} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-4" />
                     <p className="text-gray-600 dark:text-gray-400 text-lg">Cargando perfil...</p>
                 </div>
             </div>
@@ -181,7 +182,7 @@ export default function UserProfilePage() {
                     </p>
 
                     <div className="space-y-6">
-                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-light-purple dark:border-dark-purple">
+                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50">
                             <div className="flex flex-col md:flex-row gap-6 items-start">
                                 <div className="flex flex-col items-center gap-4">
                                     <div className="w-32 h-32 flex items-center justify-center">
@@ -216,13 +217,13 @@ export default function UserProfilePage() {
                         <button
                             onClick={handleStartChat}
                             disabled={startingChat}
-                            className="w-full bg-gradient-to-r from-light-purple to-dark-purple text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                            <span className="text-xl">💬</span>
+                            <Image src="/icons/chat.svg" alt="Chat icon" width={22} height={22} className="brightness-0 invert" />
                             {startingChat ? "Abriendo chat..." : "Enviar mensaje"}
                         </button>
 
-                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-light-purple dark:border-dark-purple">
+                        <div className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50">
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Preferencias de lectura</h2>
                                 <span className="text-sm text-gray-500 dark:text-gray-400">{profile.preferences.length} géneros</span>
@@ -237,7 +238,7 @@ export default function UserProfilePage() {
                                     return (
                                         <div
                                             key={genre}
-                                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${isSelected ? "bg-light-purple text-white" : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-gray-300"
+                                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${isSelected ? "bg-primary text-white" : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-gray-300"
                                                 } cursor-default`}
                                         >
                                             {genre}
@@ -263,7 +264,7 @@ export default function UserProfilePage() {
 
                     {loadingBooks ? (
                         <div className="text-center py-8">
-                            <div className="animate-spin text-4xl mb-2">📚</div>
+                            <Loader2 size={32} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-2" />
                             <p className="text-gray-500 dark:text-gray-400">Cargando libros...</p>
                         </div>
                     ) : books.length === 0 ? (

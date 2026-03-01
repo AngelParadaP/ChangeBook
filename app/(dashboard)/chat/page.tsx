@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ChatRoomList } from "@/components/chat";
+import { MessageSquare } from "lucide-react";
 
 export default function ChatPage() {
     const { data: session, status } = useSession();
@@ -34,7 +35,7 @@ export default function ChatPage() {
             {/* Mensaje de bienvenida - área derecha en desktop */}
             <div className="hidden lg:flex flex-1 items-center justify-center bg-white dark:bg-zinc-900 rounded-2xl shadow-sm">
                 <div className="text-center p-8">
-                    <div className="text-8xl mb-4">💬</div>
+                    <div className="mb-4 flex justify-center"><MessageSquare size={64} className="text-gray-300 dark:text-gray-600" /></div>
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">
                         Tus mensajes
                     </h2>

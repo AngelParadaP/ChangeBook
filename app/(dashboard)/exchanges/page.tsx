@@ -12,6 +12,7 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
 import { useRouter, useSearchParams } from "next/navigation";
+import { BookOpen, Inbox, Send, ClipboardList, Search, RefreshCw, Clock, PartyPopper, BookOpenCheck, MessageSquare, ArrowLeft, ChevronRight, Mailbox, BookMarked, Trash2 } from "lucide-react";
 
 type TabType = "activos" | "enviados" | "recibidos" | "historial" | "buscar";
 
@@ -204,37 +205,37 @@ function ExchangesPageContent() {
         }
     };
 
-    const tabs: { id: TabType; label: string; icon: string }[] = [
-        { id: "activos", label: "Activos", icon: "📖" },
-        { id: "recibidos", label: "Recibidos", icon: "📥" },
-        { id: "enviados", label: "Enviados", icon: "📤" },
-        { id: "historial", label: "Historial", icon: "📋" },
-        { id: "buscar", label: "Buscar", icon: "🔍" },
+    const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
+        { id: "activos", label: "Activos", icon: <BookOpen size={16} /> },
+        { id: "recibidos", label: "Recibidos", icon: <Inbox size={16} /> },
+        { id: "enviados", label: "Enviados", icon: <Send size={16} /> },
+        { id: "historial", label: "Historial", icon: <ClipboardList size={16} /> },
+        { id: "buscar", label: "Buscar", icon: <Search size={16} /> },
     ];
 
-    const emptyMessages: Record<TabType, { icon: string; title: string; subtitle: string }> = {
+    const emptyMessages: Record<TabType, { icon: React.ReactNode; title: string; subtitle: string }> = {
         activos: {
-            icon: "📚",
+            icon: <BookOpenCheck size={48} className="text-gray-300 dark:text-gray-600" />,
             title: "Sin intercambios activos",
             subtitle: "Busca un libro y solicita tu primer intercambio",
         },
         enviados: {
-            icon: "📤",
+            icon: <Send size={48} className="text-gray-300 dark:text-gray-600" />,
             title: "No has enviado solicitudes",
             subtitle: "Busca libros que te interesen y solicita un intercambio",
         },
         recibidos: {
-            icon: "📥",
+            icon: <Inbox size={48} className="text-gray-300 dark:text-gray-600" />,
             title: "Sin solicitudes recibidas",
             subtitle: "Cuando alguien quiera un libro tuyo, aparecerá aquí",
         },
         historial: {
-            icon: "📋",
+            icon: <ClipboardList size={48} className="text-gray-300 dark:text-gray-600" />,
             title: "Sin historial",
             subtitle: "Los intercambios completados y cancelados aparecerán aquí",
         },
         buscar: {
-            icon: "🔍",
+            icon: <Search size={48} className="text-gray-300 dark:text-gray-600" />,
             title: "Busca libros para intercambiar",
             subtitle: "Usa la barra de búsqueda o explora tus contactos",
         },
@@ -245,7 +246,7 @@ function ExchangesPageContent() {
             {/* Header */}
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3">
-                    🔄 Intercambios
+                    <RefreshCw size={24} className="text-light-purple dark:text-light-pink" /> Intercambios
                 </h1>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                     Gestiona tus intercambios de libros con la comunidad
@@ -257,25 +258,25 @@ function ExchangesPageContent() {
                 {[
                     {
                         label: "Activos",
-                        icon: "📖",
+                        icon: <BookOpen size={14} />,
                         value: allExchanges.filter((e) => ["aceptado", "en_curso"].includes(e.status)).length,
                         color: "from-green-400 to-emerald-500",
                     },
                     {
                         label: "Pendientes",
-                        icon: "⏳",
+                        icon: <Clock size={14} />,
                         value: allExchanges.filter((e) => e.status === "pendiente" && e.ownerId === currentUserId).length,
                         color: "from-amber-400 to-orange-500",
                     },
                     {
                         label: "Mis solicitudes",
-                        icon: "📤",
+                        icon: <Send size={14} />,
                         value: allExchanges.filter((e) => e.status === "pendiente" && e.requesterId === currentUserId).length,
                         color: "from-blue-400 to-indigo-500",
                     },
                     {
                         label: "Completados",
-                        icon: "🎉",
+                        icon: <PartyPopper size={14} />,
                         value: allExchanges.filter((e) => e.status === "completado").length,
                         color: "from-purple-400 to-pink-500",
                     },
@@ -286,7 +287,7 @@ function ExchangesPageContent() {
                     >
                         <div className={`absolute inset-0 opacity-5 bg-gradient-to-br ${stat.color}`} />
                         <div className="relative">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{stat.icon} {stat.label}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">{stat.icon} {stat.label}</p>
                             <p className="text-xl font-bold text-gray-800 dark:text-gray-100 mt-1">{stat.value}</p>
                         </div>
                     </div>
@@ -304,7 +305,7 @@ function ExchangesPageContent() {
                             : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                             }`}
                     >
-                        <span>{tab.icon}</span>
+                        {tab.icon}
                         <span>{tab.label}</span>
                     </button>
                 ))}
@@ -322,7 +323,7 @@ function ExchangesPageContent() {
                                 : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700"
                                 }`}
                         >
-                            📚 Buscar por libro
+                            <BookMarked size={16} className="inline mr-1" /> Buscar por libro
                         </button>
                         <button
                             onClick={() => { setSearchMode("contacts"); setSelectedContact(null); }}
@@ -331,7 +332,7 @@ function ExchangesPageContent() {
                                 : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700"
                                 }`}
                         >
-                            💬 Buscar en mis chats
+                            <MessageSquare size={16} className="inline mr-1" /> Buscar en mis chats
                         </button>
                     </div>
 
@@ -339,7 +340,7 @@ function ExchangesPageContent() {
                         <>
                             {/* Search Input */}
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
                                     value={searchQuery}
@@ -365,7 +366,7 @@ function ExchangesPageContent() {
                                     </div>
                                 ) : searchResults.length === 0 ? (
                                     <div className="text-center py-8">
-                                        <div className="text-4xl mb-2">📚</div>
+                                        <div className="mb-2"><BookOpenCheck size={40} className="mx-auto text-gray-300 dark:text-gray-600" /></div>
                                         <p className="text-gray-400 text-sm">
                                             {searchQuery.length >= 2
                                                 ? "No se encontraron libros"
@@ -393,7 +394,7 @@ function ExchangesPageContent() {
                                         onClick={() => { setSelectedContact(null); setContactBooks([]); }}
                                         className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 transition-colors"
                                     >
-                                        ← Volver a contactos
+                                        <ArrowLeft size={14} /> Volver a contactos
                                     </button>
                                     <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-zinc-800 rounded-xl">
                                         <div className="w-10 h-10">
@@ -414,7 +415,7 @@ function ExchangesPageContent() {
                                         <div className="text-center py-8 text-gray-400">Cargando libros...</div>
                                     ) : contactBooks.length === 0 ? (
                                         <div className="text-center py-8">
-                                            <div className="text-4xl mb-2">📭</div>
+                                            <div className="mb-2"><Mailbox size={40} className="mx-auto text-gray-300 dark:text-gray-600" /></div>
                                             <p className="text-gray-400 text-sm">Este usuario no tiene libros publicados</p>
                                         </div>
                                     ) : (
@@ -441,7 +442,7 @@ function ExchangesPageContent() {
                                 <div className="space-y-2">
                                     {chatContacts.length === 0 ? (
                                         <div className="text-center py-8">
-                                            <div className="text-4xl mb-2">💬</div>
+                                            <div className="mb-2"><MessageSquare size={40} className="mx-auto text-gray-300 dark:text-gray-600" /></div>
                                             <p className="text-gray-400 dark:text-gray-500 text-sm">No tienes chats activos</p>
                                             <p className="text-gray-300 dark:text-gray-600 text-xs mt-1">Inicia una conversación para ver contactos aquí</p>
                                         </div>
@@ -461,7 +462,7 @@ function ExchangesPageContent() {
                                                     <p className="font-semibold text-sm text-gray-700 dark:text-gray-300 truncate">{contact.name}</p>
                                                     <p className="text-xs text-light-purple dark:text-light-pink">@{contact.username}</p>
                                                 </div>
-                                                <span className="text-gray-400 text-sm">→</span>
+                                                <ChevronRight size={16} className="text-gray-400" />
                                             </button>
                                         ))
                                     )}
@@ -492,7 +493,7 @@ function ExchangesPageContent() {
                         </div>
                     ) : exchanges.length === 0 ? (
                         <div className="text-center py-12">
-                            <div className="text-5xl mb-4">{emptyMessages[activeTab].icon}</div>
+                            <div className="mb-4 flex justify-center">{emptyMessages[activeTab].icon}</div>
                             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">
                                 {emptyMessages[activeTab].title}
                             </h3>
@@ -504,7 +505,7 @@ function ExchangesPageContent() {
                                     onClick={() => setActiveTab("buscar")}
                                     className="mt-4 px-6 py-2.5 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25 text-sm"
                                 >
-                                    🔍 Buscar libros
+                                    <Search size={16} className="inline mr-1" /> Buscar libros
                                 </button>
                             )}
                         </div>
@@ -571,7 +572,7 @@ function BookSearchResult({
                             onError={() => setImgError(true)}
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xl">📖</div>
+                        <div className="w-full h-full flex items-center justify-center"><BookOpen size={20} className="text-purple-400" /></div>
                     )}
                 </div>
             </Link>
@@ -607,14 +608,14 @@ function BookSearchResult({
                     className="px-2.5 py-1.5 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
                     title="Enviar mensaje"
                 >
-                    💬
+                    <MessageSquare size={14} />
                 </button>
                 {(book.status === "disponible" || book.status === "ocupado") && (
                     <button
                         onClick={onExchange}
                         className="px-3 py-1.5 bg-gradient-to-r from-light-purple to-dark-purple text-white text-xs font-bold rounded-lg hover:shadow-md transition-all"
                     >
-                        📬 Solicitar
+                        <Mailbox size={14} className="inline mr-0.5" /> Solicitar
                     </button>
                 )}
             </div>

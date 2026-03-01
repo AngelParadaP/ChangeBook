@@ -9,6 +9,7 @@ import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModal";
 import { addFavorite, removeFavorite, isFavorite as checkIsFavorite } from "@/server/actions/favorites";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
+import { BookOpen, CircleCheck, CirclePause, CircleX, Pencil, MessageSquare, Mailbox, CheckCircle2, X } from "lucide-react";
 
 interface Book {
   id: string;
@@ -235,7 +236,7 @@ export function BookModal({
               className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-all hover:rotate-90"
               aria-label="Cerrar"
             >
-              <span className="text-2xl">✕</span>
+              <X size={20} />
             </button>
           </div>
         </div>
@@ -257,7 +258,7 @@ export function BookModal({
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-8xl">📖</span>
+                    <BookOpen size={64} className="text-purple-300 dark:text-purple-600" />
                   </div>
                 )}
               </div>
@@ -272,7 +273,9 @@ export function BookModal({
                       : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300"
                     }`}
                 >
-                  {book.status === "disponible" ? "📗 Disponible" : book.status === "ocupado" ? "📙 Ocupado" : "📕 Intercambiado"}
+                  <span className="inline-flex items-center gap-1">
+                    {book.status === "disponible" ? <><CircleCheck size={14} /> Disponible</> : book.status === "ocupado" ? <><CirclePause size={14} /> Ocupado</> : <><CircleX size={14} /> Intercambiado</>}
+                  </span>
                 </span>
 
                 {/* Animated Heart Favorite Button */}
@@ -500,7 +503,7 @@ export function BookModal({
                   onClick={() => setIsEditing(true)}
                   className="px-6 py-3 bg-light-purple hover:bg-dark-purple text-white font-semibold rounded-xl transition-all"
                 >
-                  ✏️ Editar Libro
+                  <Pencil size={16} className="inline mr-1" /> Editar Libro
                 </button>
               )}
             </div>
@@ -508,7 +511,7 @@ export function BookModal({
             // Non-owner actions
             <div className="flex gap-3 justify-end items-center">
               {exchangeToast && (
-                <span className="text-sm text-green-600 dark:text-green-400 font-medium">✅ {exchangeToast}</span>
+                <span className="text-sm text-green-600 dark:text-green-400 font-medium"><CheckCircle2 size={14} className="inline mr-1" /> {exchangeToast}</span>
               )}
               <button
                 onClick={async () => {
@@ -519,14 +522,14 @@ export function BookModal({
                 }}
                 className="px-5 py-3 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-all hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700"
               >
-                💬 Enviar Mensaje
+                <MessageSquare size={16} className="inline mr-1" /> Enviar Mensaje
               </button>
               {(book.status === "disponible" || book.status === "ocupado") && (
                 <button
                   onClick={() => setShowExchangeModal(true)}
                   className="px-6 py-3 bg-light-purple hover:bg-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
                 >
-                  📬 Solicitar Intercambio
+                  <Mailbox size={16} className="inline mr-1" /> Solicitar Intercambio
                 </button>
               )}
             </div>

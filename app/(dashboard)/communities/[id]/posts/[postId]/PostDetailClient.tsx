@@ -12,7 +12,7 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { createComment } from "@/server/actions/communities/comments";
 import { deletePost, deleteComment, banUser } from "@/server/actions/communities/moderation";
 import { togglePostLike } from "@/server/actions/communities/togglePostLike";
-import { CornerDownRight, MessageSquare, Trash2, Shield, ShieldCheck, Slash, Heart } from "lucide-react";
+import { CornerDownRight, MessageSquare, Trash2, Shield, ShieldCheck, Slash, Heart, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Comment {
@@ -336,7 +336,7 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                                 {post.communityImage ? (
                                     <Image src={post.communityImage} alt={post.communityName} fill className="object-cover" />
                                 ) : (
-                                    <span className="flex items-center justify-center h-full">👥</span>
+                                    <span className="flex items-center justify-center h-full"><Users size={18} className="text-gray-400 dark:text-gray-500" /></span>
                                 )}
                             </div>
                             <div>

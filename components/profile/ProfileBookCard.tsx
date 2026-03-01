@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { BookOpen } from "lucide-react";
 
 interface ProfileBookCardProps {
   title: string;
@@ -18,7 +19,7 @@ interface ProfileBookCardProps {
 const isValidImageUrl = (url: string): boolean => {
   try {
     const parsedUrl = new URL(url);
-    
+
     // List of invalid/placeholder domains to exclude
     const invalidDomains = [
       'ejemplo.jpg',
@@ -27,13 +28,13 @@ const isValidImageUrl = (url: string): boolean => {
       'example.jpg',
       'localhost',
     ];
-    
+
     // Check if hostname is in the invalid list or ends with invalid extensions
-    const isInvalidDomain = invalidDomains.some(domain => 
-      parsedUrl.hostname === domain || 
+    const isInvalidDomain = invalidDomains.some(domain =>
+      parsedUrl.hostname === domain ||
       parsedUrl.hostname.endsWith(`.${domain}`)
     );
-    
+
     // Check if it's a proper http/https URL with a valid domain
     return (
       (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") &&
@@ -74,7 +75,7 @@ export function ProfileBookCard({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-5xl">📖</span>
+            <BookOpen size={40} className="text-purple-300 dark:text-purple-600" />
           </div>
         )}
       </div>
@@ -87,11 +88,10 @@ export function ProfileBookCard({
           </h3>
           {status && (
             <span
-              className={`text-xs px-3 py-1 rounded-full flex-shrink-0 ${
-                status === "disponible"
+              className={`text-xs px-3 py-1 rounded-full flex-shrink-0 ${status === "disponible"
                   ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                   : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400"
-              }`}
+                }`}
             >
               {status === "disponible" ? "Disponible" : "Intercambiado"}
             </span>
