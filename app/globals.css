@@ -48,12 +48,104 @@
   /* Variables de estado para Light Mode */
   --background: #E4F5F7;
   --foreground: #011C40;
+
+  /* ── Sidebar gradient ── */
+  --sidebar-gradient-start: #011C40;
+  --sidebar-gradient-mid: #023859;
+  --sidebar-gradient-end: #1a4f73;
+  --sidebar-text: #A7EBF2;
+  --sidebar-accent: #54ACBF;
+
+  /* ── Auth gradient (login / register) ── */
+  --auth-gradient-1: #011C40;
+  --auth-gradient-2: #023859;
+  --auth-gradient-3: #26658C;
+  --auth-gradient-4: #54ACBF;
+
+  /* ── Scrollbar colors ── */
+  --scrollbar-track: var(--color-surface);
+  --scrollbar-thumb: var(--color-primary-muted);
+  --scrollbar-thumb-hover: var(--color-primary-light);
+  --scrollbar-thumb-active: var(--color-primary);
+
+  /* ── Card / Surface colors ── */
+  --card-bg: #ffffff;
+  --card-bg-alt: #f9fafb;
+  --card-border: #e5e7eb;
+
+  /* ── Neutral text ── */
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --text-faint: #9ca3af;
+
+  /* ── Neutral backgrounds ── */
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+
+  /* ── Prose link colors ── */
+  --prose-link: #2563eb;
+  --prose-link-visited: #7c3aed;
+  --prose-link-hover: #1d4ed8;
+
+  /* ── Chat scrollbar ── */
+  --chat-scrollbar-thumb: var(--color-primary-muted);
+  --chat-scrollbar-track: #f3f4f6;
 }
 
 .dark {
   /* Variables de estado para Dark Mode */
   --background: #011C40;
   --foreground: #A7EBF2;
+
+  /* ── Sidebar gradient (dark) ── */
+  --sidebar-gradient-start: #011C40;
+  --sidebar-gradient-mid: #023859;
+  --sidebar-gradient-end: #1a4f73;
+  --sidebar-text: #A7EBF2;
+  --sidebar-accent: #54ACBF;
+
+  /* ── Auth gradient (dark) ── */
+  --auth-gradient-1: #011C40;
+  --auth-gradient-2: #023859;
+  --auth-gradient-3: #26658C;
+  --auth-gradient-4: #54ACBF;
+
+  /* ── Scrollbar colors (dark) ── */
+  --scrollbar-track: #3f3f46;
+  --scrollbar-thumb: var(--color-primary-muted);
+  --scrollbar-thumb-hover: var(--color-primary-light);
+  --scrollbar-thumb-active: var(--color-primary);
+
+  /* ── Card / Surface colors (dark) ── */
+  --card-bg: #18181b;
+  --card-bg-alt: #27272a;
+  --card-border: #3f3f46;
+
+  /* ── Neutral text (dark) ── */
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-faint: #6b7280;
+
+  /* ── Neutral backgrounds (dark) ── */
+  --neutral-50: #18181b;
+  --neutral-100: #27272a;
+  --neutral-200: #3f3f46;
+  --neutral-700: #a1a1aa;
+  --neutral-800: #d4d4d8;
+
+  /* ── Prose link colors (dark) ── */
+  --prose-link: #60a5fa;
+  --prose-link-visited: #a78bfa;
+  --prose-link-hover: #93bbfd;
+
+  /* ── Chat scrollbar (dark) ── */
+  --chat-scrollbar-thumb: var(--color-primary-muted);
+  --chat-scrollbar-track: #27272a;
 }
 
 /* Variante de Dark Mode para Tailwind 4 */
@@ -76,35 +168,16 @@ select {
 
 /* ─── Link styles inside rich-text (prose) content ─────────────────────────── */
 .prose a {
-  color: #2563eb;
-  /* blue-600 */
+  color: var(--prose-link);
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color 0.15s ease;
 }
 
 .prose a:visited {
-  color: #7c3aed;
-  /* violet-600 */
+  color: var(--prose-link-visited);
 }
 
 .prose a:hover {
-  color: #1d4ed8;
-  /* blue-700 */
-}
-
-/* Dark mode */
-.dark .prose a {
-  color: #60a5fa;
-  /* blue-400 */
-}
-
-.dark .prose a:visited {
-  color: #a78bfa;
-  /* violet-400 */
-}
-
-.dark .prose a:hover {
-  color: #93bbfd;
-  /* blue-300ish */
+  color: var(--prose-link-hover);
 }
