@@ -19,6 +19,7 @@ import BookRecommendationSidebar from "@/components/community/BookRecommendation
 import { X, Upload, Users, MessageSquare, Search, Settings, Trash2, Camera, LogOut, ChevronUp, Slash, Crown, Check } from "lucide-react";
 import ImageCropper, { type AspectRatioOption } from "@/components/ui/ImageCropper";
 import { fileToDataUrl, blobToFile } from "@/lib/imageUtils";
+import { BOOK_GENRES } from "@/lib/constants/genres";
 
 const POST_ASPECT_RATIOS: AspectRatioOption[] = [
     { label: "1:1", value: 1, icon: "square" },
@@ -75,7 +76,7 @@ interface Community {
     role?: "admin" | "moderator" | "member" | null;
 }
 
-const LITERARY_GENRES = ["Ficción", "No ficción", "Ciencia ficción", "Fantasía", "Terror", "Misterio", "Romance", "Thriller", "Aventura", "Drama", "Poesía", "Biografía", "Historia", "Filosofía", "Ciencia", "Autoayuda", "Negocios", "Infantil", "Juvenil", "Manga", "Cómic", "Arte", "Cocina", "Viajes", "Religión", "Política", "Psicología", "Educación", "Tecnología", "Deportes"];
+
 
 interface Post {
     id: string;

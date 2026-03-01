@@ -263,6 +263,12 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
     }
   };
 
+  const handleDeleteBook = (bookId: string) => {
+    setBooks((prev) => prev.filter((book) => book.id !== bookId));
+    setToast({ message: "Libro eliminado exitosamente", type: "success" });
+    setIsModalOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -526,6 +532,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
           isOwner={selectedBook.ownerId === session?.user?.id}
           currentUserId={session?.user?.id}
           onUpdateBook={handleUpdateBook}
+          onDeleteBook={handleDeleteBook}
         />
       )}
 

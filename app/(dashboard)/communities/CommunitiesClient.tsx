@@ -8,6 +8,7 @@ import { createCommunity } from "@/server/actions/communities/createCommunity";
 import { getCommunities } from "@/server/actions/communities/getCommunities";
 import { toast } from "@/components/ui/GlobalToast";
 import { Search, Plus, Users, Compass, PartyPopper, Hand } from "lucide-react";
+import { BOOK_GENRES } from "@/lib/constants/genres";
 
 interface Community {
   id: string;
@@ -19,7 +20,7 @@ interface Community {
   isMember: boolean;
 }
 
-const LITERARY_GENRES = ["Ficción", "No ficción", "Ciencia ficción", "Fantasía", "Terror", "Misterio", "Romance", "Thriller", "Aventura", "Drama", "Poesía", "Biografía", "Historia", "Filosofía", "Ciencia", "Autoayuda", "Negocios", "Infantil", "Juvenil", "Manga", "Cómic", "Arte", "Cocina", "Viajes", "Religión", "Política", "Psicología", "Educación", "Tecnología", "Deportes"];
+
 
 type TabKey = "discover" | "mine";
 
@@ -329,7 +330,7 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
               )}
               {/* Available genres */}
               <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1">
-                {LITERARY_GENRES
+                {BOOK_GENRES
                   .filter((genre) => !newCommunityGenres.includes(genre))
                   .filter((genre) => genre.toLowerCase().includes(genreSearch.toLowerCase()))
                   .map((genre) => (
