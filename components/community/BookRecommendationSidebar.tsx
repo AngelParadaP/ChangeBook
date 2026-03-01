@@ -138,7 +138,7 @@ function BookSelectionModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-zinc-800">
           <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-            <BookOpen size={20} className="text-purple-500" />
+            <BookOpen size={20} className="text-primary" />
             Recomendar un libro
           </h3>
           <button
@@ -153,7 +153,7 @@ function BookSelectionModal({
         <div className="p-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 size={24} className="animate-spin text-purple-500" />
+              <Loader2 size={24} className="animate-spin text-primary" />
             </div>
           ) : myBooks.length === 0 ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -184,11 +184,10 @@ function BookSelectionModal({
                   <button
                     key={book.id}
                     onClick={() => setSelectedBookId(book.id)}
-                    className={`w-full flex gap-3 p-3 rounded-xl border-2 text-left transition-all ${
-                      selectedBookId === book.id
-                        ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                    className={`w-full flex gap-3 p-3 rounded-xl border-2 text-left transition-all ${selectedBookId === book.id
+                        ? "border-primary bg-primary-soft dark:bg-primary-dark/20"
                         : "border-gray-100 dark:border-zinc-800 hover:border-gray-200 dark:hover:border-zinc-700"
-                    }`}
+                      }`}
                   >
                     <div className="w-10 h-14 rounded-lg bg-gray-200 dark:bg-zinc-800 overflow-hidden relative flex-shrink-0">
                       <Image
@@ -210,7 +209,7 @@ function BookSelectionModal({
                           {book.genres.slice(0, 3).map((g) => (
                             <span
                               key={g}
-                              className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+                              className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary-light dark:bg-primary-dark/30 text-primary dark:text-primary-muted"
                             >
                               {g}
                             </span>
@@ -220,7 +219,7 @@ function BookSelectionModal({
                     </div>
                     {selectedBookId === book.id && (
                       <div className="flex items-center">
-                        <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
                         </div>
                       </div>
@@ -240,7 +239,7 @@ function BookSelectionModal({
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="¿Por qué recomiendas este libro?"
                     maxLength={150}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-zinc-700 rounded-lg bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-zinc-700 rounded-lg bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
                 </div>
               )}
@@ -260,7 +259,7 @@ function BookSelectionModal({
             <button
               onClick={handleSubmit}
               disabled={!selectedBookId || submitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+              className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
               {submitting ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -376,13 +375,13 @@ export default function BookRecommendationSidebar({
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 overflow-hidden flex flex-col max-h-[calc(100vh-8rem)]">
       {/* Header */}
-      <div className="p-4 bg-gradient-to-r from-purple-600 to-indigo-600 flex-shrink-0">
+      <div className="p-4 bg-gradient-to-r from-primary to-primary-dark flex-shrink-0">
         <h3 className="font-bold text-white flex items-center gap-2">
           <BookOpen size={18} />
           {aggregated ? "Libros recomendados" : "Libros para prestar"}
         </h3>
         {aggregated && (
-          <p className="text-purple-200 text-xs mt-1">De tus comunidades</p>
+          <p className="text-primary-light text-xs mt-1">De tus comunidades</p>
         )}
       </div>
 
@@ -432,7 +431,7 @@ export default function BookRecommendationSidebar({
 
                   {/* Book info */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-gray-900 dark:text-white leading-tight truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                    <p className="font-semibold text-sm text-gray-900 dark:text-white leading-tight truncate group-hover:text-primary dark:group-hover:text-primary-light transition-colors">
                       {rec.bookTitle}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -445,7 +444,7 @@ export default function BookRecommendationSidebar({
                           e.stopPropagation();
                           window.location.href = `/user/${rec.username}`;
                         }}
-                        className="text-xs text-purple-600 dark:text-purple-400 hover:underline truncate cursor-pointer"
+                        className="text-xs text-primary dark:text-primary-light hover:underline truncate cursor-pointer"
                       >
                         u/{rec.username}
                       </span>
@@ -496,17 +495,16 @@ export default function BookRecommendationSidebar({
                 {rec.bookStatus && (
                   <div className="absolute bottom-1 right-1">
                     <span
-                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
-                        rec.bookStatus === "disponible"
+                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${rec.bookStatus === "disponible"
                           ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                           : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                      }`}
+                        }`}
                     >
                       {rec.bookStatus === "disponible"
                         ? "Disponible"
                         : rec.bookStatus === "intercambiado"
-                        ? "Prestado"
-                        : "No disponible"}
+                          ? "Prestado"
+                          : "No disponible"}
                     </span>
                   </div>
                 )}
@@ -520,7 +518,7 @@ export default function BookRecommendationSidebar({
           <button
             onClick={() => loadRecs(false)}
             disabled={loadingMore}
-            className="w-full flex items-center justify-center gap-2 py-2 text-xs font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 rounded-xl transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 py-2 text-xs font-medium text-primary dark:text-primary-light hover:bg-primary-soft dark:hover:bg-primary-dark/10 rounded-xl transition-colors disabled:opacity-50"
           >
             {loadingMore ? (
               <Loader2 size={14} className="animate-spin" />
@@ -535,7 +533,7 @@ export default function BookRecommendationSidebar({
         {!aggregated && isMember && (
           <button
             onClick={() => setShowModal(true)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 mt-2 text-sm font-medium text-purple-600 dark:text-purple-400 border-2 border-dashed border-purple-200 dark:border-purple-800/50 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 mt-2 text-sm font-medium text-primary dark:text-primary-light border-2 border-dashed border-primary/30 dark:border-primary-dark/50 rounded-xl hover:bg-primary-soft dark:hover:bg-primary-dark/10 transition-colors"
           >
             <Plus size={16} />
             Recomendar libro

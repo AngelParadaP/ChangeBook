@@ -139,10 +139,10 @@ function SearchBookCard({ book, onClick }: { book: BookResult; onClick: () => vo
     return (
         <div
             onClick={onClick}
-            className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-light-purple dark:border-dark-purple p-4 hover:shadow-xl hover:scale-[1.03] transition-all duration-300 cursor-pointer group"
+            className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-primary/30 dark:border-primary-dark/50 p-4 hover:shadow-xl hover:shadow-primary-glow hover:border-primary/60 hover:scale-[1.03] transition-all duration-300 cursor-pointer group"
         >
             {/* Cover */}
-            <div className="aspect-[2/3] bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 rounded-xl mb-3 overflow-hidden relative">
+            <div className="aspect-[2/3] bg-gradient-to-br from-primary-light to-primary-muted dark:from-primary-dark/40 dark:to-primary-dark/20 rounded-xl mb-3 overflow-hidden relative">
                 {showImage ? (
                     <Image
                         src={book.imageUrl}
@@ -182,7 +182,7 @@ function SearchBookCard({ book, onClick }: { book: BookResult; onClick: () => vo
                     {book.year ? ` • ${book.year}` : ""}
                 </p>
                 {book.ownerUsername && (
-                    <p className="text-xs text-light-purple dark:text-light-pink">
+                    <p className="text-xs text-primary dark:text-primary-light">
                         @{book.ownerUsername}
                     </p>
                 )}
@@ -191,7 +191,7 @@ function SearchBookCard({ book, onClick }: { book: BookResult; onClick: () => vo
                         {book.genres.slice(0, 2).map((genre, idx) => (
                             <span
                                 key={idx}
-                                className="text-xs px-2 py-0.5 bg-light-purple/20 dark:bg-dark-purple/20 text-light-purple dark:text-light-pink rounded-full"
+                                className="text-xs px-2 py-0.5 bg-primary-soft dark:bg-primary-dark/20 text-primary dark:text-primary-light rounded-full"
                             >
                                 {genre}
                             </span>
@@ -224,7 +224,7 @@ function SearchUserCard({ user }: { user: UserResult }) {
     return (
         <Link
             href={`/user/${user.username}`}
-            className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-light-purple dark:border-dark-purple p-5 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group block"
+            className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-primary/30 dark:border-primary-dark/50 p-5 hover:shadow-xl hover:shadow-primary-glow hover:border-primary/60 hover:scale-[1.02] transition-all duration-300 cursor-pointer group block"
         >
             {/* Header */}
             <div className="flex items-center gap-4 mb-4">
@@ -232,14 +232,14 @@ function SearchUserCard({ user }: { user: UserResult }) {
                     imageURL={user.imageURL}
                     name={user.name}
                     size="lg"
-                    className="group-hover:ring-2 group-hover:ring-light-purple dark:group-hover:ring-dark-purple transition-all"
+                    className="group-hover:ring-2 group-hover:ring-primary dark:group-hover:ring-primary-muted transition-all"
                 />
 
                 <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-gray-800 dark:text-gray-100 truncate text-base">
                         {user.name}
                     </h3>
-                    <p className="text-sm text-light-purple dark:text-light-pink truncate">
+                    <p className="text-sm text-primary dark:text-primary-light truncate">
                         @{user.username}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -261,7 +261,7 @@ function SearchUserCard({ user }: { user: UserResult }) {
                     {user.preferences.slice(0, 4).map((pref, idx) => (
                         <span
                             key={idx}
-                            className="text-xs px-2.5 py-1 bg-light-purple/15 dark:bg-dark-purple/20 text-light-purple dark:text-light-pink rounded-full"
+                            className="text-xs px-2.5 py-1 bg-primary-soft dark:bg-primary-dark/20 text-primary dark:text-primary-light rounded-full"
                         >
                             {pref}
                         </span>
@@ -286,10 +286,10 @@ function SearchCommunityCard({ community }: { community: CommunityResult }) {
     return (
         <Link
             href={`/communities/${community.id}`}
-            className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-light-purple/40 dark:border-dark-purple/40 p-5 hover:shadow-xl hover:scale-[1.02] hover:border-light-purple dark:hover:border-dark-purple transition-all duration-300 cursor-pointer group block"
+            className="bg-white dark:bg-zinc-800 rounded-2xl border-2 border-primary/30 dark:border-primary-dark/40 p-5 hover:shadow-xl hover:shadow-primary-glow hover:scale-[1.02] hover:border-primary/60 dark:hover:border-primary-muted/60 transition-all duration-300 cursor-pointer group block"
         >
             <div className="flex items-start gap-4 mb-3">
-                <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex-shrink-0 relative group-hover:ring-2 group-hover:ring-light-purple/50 dark:group-hover:ring-dark-purple/50 transition-all">
+                <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-primary-light to-primary-muted dark:from-primary-dark/40 dark:to-primary-dark/20 flex-shrink-0 relative group-hover:ring-2 group-hover:ring-primary/50 dark:group-hover:ring-primary-muted/50 transition-all">
                     {showImage ? (
                         <Image
                             src={community.imageUrl!}
@@ -507,7 +507,7 @@ function SearchPageContent() {
                                         ? "Buscar por nombre, usuario o código..."
                                         : "Buscar comunidades por nombre..."
                             }
-                            className="w-full pl-12 pr-4 py-4 bg-gray-100 dark:bg-zinc-800 border-2 border-gray-200 dark:border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple focus:border-light-purple dark:focus:border-dark-purple focus:bg-white dark:focus:bg-zinc-900 transition-all text-gray-800 dark:text-gray-200 text-lg"
+                            className="w-full pl-12 pr-4 py-4 bg-gray-100 dark:bg-zinc-800 border-2 border-gray-200 dark:border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted focus:border-primary dark:focus:border-primary-muted focus:bg-white dark:focus:bg-zinc-900 transition-all text-gray-800 dark:text-gray-200 text-lg"
                             autoFocus
                         />
                     </div>
@@ -520,7 +520,7 @@ function SearchPageContent() {
                             key={tab.key}
                             onClick={() => handleTabChange(tab.key)}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === tab.key
-                                ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-lg shadow-purple-500/25"
+                                ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg shadow-primary-glow"
                                 : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-700 dark:hover:text-gray-200"
                                 }`}
                         >

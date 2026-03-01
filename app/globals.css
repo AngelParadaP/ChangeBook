@@ -9,13 +9,35 @@
   --font-nunito: var(--font-nunito), "Nunito", ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-nunito), "Nunito", ui-sans-serif, system-ui, sans-serif;
 
-  /* Colores de tu marca — paleta Luna */
-  --color-light-purple: #26658C;
-  --color-dark-purple: #023859;
-  --color-light-pink: #A7EBF2;
-  --color-dark-pink: #54ACBF;
-  --color-yellowed-white: #E4F5F7;
-  --color-gray: #3D7A8C;
+  /* ═══════════════════════════════════════════════════════════
+     PALETA DE COLORES DE MARCA — Paleta Luna
+     Cambia estos valores para actualizar el tema de toda la app.
+     ═══════════════════════════════════════════════════════════ */
+
+  /* Color principal de la marca (botones, acentos, bordes activos) */
+  --color-primary: #26658C;
+  /* Variante más oscura (hover sobre botones primarios) */
+  --color-primary-dark: #023859;
+  /* Variante clara (fondos suaves, badges, texto sobre dark) */
+  --color-primary-light: #A7EBF2;
+  /* Variante media (bordes suaves, focus rings en dark mode) */
+  --color-primary-muted: #54ACBF;
+  /* Fondo sutil con transparencia (tags, badges, hovers suaves) */
+  --color-primary-soft: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  /* Glow / sombra primary (para shadow-primary-glow) */
+  --color-primary-glow: color-mix(in srgb, var(--color-primary) 25%, transparent);
+
+  /* Neutrales de marca */
+  --color-surface: #E4F5F7;
+  --color-muted: #3D7A8C;
+
+  /* ── Aliases legacy (para que el código antiguo siga funcionando) ─── */
+  --color-light-purple: var(--color-primary);
+  --color-dark-purple: var(--color-primary-dark);
+  --color-light-pink: var(--color-primary-light);
+  --color-dark-pink: var(--color-primary-muted);
+  --color-yellowed-white: var(--color-surface);
+  --color-gray: var(--color-muted);
 
   /* Sincronizamos con tus variables de fondo/texto */
   --color-background: var(--background);
