@@ -16,7 +16,6 @@ export default function ChatPage() {
         }
     }, [status, router]);
 
-    // No mostrar loading global - ChatRoomList tiene su propio loading inicial
     if (!session && status !== "loading") {
         return null;
     }
@@ -24,22 +23,20 @@ export default function ChatPage() {
     return (
         <div className="h-full flex gap-4">
             {/* Lista de chats - columna izquierda */}
-            <div className="w-full lg:w-96 bg-card rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 bg-gradient-to-r from-light-purple to-dark-purple">
-                    <h1 className="text-2xl font-bold text-white">Mensajes</h1>
-                    <p className="text-white/80 text-sm mt-1">Tus conversaciones</p>
-                </div>
+            <div className="w-full lg:w-96 bg-card rounded-2xl shadow-sm overflow-hidden flex flex-col">
                 <ChatRoomList />
             </div>
 
             {/* Mensaje de bienvenida - área derecha en desktop */}
             <div className="hidden lg:flex flex-1 items-center justify-center bg-card rounded-2xl shadow-sm">
                 <div className="text-center p-8">
-                    <div className="mb-4 flex justify-center"><MessageSquare size={64} className="text-hint" /></div>
+                    <div className="w-24 h-24 rounded-2xl bg-primary-soft flex items-center justify-center mx-auto mb-5">
+                        <MessageSquare size={44} className="text-primary" />
+                    </div>
                     <h2 className="text-2xl font-bold text-heading mb-2">
                         Tus mensajes
                     </h2>
-                    <p className="text-caption">
+                    <p className="text-caption max-w-sm">
                         Selecciona una conversación para comenzar a chatear
                     </p>
                 </div>
