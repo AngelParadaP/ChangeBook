@@ -4,9 +4,10 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useChatRooms } from "@/contexts/ChatContext";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { MessageSquare, Loader2, Search, Inbox, Mail, X } from "lucide-react";
+import { MessageSquare, Loader2, Search, Inbox, Mail, X, Users } from "lucide-react";
+import { getFriends, FriendProfile } from "@/server/actions/friends/getFriends";
 
-type FilterTab = "all" | "unread";
+type FilterTab = "all" | "unread" | "friends";
 
 export function ChatRoomList() {
     const router = useRouter();
@@ -17,6 +18,22 @@ export function ChatRoomList() {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchOpen, setSearchOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
+
+    const [friends, setFriends] = useState<FriendProfile[]>([]);
+
+    useEffect(() => {
+        const loadFriends = async () => {
+            try {
+                const res = await getFriends();
+                if (res.success && res.friends) {
+                    setFriends(res.friends);
+                }
+            } catch (error) {
+                console.error("Error loading friends in chat", error);
+            }
+        };
+        loadFriends();
+    }, []);
 
     // Focus input when search opens
     useEffect(() => {
@@ -40,6 +57,9 @@ export function ChatRoomList() {
         // Filter by tab
         if (filterTab === "unread") {
             filtered = filtered.filter((room) => room.unreadCount > 0);
+        } else if (filterTab === "friends") {
+            const friendMap = new Set(friends.map((f) => f.username));
+            filtered = filtered.filter((room) => friendMap.has(room.otherUser.username));
         }
 
         // Filter by person name/username only
@@ -233,11 +253,21 @@ export function ChatRoomList() {
                     {unreadCount > 0 && (
                         <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${filterTab === "unread"
                             ? "bg-white/20"
-                            : "bg-red-500 text-white"
+                            : "bg-danger text-white"
                             }`}>
                             {unreadCount}
                         </span>
                     )}
+                </button>
+                <button
+                    onClick={() => setFilterTab("friends")}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterTab === "friends"
+                        ? "bg-primary text-white shadow-sm"
+                        : "text-hint hover:bg-soft hover:text-heading"
+                        }`}
+                >
+                    <Users size={14} />
+                    Amigos
                 </button>
             </div>
 
@@ -250,6 +280,11 @@ export function ChatRoomList() {
                                 <>
                                     <Mail size={32} className="text-hint mx-auto mb-2" />
                                     <p className="text-sm text-hint">No tienes mensajes sin leer</p>
+                                </>
+                            ) : filterTab === "friends" && !searchQuery ? (
+                                <>
+                                    <Users size={32} className="text-hint mx-auto mb-2" />
+                                    <p className="text-sm text-hint">No tienes conversaciones con tus amigos</p>
                                 </>
                             ) : (
                                 <>
@@ -293,7 +328,7 @@ export function ChatRoomList() {
                                                 useNextImage={false}
                                             />
                                             {hasUnread && (
-                                                <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-card" />
+                                                <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-danger rounded-full border-2 border-card" />
                                             )}
                                         </div>
 

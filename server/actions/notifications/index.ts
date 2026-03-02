@@ -12,6 +12,7 @@ export interface NotificationItem {
     type: string;
     message: string;
     exchangeId: string | null;
+    friendRequestId: string | null;
     isRead: number;
     createdAt: Date;
 }

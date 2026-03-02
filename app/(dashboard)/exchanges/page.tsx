@@ -12,7 +12,8 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Inbox, Send, ClipboardList, Search, RefreshCw, Clock, PartyPopper, BookOpenCheck, MessageSquare, ArrowLeft, ChevronRight, Mailbox, BookMarked, Trash2, ArrowLeftRight } from "lucide-react";
+import { BookOpen, Inbox, Send, ClipboardList, Search, RefreshCw, Clock, PartyPopper, BookOpenCheck, MessageSquare, ArrowLeft, ChevronRight, Mailbox, BookMarked, Trash2, ArrowLeftRight, Users } from "lucide-react";
+import { getFriends, FriendProfile } from "@/server/actions/friends/getFriends";
 
 type TabType = "activos" | "enviados" | "recibidos" | "historial" | "buscar";
 
@@ -72,9 +73,10 @@ function ExchangesPageContent() {
 
     // Search state
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchMode, setSearchMode] = useState<"books" | "contacts">("books");
+    const [searchMode, setSearchMode] = useState<"books" | "contacts" | "friends">("books");
     const [searchResults, setSearchResults] = useState<AvailableBook[]>([]);
     const [chatContacts, setChatContacts] = useState<ChatContact[]>([]);
+    const [friends, setFriends] = useState<FriendProfile[]>([]);
     const [searchLoading, setSearchLoading] = useState(false);
     const [contactBooks, setContactBooks] = useState<AvailableBook[]>([]);
     const [selectedContact, setSelectedContact] = useState<ChatContact | null>(null);
@@ -151,8 +153,12 @@ function ExchangesPageContent() {
 
     // Search logic
     useEffect(() => {
-        if (activeTab === "buscar" && searchMode === "contacts") {
-            loadContacts();
+        if (activeTab === "buscar") {
+            if (searchMode === "contacts") {
+                loadContacts();
+            } else if (searchMode === "friends") {
+                loadFriends();
+            }
         }
     }, [activeTab, searchMode]);
 
@@ -160,6 +166,13 @@ function ExchangesPageContent() {
         const result = await getChatContacts();
         if (result.success && result.contacts) {
             setChatContacts(result.contacts);
+        }
+    };
+
+    const loadFriends = async () => {
+        const result = await getFriends();
+        if (result.success && result.friends) {
+            setFriends(result.friends);
         }
     };
 
@@ -178,8 +191,8 @@ function ExchangesPageContent() {
         return () => clearTimeout(timer);
     }, [searchQuery, activeTab, searchMode]);
 
-    const loadContactBooks = async (contact: ChatContact) => {
-        setSelectedContact(contact);
+    const loadContactBooks = async (contact: ChatContact | FriendProfile) => {
+        setSelectedContact({ id: contact.id, name: contact.name, username: contact.username, imageURL: contact.imageURL });
         setSearchLoading(true);
         const { getUserAvailableBooks } = await import("@/server/actions/exchanges/searchExchange");
         const result = await getUserAvailableBooks(contact.id);
@@ -319,24 +332,33 @@ function ExchangesPageContent() {
                 activeTab === "buscar" && (
                     <div className="space-y-4">
                         {/* Search Mode Toggle */}
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                             <button
                                 onClick={() => { setSearchMode("books"); setSelectedContact(null); }}
-                                className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${searchMode === "books"
+                                className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all ${searchMode === "books"
                                     ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
                                     : "bg-soft text-caption hover:bg-dim"
                                     }`}
                             >
-                                <BookMarked size={16} className="inline mr-1" /> Buscar por libro
+                                <BookMarked size={16} className="inline mr-1" /> <span className="hidden sm:inline">Buscar por </span>libro
+                            </button>
+                            <button
+                                onClick={() => { setSearchMode("friends"); setSelectedContact(null); }}
+                                className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all ${searchMode === "friends"
+                                    ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
+                                    : "bg-soft text-caption hover:bg-dim"
+                                    }`}
+                            >
+                                <Users size={16} className="inline mr-1" /> Mis amigos
                             </button>
                             <button
                                 onClick={() => { setSearchMode("contacts"); setSelectedContact(null); }}
-                                className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${searchMode === "contacts"
+                                className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all ${searchMode === "contacts"
                                     ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
                                     : "bg-soft text-caption hover:bg-dim"
                                     }`}
                             >
-                                <MessageSquare size={16} className="inline mr-1" /> Buscar en mis chats
+                                <MessageSquare size={16} className="inline mr-1" /> Mis chats
                             </button>
                         </div>
 
@@ -444,27 +466,31 @@ function ExchangesPageContent() {
                                     </div>
                                 ) : (
                                     <div className="space-y-2">
-                                        {chatContacts.length === 0 ? (
+                                        {(searchMode === "contacts" ? chatContacts : friends).length === 0 ? (
                                             <div className="text-center py-8">
                                                 <div className="mb-2"><MessageSquare size={40} className="mx-auto text-hint" /></div>
-                                                <p className="text-hint text-sm">No tienes chats activos</p>
-                                                <p className="text-hint text-xs mt-1">Inicia una conversación para ver contactos aquí</p>
+                                                <p className="text-hint text-sm">
+                                                    {searchMode === "contacts" ? "No tienes chats activos" : "No tienes amigos añadidos"}
+                                                </p>
+                                                <p className="text-hint text-xs mt-1">
+                                                    {searchMode === "contacts" ? "Inicia una conversación para ver contactos aquí" : "Añade amigos para buscarlos aquí"}
+                                                </p>
                                             </div>
                                         ) : (
-                                            chatContacts.map((contact) => (
+                                            (searchMode === "contacts" ? chatContacts : friends).map((person) => (
                                                 <button
-                                                    key={contact.id}
-                                                    onClick={() => loadContactBooks(contact)}
+                                                    key={person.id}
+                                                    onClick={() => loadContactBooks(person)}
                                                     className="w-full flex items-center gap-3 p-3 bg-subtle rounded-xl hover:bg-soft/50 transition-colors text-left"
                                                 >
                                                     <UserAvatar
-                                                        imageURL={contact.imageURL}
-                                                        name={contact.name}
+                                                        imageURL={person.imageURL}
+                                                        name={person.name}
                                                         size="sm"
                                                     />
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="font-semibold text-sm text-body truncate">{contact.name}</p>
-                                                        <p className="text-xs text-light-purple dark:text-light-pink">@{contact.username}</p>
+                                                        <p className="font-semibold text-sm text-body truncate">{person.name}</p>
+                                                        <p className="text-xs text-light-purple dark:text-light-pink">@{person.username}</p>
                                                     </div>
                                                     <ChevronRight size={16} className="text-hint" />
                                                 </button>

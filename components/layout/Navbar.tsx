@@ -20,7 +20,8 @@ import {
   deleteAllNotifications,
   NotificationItem,
 } from "@/server/actions/notifications";
-import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X } from "lucide-react";
+import { getFriendUsernameFromRequest } from "@/server/actions/friends/getFriendUsernameFromRequest";
+import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X, UserPlus, UserCheck, UserMinus } from "lucide-react";
 
 interface BookResult {
   id: string;
@@ -105,6 +106,9 @@ const notificationConfig: Record<string, { icon: React.ReactNode; color: string 
   exchange_started: { icon: <Rocket size={14} />, color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
   exchange_completed: { icon: <PartyPopper size={14} />, color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400" },
   exchange_cancelled: { icon: <Ban size={14} />, color: "bg-soft text-caption" },
+  friend_request: { icon: <UserPlus size={14} />, color: "bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400" },
+  friend_accepted: { icon: <UserCheck size={14} />, color: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" },
+  friend_declined: { icon: <UserMinus size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
 };
 
 function formatTimeAgo(date: Date): string {
@@ -202,30 +206,41 @@ export function Navbar() {
       await handleMarkAsRead(notif.id);
     }
 
-    // Determinar a qué tab navegar según el tipo de notificación
-    let tab = "activos";
+    // Determinar a qué ruta navegar
+    let targetPath = `/exchanges?tab=activos`;
     switch (notif.type) {
       case "exchange_requested":
-        // El owner recibe esta notificación → llevarlo a "recibidos"
-        tab = "recibidos";
+        targetPath = `/exchanges?tab=recibidos`;
         break;
       case "exchange_rejected":
       case "exchange_auto_rejected":
       case "exchange_completed":
       case "exchange_cancelled":
-        // Estos ya terminaron → historial
-        tab = "historial";
+        targetPath = `/exchanges?tab=historial`;
         break;
       case "exchange_accepted":
       case "exchange_started":
-        // Estos están activos → activos
-        tab = "activos";
+        targetPath = `/exchanges?tab=activos`;
+        break;
+      case "friend_request":
+      case "friend_accepted":
+      case "friend_declined":
+        if (notif.friendRequestId) {
+          const result = await getFriendUsernameFromRequest(notif.friendRequestId, notif.message);
+          if (result.success && result.username) {
+            targetPath = `/user/${result.username}`;
+          } else {
+            targetPath = `/notifications`;
+          }
+        } else {
+          targetPath = `/notifications`;
+        }
         break;
       default:
-        tab = "activos";
+        targetPath = `/exchanges?tab=activos`;
     }
 
-    router.push(`/exchanges?tab=${tab}`);
+    router.push(targetPath);
     setIsNotificationsOpen(false);
   };
 
@@ -648,17 +663,17 @@ export function Navbar() {
 
                   {/* Footer */}
                   {notificationsList.length > 0 && (
-                    <div className="border-t border-card-border flex items-center">
+                    <div className="border-t border-card-border flex justify-between items-center">
                       <Link
-                        href="/exchanges"
+                        href="/notifications"
                         onClick={() => setIsNotificationsOpen(false)}
-                        className="flex-1 px-4 py-2.5 text-center text-xs font-medium text-light-purple dark:text-light-pink hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors"
+                        className="px-4 py-2.5 text-center text-xs font-medium text-light-purple dark:text-light-pink hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors"
                       >
-                        Ver intercambios →
+                        Ver todas
                       </Link>
                       <button
                         onClick={handleDeleteAll}
-                        className="px-4 py-2.5 text-xs font-medium text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors border-l border-card-border"
+                        className="px-4 py-2.5 text-xs font-medium text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
                       >
                         <Trash2 size={12} className="inline mr-0.5" /> Borrar todas
                       </button>
