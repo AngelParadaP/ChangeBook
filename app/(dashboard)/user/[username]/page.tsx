@@ -13,7 +13,8 @@ import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getOrCreateRoom } from "@/server/actions/chat";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 import { Loader2 } from "lucide-react";
-import { Search, X, MessageSquare } from "lucide-react";
+import { getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend } from "@/server/actions/friends";
+import { Search, X, MessageSquare, UserPlus, UserCheck, Clock, UserMinus, Check, XCircle } from "lucide-react";
 
 interface UserProfile {
     id: string;
@@ -56,6 +57,13 @@ export default function UserProfilePage() {
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // Friend states
+    const [friendStatus, setFriendStatus] = useState<string>("none");
+    const [friendRequestId, setFriendRequestId] = useState<string | null>(null);
+    const [loadingFriend, setLoadingFriend] = useState(false);
+    const [isFriendModalOpen, setIsFriendModalOpen] = useState(false);
+    const [isRemoveFriendModalOpen, setIsRemoveFriendModalOpen] = useState(false);
+
     // Book search & pagination
     const [bookSearch, setBookSearch] = useState("");
     const [booksToShow, setBooksToShow] = useState(10);
@@ -88,6 +96,7 @@ export default function UserProfilePage() {
             const result = await getUserProfileByUsername(username);
             if (result.success && result.user) {
                 setProfile(result.user as UserProfile);
+                loadFriendStatus(result.user.id);
             } else {
                 setToast({ message: result.error || "Usuario no encontrado", type: "error" });
                 // Redirect to home after a delay if user not found
@@ -98,6 +107,94 @@ export default function UserProfilePage() {
             setTimeout(() => router.push("/home"), 2000);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadFriendStatus = async (userId: string) => {
+        try {
+            const res = await getFriendStatus(userId);
+            if (res.success) {
+                setFriendStatus(res.status || "none");
+                setFriendRequestId(res.request?.id || null);
+            }
+        } catch (err) {
+            console.error("Error loading friend status", err);
+        }
+    };
+
+    const handleSendFriendRequest = async () => {
+        if (!profile?.id) return;
+        setLoadingFriend(true);
+        try {
+            const res = await sendFriendRequest(profile.id);
+            if (res.success) {
+                setToast({ message: "Solicitud de amistad enviada", type: "success" });
+                setFriendStatus("request_sent");
+            } else {
+                setToast({ message: res.error || "Error al enviar solicitud", type: "error" });
+            }
+        } catch (err) {
+            setToast({ message: "Error de servidor", type: "error" });
+        } finally {
+            setLoadingFriend(false);
+        }
+    };
+
+    const handleAcceptFriendRequest = async () => {
+        if (!friendRequestId) return;
+        setLoadingFriend(true);
+        try {
+            const res = await acceptFriendRequest(friendRequestId);
+            if (res.success) {
+                setToast({ message: "Solicitud aceptada", type: "success" });
+                setFriendStatus("friends");
+                setIsFriendModalOpen(false);
+            } else {
+                setToast({ message: res.error || "Error al aceptar solicitud", type: "error" });
+            }
+        } catch (err) {
+            setToast({ message: "Error de servidor", type: "error" });
+        } finally {
+            setLoadingFriend(false);
+        }
+    };
+
+    const handleDeclineFriendRequest = async () => {
+        if (!friendRequestId) return;
+        setLoadingFriend(true);
+        try {
+            const res = await declineFriendRequest(friendRequestId);
+            if (res.success) {
+                setToast({ message: "Solicitud declinada", type: "success" });
+                setFriendStatus("none");
+                setIsFriendModalOpen(false);
+            } else {
+                setToast({ message: res.error || "Error al declinar solicitud", type: "error" });
+            }
+        } catch (err) {
+            setToast({ message: "Error de servidor", type: "error" });
+        } finally {
+            setLoadingFriend(false);
+        }
+    };
+
+    const handleRemoveFriend = async () => {
+        if (!friendRequestId) return;
+        setLoadingFriend(true);
+        try {
+            const res = await removeFriend(friendRequestId);
+            if (res.success) {
+                setToast({ message: "Amigo eliminado", type: "success" });
+                setFriendStatus("none");
+                setFriendRequestId(null);
+                setIsRemoveFriendModalOpen(false);
+            } else {
+                setToast({ message: res.error || "Error al eliminar amigo", type: "error" });
+            }
+        } catch (err) {
+            setToast({ message: "Error de servidor", type: "error" });
+        } finally {
+            setLoadingFriend(false);
         }
     };
 
@@ -218,12 +315,52 @@ export default function UserProfilePage() {
                                         <p className="text-lg text-heading">{profile.studentCode}</p>
                                     </div>
 
-                                    {/* Botón para enviar mensaje */}
-                                    <div className="pt-4">
+                                    {/* Botones de acción */}
+                                    <div className="pt-4 flex flex-col gap-3">
+                                        {friendStatus === "none" && (
+                                            <button
+                                                onClick={handleSendFriendRequest}
+                                                disabled={loadingFriend}
+                                                className="w-full bg-soft text-body hover:bg-dim font-bold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            >
+                                                <UserPlus size={20} />
+                                                {loadingFriend ? "Enviando..." : "Añadir amigo"}
+                                            </button>
+                                        )}
+                                        {friendStatus === "request_sent" && (
+                                            <button
+                                                disabled
+                                                className="w-full bg-hint/20 text-hint font-bold py-3 px-6 rounded-xl cursor-not-allowed flex items-center justify-center gap-2"
+                                            >
+                                                <Clock size={20} />
+                                                Solicitud enviada
+                                            </button>
+                                        )}
+                                        {friendStatus === "request_received" && (
+                                            <button
+                                                onClick={() => setIsFriendModalOpen(true)}
+                                                className="w-full bg-success/20 text-success hover:bg-success/30 font-bold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <UserCheck size={20} />
+                                                Responder solicitud
+                                            </button>
+                                        )}
+                                        {friendStatus === "friends" && (
+                                            <button
+                                                onClick={() => setIsRemoveFriendModalOpen(true)}
+                                                disabled={loadingFriend}
+                                                className="w-full bg-danger/10 text-danger hover:bg-danger/20 font-bold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            >
+                                                <UserMinus size={20} />
+                                                Eliminar amigo
+                                            </button>
+                                        )}
+
                                         <button
                                             onClick={handleStartChat}
-                                            disabled={startingChat}
-                                            className="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md shadow-primary/20"
+                                            disabled={startingChat || friendStatus !== "friends"}
+                                            className={`w-full font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 shadow-md transition-opacity ${friendStatus === "friends" ? "bg-gradient-to-r from-primary to-primary-dark text-white hover:opacity-90 shadow-primary/20" : "bg-hint/20 text-hint cursor-not-allowed"}`}
+                                            title={friendStatus !== "friends" ? "Debes ser amigo para enviar mensajes" : ""}
                                         >
                                             <MessageSquare size={20} />
                                             {startingChat ? "Abriendo chat..." : "Enviar mensaje"}
@@ -235,33 +372,33 @@ export default function UserProfilePage() {
                             <hr className="my-8 border-card-border" />
 
                             <div>
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-2xl font-bold text-heading">Preferencias de lectura</h2>
-                                <span className="text-sm text-hint">{profile.preferences.length} géneros</span>
-                            </div>
-                            <p className="text-caption mb-6">
-                                Géneros favoritos de este usuario
-                            </p>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-2xl font-bold text-heading">Preferencias de lectura</h2>
+                                    <span className="text-sm text-hint">{profile.preferences.length} géneros</span>
+                                </div>
+                                <p className="text-caption mb-6">
+                                    Géneros favoritos de este usuario
+                                </p>
 
-                            <div className="flex flex-wrap gap-2">
-                                {profile.preferences.length > 0 ? (
-                                    profile.preferences.map((genre) => (
-                                        <span
-                                            key={genre}
-                                            className="px-4 py-2 rounded-full text-sm font-medium bg-primary-soft dark:bg-primary-dark/20 text-primary dark:text-primary-light ring-1 ring-primary/20 shadow-sm"
-                                        >
-                                            {genre}
-                                        </span>
-                                    ))
-                                ) : (
-                                    <p className="text-hint text-sm italic py-2 w-full text-center">
-                                        Este usuario no ha seleccionado preferencias aún
-                                    </p>
-                                )}
+                                <div className="flex flex-wrap gap-2">
+                                    {profile.preferences.length > 0 ? (
+                                        profile.preferences.map((genre) => (
+                                            <span
+                                                key={genre}
+                                                className="px-4 py-2 rounded-full text-sm font-medium bg-primary-soft dark:bg-primary-dark/20 text-primary dark:text-primary-light ring-1 ring-primary/20 shadow-sm"
+                                            >
+                                                {genre}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <p className="text-hint text-sm italic py-2 w-full text-center">
+                                            Este usuario no ha seleccionado preferencias aún
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 </div>
 
                 {/* Right Column - Published Books */}
@@ -382,6 +519,80 @@ export default function UserProfilePage() {
                     isOwner={false}
                     currentUserId={session?.user?.id}
                 />
+            )}
+            {/* Modal para responder solicitud de amistad */}
+            {isFriendModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-card w-full max-w-md rounded-2xl shadow-xl p-6 border border-card-border overflow-hidden relative">
+                        <div className="absolute top-4 right-4">
+                            <button
+                                onClick={() => setIsFriendModalOpen(false)}
+                                className="text-hint hover:text-danger transition-colors bg-subtle hover:bg-card-border rounded-full p-1"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <h2 className="text-2xl font-bold text-heading mb-4 text-center">Solicitud de amistad</h2>
+                        <p className="text-body text-center mb-8">
+                            <b>{profile.name}</b> te ha enviado una solicitud de amistad. ¿Deseas aceptarla?
+                        </p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={handleDeclineFriendRequest}
+                                disabled={loadingFriend}
+                                className="flex-1 bg-soft hover:bg-danger/20 text-body hover:text-danger font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                            >
+                                <XCircle size={20} />
+                                Rechazar
+                            </button>
+                            <button
+                                onClick={handleAcceptFriendRequest}
+                                disabled={loadingFriend}
+                                className="flex-1 bg-primary text-white hover:bg-primary-dark font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Check size={20} />
+                                Aceptar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de confirmación para eliminar amigo */}
+            {isRemoveFriendModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-card w-full max-w-md rounded-2xl shadow-xl p-6 border border-card-border overflow-hidden relative">
+                        <div className="absolute top-4 right-4">
+                            <button
+                                onClick={() => setIsRemoveFriendModalOpen(false)}
+                                className="text-hint hover:text-danger transition-colors bg-subtle hover:bg-card-border rounded-full p-1"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <h2 className="text-2xl font-bold text-heading mb-4 text-center">Eliminar amigo</h2>
+                        <p className="text-body text-center mb-8">
+                            ¿Estás seguro de que deseas eliminar a <b>{profile.name}</b> de tu lista de amigos?
+                        </p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setIsRemoveFriendModalOpen(false)}
+                                disabled={loadingFriend}
+                                className="flex-1 bg-soft hover:bg-dim text-body font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleRemoveFriend}
+                                disabled={loadingFriend}
+                                className="flex-1 bg-danger text-white hover:bg-danger-dark font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                            >
+                                <UserMinus size={20} />
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </>
     );

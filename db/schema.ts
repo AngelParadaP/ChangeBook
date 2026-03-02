@@ -183,13 +183,18 @@ export const notifications = pgTable("notifications", {
     .notNull(),
   // Tipo de notificación
   type: text("type", {
-    enum: ["exchange_requested", "exchange_accepted", "exchange_rejected", "exchange_auto_rejected", "exchange_started", "exchange_completed", "exchange_cancelled"],
+    enum: [
+      "exchange_requested", "exchange_accepted", "exchange_rejected", "exchange_auto_rejected", "exchange_started", "exchange_completed", "exchange_cancelled",
+      "friend_request", "friend_accepted", "friend_declined"
+    ],
   }).notNull(),
   // Mensaje descriptivo
   message: text("message").notNull(),
   // Referencia opcional al intercambio
   exchangeId: uuid("exchange_id")
     .references(() => exchanges.id, { onDelete: "cascade" }),
+  // Referencia opcional a la solicitud de amistad
+  friendRequestId: uuid("friend_request_id"), // Añadiremos la foreign key manual o simplemente almacenamos el id
   // Estado de lectura
   isRead: integer("is_read").default(0).notNull(), // 0 = no leído, 1 = leído
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -239,5 +244,28 @@ export const communityBookRecommendations = pgTable("community_book_recommendati
     userIdx: index("cbr_user_idx").on(table.userId),
     // Un libro solo puede ser recomendado una vez por comunidad
     uniqueBookIdx: index("cbr_unique_book_idx").on(table.communityId, table.bookId),
+  };
+});
+
+// ─── Tabla para amigos ──────────────────────────────────────────────────────
+export const friends = pgTable("friends", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  requesterId: uuid("requester_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  addresseeId: uuid("addressee_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  status: text("status", { enum: ["pending", "accepted", "declined"] })
+    .default("pending")
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    requesterIdx: index("friend_requester_idx").on(table.requesterId),
+    addresseeIdx: index("friend_addressee_idx").on(table.addresseeId),
+    statusIdx: index("friend_status_idx").on(table.status),
+    uniqueIdx: index("friend_unique_idx").on(table.requesterId, table.addresseeId),
   };
 });

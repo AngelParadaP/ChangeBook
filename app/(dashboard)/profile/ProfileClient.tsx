@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { ProfileBookCard } from "@/components/profile/ProfileBookCard";
 import { BookModal } from "@/components/books";
@@ -15,8 +15,9 @@ import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getUserProfile } from "@/server/actions/user/getUserProfile";
 import { updateBook } from "@/server/actions/books";
 import { BOOK_GENRES } from "@/lib/constants/genres";
-import { Loader2, Trash2, Undo2, AlertTriangle, UserCircle } from "lucide-react";
-import { Search, X } from "lucide-react";
+import { Loader2, Trash2, Undo2, AlertTriangle, UserCircle, Users, UserMinus, Search, X } from "lucide-react";
+import { getFriends, FriendProfile } from "@/server/actions/friends/getFriends";
+import { removeFriend } from "@/server/actions/friends";
 
 export interface UserProfile {
   id: string;
@@ -67,6 +68,12 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
   const [cropperSrc, setCropperSrc] = useState<string | null>(null);
   const [wantsRemoveImage, setWantsRemoveImage] = useState(false);
 
+  const [friends, setFriends] = useState<FriendProfile[]>([]);
+  const [loadingFriends, setLoadingFriends] = useState(false);
+  const [isRemoveFriendModalOpen, setIsRemoveFriendModalOpen] = useState(false);
+  const [friendToRemove, setFriendToRemove] = useState<FriendProfile | null>(null);
+  const [showAllFriends, setShowAllFriends] = useState(false);
+
   // Book modal state
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -81,6 +88,24 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
     username: initialProfile?.username || "",
     preferences: initialProfile?.preferences || [],
   });
+
+  useEffect(() => {
+    loadFriends();
+  }, []);
+
+  const loadFriends = async () => {
+    setLoadingFriends(true);
+    try {
+      const res = await getFriends();
+      if (res.success && res.friends) {
+        setFriends(res.friends);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingFriends(false);
+    }
+  };
 
   const loadProfile = async (userId: string) => {
     setLoading(true);
@@ -227,6 +252,26 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
         ? prev.preferences.filter((p) => p !== genre)
         : [...prev.preferences, genre],
     }));
+  };
+
+  const handleRemoveFriend = async () => {
+    if (!friendToRemove) return;
+    setLoadingFriends(true);
+    try {
+      const res = await removeFriend(friendToRemove.friendshipId);
+      if (res.success) {
+        setToast({ message: "Amigo eliminado", type: "success" });
+        setFriends((prev) => prev.filter((f) => f.friendshipId !== friendToRemove.friendshipId));
+        setIsRemoveFriendModalOpen(false);
+        setFriendToRemove(null);
+      } else {
+        setToast({ message: res.error || "Error al eliminar amigo", type: "error" });
+      }
+    } catch (err) {
+      setToast({ message: "Error de servidor al eliminar amigo", type: "error" });
+    } finally {
+      setLoadingFriends(false);
+    }
   };
 
   const handleBookClick = (book: Book) => {
@@ -560,6 +605,68 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                   </p>
                 )}
               </div>
+
+              <hr className="my-8 border-card-border" />
+
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold text-heading flex items-center gap-2">
+                    <Users size={24} className="text-primary" />
+                    Mis amigos
+                  </h2>
+                  <span className="text-sm text-hint">{friends.length} amigos</span>
+                </div>
+                {loadingFriends ? (
+                  <div className="flex justify-center py-4"><Loader2 className="animate-spin text-primary" /></div>
+                ) : friends.length === 0 ? (
+                  <p className="text-hint text-sm italic">No tienes amigos añadidos aún.</p>
+                ) : (
+                  <div className="space-y-3 mt-4">
+                    {friends.slice(0, showAllFriends ? friends.length : 5).map((friend) => (
+                      <div
+                        key={friend.id}
+                        onClick={() => router.push(`/user/${friend.username}`)}
+                        className="flex items-center justify-between p-3 bg-subtle border border-card-border rounded-xl hover:bg-card hover:border-primary/40 dark:hover:border-primary-dark/40 transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <UserAvatar imageURL={friend.imageURL} name={friend.name} size="md" />
+                          <div>
+                            <p className="text-body font-semibold leading-tight group-hover:text-primary transition-colors">{friend.name}</p>
+                            <p className="text-xs text-hint">@{friend.username}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFriendToRemove(friend);
+                            setIsRemoveFriendModalOpen(true);
+                          }}
+                          className="p-2 text-hint hover:text-danger hover:bg-danger/10 rounded-full transition-colors"
+                          title="Eliminar amigo"
+                        >
+                          <UserMinus size={18} />
+                        </button>
+                      </div>
+                    ))}
+                    {!showAllFriends && friends.length > 5 && (
+                      <button
+                        onClick={() => setShowAllFriends(true)}
+                        className="w-full mt-2 py-2.5 text-sm font-semibold text-primary hover:text-primary-dark dark:text-primary-light hover:underline transition-all"
+                      >
+                        Ver todos mis amigos ({friends.length})
+                      </button>
+                    )}
+                    {showAllFriends && friends.length > 5 && (
+                      <button
+                        onClick={() => setShowAllFriends(false)}
+                        className="w-full mt-2 py-2.5 text-sm font-semibold text-hint hover:text-caption hover:underline transition-all"
+                      >
+                        Mostrar menos
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -703,6 +810,49 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
           onCancel={handleCropCancel}
           quality={0.85}
         />
+      )}
+
+      {/* Remove Friend Confirmation Modal */}
+      {isRemoveFriendModalOpen && friendToRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-card w-full max-w-md rounded-2xl shadow-xl p-6 border border-card-border overflow-hidden relative">
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => {
+                  setIsRemoveFriendModalOpen(false);
+                  setFriendToRemove(null);
+                }}
+                className="text-hint hover:text-danger transition-colors bg-subtle hover:bg-card-border rounded-full p-1"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <h2 className="text-2xl font-bold text-heading mb-4 text-center">Eliminar amigo</h2>
+            <p className="text-body text-center mb-8">
+              ¿Estás seguro de que deseas eliminar a <b>{friendToRemove.name}</b> de tu lista de amigos?
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setIsRemoveFriendModalOpen(false);
+                  setFriendToRemove(null);
+                }}
+                disabled={loadingFriends}
+                className="flex-1 bg-soft hover:bg-dim text-body font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleRemoveFriend}
+                disabled={loadingFriends}
+                className="flex-1 bg-danger text-white hover:bg-danger-dark font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                <UserMinus size={20} />
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
