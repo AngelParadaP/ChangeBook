@@ -11,6 +11,7 @@ import { getPersonalizedFeed } from "@/server/actions/feed/getPersonalizedFeed";
 import { getCommunityFeed } from "@/server/actions/communities/getCommunityFeed";
 import BookRecommendationSidebar from "@/components/community/BookRecommendationSidebar";
 import { updateBook } from "@/server/actions/books";
+import { Home } from "lucide-react";
 
 // ─── Skeleton Components ─────────────────────────────────────────────────────
 
@@ -105,10 +106,10 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
   const [activeTab, setActiveTab] = useState<'books' | 'communities'>(initialTab);
 
   const handleTabChange = (tab: 'books' | 'communities') => {
-      setActiveTab(tab);
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('tab', tab);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tab);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   // Books State
@@ -146,7 +147,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
   // Infinite scroll observer
   useEffect(() => {
     if (!loaderRef.current) return;
-    
+
     // Determine which state to check based on active tab
     const isLoading = activeTab === 'books' ? loading : postsLoading;
     const hasMoreItems = activeTab === 'books' ? hasMore : postsHasMore;
@@ -156,11 +157,11 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-            if (activeTab === 'books') {
-                loadNextBookPage();
-            } else {
-                loadNextPostPage();
-            }
+          if (activeTab === 'books') {
+            loadNextBookPage();
+          } else {
+            loadNextPostPage();
+          }
         }
       },
       { threshold: 0.1 }
@@ -195,26 +196,26 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
       const result = await getCommunityFeed({ page: pageNum, limit: 10 });
       if (result.success && result.posts) {
         if (pageNum === 0) {
-            setPosts(result.posts as any[]); 
-            setPostsInitialized(true);
+          setPosts(result.posts as any[]);
+          setPostsInitialized(true);
         } else {
-            setPosts((prev) => [...prev, ...(result.posts as any[])]);
+          setPosts((prev) => [...prev, ...(result.posts as any[])]);
         }
         setPostsPage(pageNum);
         setPostsHasMore(result.hasMore || false);
         if (result.message) {
-            setPostsMessage(result.message);
+          setPostsMessage(result.message);
         }
-      } 
+      }
     } catch (error) {
-        console.error("Error loading community feed:", error);
+      console.error("Error loading community feed:", error);
     } finally {
-        setPostsLoading(false);
+      setPostsLoading(false);
     }
   };
 
   const loadNextPostPage = () => {
-      loadCommunityPosts(postsPage + 1);
+    loadCommunityPosts(postsPage + 1);
   };
 
   const handleBookClick = (book: Book) => {
@@ -270,118 +271,119 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
       <div className="bg-card rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
         {/* Header with Tabs */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-heading mb-2">
+          <h1 className="text-3xl font-bold text-heading mb-2 flex items-center gap-3">
+            <div className="p-2 sm:p-2.5 bg-primary-soft rounded-xl">
+              <Home size={24} className="text-primary" />
+            </div>
             Inicio
           </h1>
           <div className="flex gap-4 border-b border-card-border mt-4">
-               <button
-                  onClick={() => handleTabChange('books')}
-                  className={`pb-2 px-1 text-lg font-medium transition-colors relative ${
-                      activeTab === 'books' 
-                      ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple' 
-                      : 'text-hint hover:text-body'
-                  }`}
-               >
-                   Libros para ti
-               </button>
-               <button
-                  onClick={() => handleTabChange('communities')}
-                  className={`pb-2 px-1 text-lg font-medium transition-colors relative ${
-                      activeTab === 'communities' 
-                      ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple' 
-                      : 'text-hint hover:text-body'
-                  }`}
-               >
-                   Comunidades
-               </button>
+            <button
+              onClick={() => handleTabChange('books')}
+              className={`pb-2 px-1 text-lg font-medium transition-colors relative ${activeTab === 'books'
+                  ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple'
+                  : 'text-hint hover:text-body'
+                }`}
+            >
+              Libros para ti
+            </button>
+            <button
+              onClick={() => handleTabChange('communities')}
+              className={`pb-2 px-1 text-lg font-medium transition-colors relative ${activeTab === 'communities'
+                  ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple'
+                  : 'text-hint hover:text-body'
+                }`}
+            >
+              Comunidades
+            </button>
           </div>
         </div>
 
         {/* Content */}
         {activeTab === 'books' ? (
-            // Books Grid
-            <>
-                {books.length === 0 && !loading ? (
-                <div className="text-center py-12">
-                    <p className="text-hint text-lg">
-                    No hay libros disponibles en este momento.
-                    </p>
-                </div>
-                ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                    {books.map((book) => (
-                    <BookCard
-                        key={book.id}
-                        id={book.id}
-                        title={book.title}
-                        author={book.author}
-                        imageUrl={book.imageUrl}
-                        genres={book.genres}
-                        ownerUsername={book.ownerUsername}
-                        onClick={() => handleBookClick(book)}
-                    />
-                    ))}
-                </div>
-                )}
-            </>
-        ) : (
-            // Communities Feed
-            <div className="flex justify-center gap-6">
-              {/* Main Posts Column */}
-              <div className="w-full max-w-2xl">
-                {postsLoading && posts.length === 0 && (
-                    <div className="space-y-4">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <PostCardSkeleton key={`skeleton-${i}`} />
-                      ))}
-                    </div>
-                )}
-                
-                {posts.length === 0 && !postsLoading ? (
-                    <div className="text-center py-12">
-                        <p className="text-hint text-lg">
-                            {postsMessage || "No hay publicaciones recientes de tus comunidades."}
-                        </p>
-                        <p className="text-hint text-sm mt-2">
-                             ¡Únete a más comunidades para ver contenido aquí!
-                        </p>
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                        {posts.map((post) => (
-                            <PostCard key={post.id} post={post} />
-                        ))}
-                    </div>
-                )}
+          // Books Grid
+          <>
+            {books.length === 0 && !loading ? (
+              <div className="text-center py-12">
+                <p className="text-hint text-lg">
+                  No hay libros disponibles en este momento.
+                </p>
               </div>
-
-              {/* Book Recommendations Sidebar */}
-              <div className="hidden xl:block w-80 flex-shrink-0">
-                <div className="sticky top-6">
-                  <BookRecommendationSidebar
-                    aggregated={true}
-                    currentUserId={session?.user?.id}
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {books.map((book) => (
+                  <BookCard
+                    key={book.id}
+                    id={book.id}
+                    title={book.title}
+                    author={book.author}
+                    imageUrl={book.imageUrl}
+                    genres={book.genres}
+                    ownerUsername={book.ownerUsername}
+                    onClick={() => handleBookClick(book)}
                   />
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          // Communities Feed
+          <div className="flex justify-center gap-6">
+            {/* Main Posts Column */}
+            <div className="w-full max-w-2xl">
+              {postsLoading && posts.length === 0 && (
+                <div className="space-y-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <PostCardSkeleton key={`skeleton-${i}`} />
+                  ))}
                 </div>
+              )}
+
+              {posts.length === 0 && !postsLoading ? (
+                <div className="text-center py-12">
+                  <p className="text-hint text-lg">
+                    {postsMessage || "No hay publicaciones recientes de tus comunidades."}
+                  </p>
+                  <p className="text-hint text-sm mt-2">
+                    ¡Únete a más comunidades para ver contenido aquí!
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {posts.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Book Recommendations Sidebar */}
+            <div className="hidden xl:block w-80 flex-shrink-0">
+              <div className="sticky top-6">
+                <BookRecommendationSidebar
+                  aggregated={true}
+                  currentUserId={session?.user?.id}
+                />
               </div>
             </div>
+          </div>
         )}
 
         <div ref={loaderRef} className="py-4">
-            {activeTab === 'books' && loading && books.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <BookCardSkeleton key={`load-book-${i}`} />
-                ))}
-              </div>
-            )}
-            {activeTab === 'communities' && postsLoading && posts.length > 0 && (
-              <div className="max-w-2xl mx-auto space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <PostCardSkeleton key={`load-post-${i}`} />
-                ))}
-              </div>
-            )}
+          {activeTab === 'books' && loading && books.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <BookCardSkeleton key={`load-book-${i}`} />
+              ))}
+            </div>
+          )}
+          {activeTab === 'communities' && postsLoading && posts.length > 0 && (
+            <div className="max-w-2xl mx-auto space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <PostCardSkeleton key={`load-post-${i}`} />
+              ))}
+            </div>
+          )}
         </div>
 
       </div>

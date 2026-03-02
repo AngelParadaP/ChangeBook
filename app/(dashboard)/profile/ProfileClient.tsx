@@ -15,7 +15,7 @@ import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getUserProfile } from "@/server/actions/user/getUserProfile";
 import { updateBook } from "@/server/actions/books";
 import { BOOK_GENRES } from "@/lib/constants/genres";
-import { Loader2, Trash2, Undo2, AlertTriangle } from "lucide-react";
+import { Loader2, Trash2, Undo2, AlertTriangle, UserCircle } from "lucide-react";
 import { Search, X } from "lucide-react";
 
 export interface UserProfile {
@@ -310,7 +310,10 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-full overflow-hidden">
         {/* Left Column - User Info & Preferences */}
         <div className="bg-card rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar">
-          <h1 className="text-3xl font-bold text-heading mb-2">
+          <h1 className="text-3xl font-bold text-heading mb-2 flex items-center gap-3">
+            <div className="p-2 sm:p-2.5 bg-primary-soft rounded-xl">
+              <UserCircle size={24} className="text-primary" />
+            </div>
             {isOwner ? "Mi Perfil" : `Perfil de ${profile.username}`}
           </h1>
           <p className="text-caption mb-6">
@@ -453,113 +456,113 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
               <hr className="my-8 border-card-border" />
 
               <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-heading">Preferencias de lectura</h2>
-                {isOwner && !isEditing && (
-                  <span className="text-sm text-hint">{formData.preferences.length} géneros</span>
-                )}
-              </div>
-              <p className="text-caption mb-6">
-                {isOwner ? "Selecciona tus géneros favoritos" : "Géneros favoritos de este usuario"}
-              </p>
-
-              {isOwner && isEditing ? (
-                <div className="space-y-4">
-                  {/* Genre search */}
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hint">
-                      <Search size={16} />
-                    </span>
-                    <input
-                      type="text"
-                      value={genreSearch}
-                      onChange={(e) => setGenreSearch(e.target.value)}
-                      placeholder="Buscar género..."
-                      className="w-full pl-10 pr-8 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading text-sm"
-                    />
-                    {genreSearch && (
-                      <button
-                        type="button"
-                        onClick={() => setGenreSearch("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption cursor-pointer"
-                      >
-                        <X size={14} />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Selected genres visualization */}
-                  {formData.preferences.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {formData.preferences.map((genre) => (
-                        <button
-                          key={`selected-${genre}`}
-                          type="button"
-                          onClick={() => togglePreference(genre)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm hover:bg-primary-dark transition-all group cursor-pointer"
-                        >
-                          {genre}
-                          <X size={12} className="opacity-70 group-hover:opacity-100" />
-                        </button>
-                      ))}
-                    </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold text-heading">Preferencias de lectura</h2>
+                  {isOwner && !isEditing && (
+                    <span className="text-sm text-hint">{formData.preferences.length} géneros</span>
                   )}
+                </div>
+                <p className="text-caption mb-6">
+                  {isOwner ? "Selecciona tus géneros favoritos" : "Géneros favoritos de este usuario"}
+                </p>
 
-                  {/* Available genres scrollable grid */}
-                  <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar p-3 bg-card/50 rounded-xl border border-card-border/50">
-                    {filteredGenres.length === 0 ? (
-                      <p className="text-sm text-hint py-4 w-full text-center">
-                        No se encontraron géneros
-                      </p>
-                    ) : (
-                      filteredGenres.map((genre) => {
-                        const isSelected = formData.preferences.includes(genre);
-                        return (
+                {isOwner && isEditing ? (
+                  <div className="space-y-4">
+                    {/* Genre search */}
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hint">
+                        <Search size={16} />
+                      </span>
+                      <input
+                        type="text"
+                        value={genreSearch}
+                        onChange={(e) => setGenreSearch(e.target.value)}
+                        placeholder="Buscar género..."
+                        className="w-full pl-10 pr-8 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading text-sm"
+                      />
+                      {genreSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setGenreSearch("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption cursor-pointer"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Selected genres visualization */}
+                    {formData.preferences.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {formData.preferences.map((genre) => (
                           <button
-                            key={genre}
+                            key={`selected-${genre}`}
                             type="button"
                             onClick={() => togglePreference(genre)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
-                              ? "bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-dark/30 ring-1 ring-primary/20 shadow-sm"
-                              : "bg-soft text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-dark/40 hover:bg-primary hover:bg-opacity-10 hover:text-primary dark:hover:text-primary-light"
-                            }`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm hover:bg-primary-dark transition-all group cursor-pointer"
                           >
-                            {isSelected && <span className="mr-1">✓</span>}
                             {genre}
+                            <X size={12} className="opacity-70 group-hover:opacity-100" />
                           </button>
-                        );
-                      })
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Available genres scrollable grid */}
+                    <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar p-3 bg-card/50 rounded-xl border border-card-border/50">
+                      {filteredGenres.length === 0 ? (
+                        <p className="text-sm text-hint py-4 w-full text-center">
+                          No se encontraron géneros
+                        </p>
+                      ) : (
+                        filteredGenres.map((genre) => {
+                          const isSelected = formData.preferences.includes(genre);
+                          return (
+                            <button
+                              key={genre}
+                              type="button"
+                              onClick={() => togglePreference(genre)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
+                                ? "bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-dark/30 ring-1 ring-primary/20 shadow-sm"
+                                : "bg-soft text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-dark/40 hover:bg-primary hover:bg-opacity-10 hover:text-primary dark:hover:text-primary-light"
+                                }`}
+                            >
+                              {isSelected && <span className="mr-1">✓</span>}
+                              {genre}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {formData.preferences.length > 0 ? (
+                      formData.preferences.map((genre) => (
+                        <span
+                          key={genre}
+                          className="px-4 py-2 rounded-full text-sm font-medium bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light ring-1 ring-primary/20 shadow-sm"
+                        >
+                          {genre}
+                        </span>
+                      ))
+                    ) : (
+                      <p className="text-hint text-sm italic">
+                        No hay preferencias seleccionadas.
+                      </p>
                     )}
                   </div>
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {formData.preferences.length > 0 ? (
-                    formData.preferences.map((genre) => (
-                      <span
-                        key={genre}
-                        className="px-4 py-2 rounded-full text-sm font-medium bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light ring-1 ring-primary/20 shadow-sm"
-                      >
-                        {genre}
-                      </span>
-                    ))
-                  ) : (
-                    <p className="text-hint text-sm italic">
-                      No hay preferencias seleccionadas.
-                    </p>
-                  )}
-                </div>
-              )}
+                )}
 
-              {isOwner && formData.preferences.length === 0 && (
-                <p className="text-yellow-600 dark:text-yellow-400 mt-6 text-sm font-medium flex gap-2">
-                  <span>⚠️</span> Selecciona al menos un género para recibir recomendaciones personalizadas.
-                </p>
-              )}
+                {isOwner && formData.preferences.length === 0 && (
+                  <p className="text-yellow-600 dark:text-yellow-400 mt-6 text-sm font-medium flex gap-2">
+                    <span>⚠️</span> Selecciona al menos un género para recibir recomendaciones personalizadas.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
         {/* Right Column - Published Books */}
         <div className="bg-card rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar flex flex-col">
@@ -632,9 +635,9 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                 if (filteredBooks.length === 0) {
                   return (
                     <div className="text-center py-8">
-                       <p className="text-hint text-lg">
-                          No se encontraron libros que coincidan con tu búsqueda.
-                        </p>
+                      <p className="text-hint text-lg">
+                        No se encontraron libros que coincidan con tu búsqueda.
+                      </p>
                     </div>
                   );
                 }

@@ -74,7 +74,10 @@ export default function FavoritesPage() {
             {/* Header */}
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-heading flex items-center gap-3">
-                    <Heart size={24} className="text-red-500 fill-red-500" /> Mis Favoritos
+                    <div className="p-2 sm:p-2.5 bg-primary-soft rounded-xl">
+                        <Heart size={24} className="text-primary" />
+                    </div>
+                    Mis Favoritos
                 </h1>
                 <p className="text-hint text-sm mt-1">
                     Libros que te interesan para intercambiar

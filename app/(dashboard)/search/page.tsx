@@ -488,7 +488,10 @@ function SearchPageContent() {
             <div className="bg-card rounded-2xl shadow-sm p-6 overflow-y-auto custom-scrollbar h-full">
                 {/* Header */}
                 <div className="mb-6">
-                    <h1 className="text-3xl font-bold text-heading mb-2">
+                    <h1 className="text-3xl font-bold text-heading mb-2 flex items-center gap-3">
+                        <div className="p-2 sm:p-2.5 bg-primary-soft rounded-xl">
+                            <Search size={24} className="text-primary" />
+                        </div>
                         Buscar
                     </h1>
                     <p className="text-caption">

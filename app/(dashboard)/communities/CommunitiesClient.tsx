@@ -138,7 +138,12 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
   return (
     <div className="bg-card rounded-2xl shadow-sm p-6 h-full overflow-y-auto custom-scrollbar">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-heading">Comunidades</h1>
+        <h1 className="text-3xl font-bold text-heading flex items-center gap-3">
+          <div className="p-2 sm:p-2.5 bg-primary-soft rounded-xl">
+            <Users size={24} className="text-primary" />
+          </div>
+          Comunidades
+        </h1>
         <button
           onClick={() => setShowCreateModal(true)}
           className="bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-xl font-medium transition-colors cursor-pointer shadow-sm hover:shadow-md flex items-center justify-center gap-2 w-full sm:w-auto"
@@ -154,11 +159,10 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
           <button
             key={tab.key}
             onClick={() => handleTabChange(tab.key)}
-            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 font-semibold transition-all duration-300 relative rounded-xl sm:rounded-none sm:rounded-t-xl cursor-pointer ${
-              activeTab === tab.key
-                ? "text-primary dark:text-primary-light bg-primary/5 dark:bg-primary-dark/20 sm:bg-transparent sm:dark:bg-transparent"
-                : "text-hint hover:text-heading hover:bg-subtle"
-            }`}
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 font-semibold transition-all duration-300 relative rounded-xl sm:rounded-none sm:rounded-t-xl cursor-pointer ${activeTab === tab.key
+              ? "text-primary dark:text-primary-light bg-primary/5 dark:bg-primary-dark/20 sm:bg-transparent sm:dark:bg-transparent"
+              : "text-hint hover:text-heading hover:bg-subtle"
+              }`}
           >
             {tab.icon}
             {tab.label}

@@ -12,7 +12,7 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Inbox, Send, ClipboardList, Search, RefreshCw, Clock, PartyPopper, BookOpenCheck, MessageSquare, ArrowLeft, ChevronRight, Mailbox, BookMarked, Trash2 } from "lucide-react";
+import { BookOpen, Inbox, Send, ClipboardList, Search, RefreshCw, Clock, PartyPopper, BookOpenCheck, MessageSquare, ArrowLeft, ChevronRight, Mailbox, BookMarked, Trash2, ArrowLeftRight } from "lucide-react";
 
 type TabType = "activos" | "enviados" | "recibidos" | "historial" | "buscar";
 
@@ -246,7 +246,10 @@ function ExchangesPageContent() {
             {/* Header */}
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-heading flex items-center gap-3">
-                    <RefreshCw size={24} className="text-light-purple dark:text-light-pink" /> Intercambios
+                    <div className="p-2 sm:p-2.5 bg-primary-soft rounded-xl">
+                        <ArrowLeftRight size={24} className="text-primary" />
+                    </div>
+                    Intercambios
                 </h1>
                 <p className="text-hint text-sm mt-1">
                     Gestiona tus intercambios de libros con la comunidad
@@ -312,235 +315,241 @@ function ExchangesPageContent() {
             </div>
 
             {/* Search Tab Content */}
-            {activeTab === "buscar" && (
-                <div className="space-y-4">
-                    {/* Search Mode Toggle */}
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => { setSearchMode("books"); setSelectedContact(null); }}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${searchMode === "books"
-                                ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
-                                : "bg-soft text-caption hover:bg-dim"
-                                }`}
-                        >
-                            <BookMarked size={16} className="inline mr-1" /> Buscar por libro
-                        </button>
-                        <button
-                            onClick={() => { setSearchMode("contacts"); setSelectedContact(null); }}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${searchMode === "contacts"
-                                ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
-                                : "bg-soft text-caption hover:bg-dim"
-                                }`}
-                        >
-                            <MessageSquare size={16} className="inline mr-1" /> Buscar en mis chats
-                        </button>
-                    </div>
+            {
+                activeTab === "buscar" && (
+                    <div className="space-y-4">
+                        {/* Search Mode Toggle */}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => { setSearchMode("books"); setSelectedContact(null); }}
+                                className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${searchMode === "books"
+                                    ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
+                                    : "bg-soft text-caption hover:bg-dim"
+                                    }`}
+                            >
+                                <BookMarked size={16} className="inline mr-1" /> Buscar por libro
+                            </button>
+                            <button
+                                onClick={() => { setSearchMode("contacts"); setSelectedContact(null); }}
+                                className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${searchMode === "contacts"
+                                    ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
+                                    : "bg-soft text-caption hover:bg-dim"
+                                    }`}
+                            >
+                                <MessageSquare size={16} className="inline mr-1" /> Buscar en mis chats
+                            </button>
+                        </div>
 
-                    {searchMode === "books" ? (
-                        <>
-                            {/* Search Input */}
-                            <div className="relative">
-                                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-hint" />
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Buscar por título, autor o usuario..."
-                                    className="w-full pl-11 pr-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm"
-                                />
-                            </div>
+                        {searchMode === "books" ? (
+                            <>
+                                {/* Search Input */}
+                                <div className="relative">
+                                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-hint" />
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="Buscar por título, autor o usuario..."
+                                        className="w-full pl-11 pr-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm"
+                                    />
+                                </div>
 
-                            {/* Search Results */}
-                            <div className="space-y-2">
-                                {searchLoading ? (
-                                    <div className="space-y-2">
-                                        {[1, 2, 3].map((i) => (
-                                            <div key={i} className="animate-pulse flex items-center gap-4 p-3 bg-subtle rounded-xl">
-                                                <div className="w-12 h-18 bg-dim rounded-lg" />
-                                                <div className="flex-1 space-y-2">
-                                                    <div className="h-3 bg-dim rounded w-3/4" />
-                                                    <div className="h-2 bg-dim rounded w-1/2" />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : searchResults.length === 0 ? (
-                                    <div className="text-center py-8">
-                                        <div className="mb-2"><BookOpenCheck size={40} className="mx-auto text-hint" /></div>
-                                        <p className="text-hint text-sm">
-                                            {searchQuery.length >= 2
-                                                ? "No se encontraron libros"
-                                                : "Libros disponibles aparecerán aquí"}
-                                        </p>
-                                    </div>
-                                ) : (
-                                    searchResults.map((book) => (
-                                        <BookSearchResult
-                                            key={book.id}
-                                            book={book}
-                                            onExchange={() => openExchangeModal(book)}
-                                            onMessage={() => handleMessageOwner(book.ownerId)}
-                                        />
-                                    ))
-                                )}
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            {/* Contact list or contact books */}
-                            {selectedContact ? (
-                                <div>
-                                    <button
-                                        onClick={() => { setSelectedContact(null); setContactBooks([]); }}
-                                        className="flex items-center gap-2 text-sm text-hint hover:text-heading mb-4 transition-colors"
-                                    >
-                                        <ArrowLeft size={14} /> Volver a contactos
-                                    </button>
-                                    <div className="flex items-center gap-3 mb-4 p-3 bg-subtle rounded-xl">
-                                        <div className="w-10 h-10">
-                                            <UserAvatar
-                                                imageURL={selectedContact.imageURL}
-                                                name={selectedContact.name}
-                                                size="sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold text-sm text-body">{selectedContact.name}</p>
-                                            <p className="text-xs text-light-purple dark:text-light-pink">@{selectedContact.username}</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Contact's books */}
+                                {/* Search Results */}
+                                <div className="space-y-2">
                                     {searchLoading ? (
-                                        <div className="text-center py-8 text-hint">Cargando libros...</div>
-                                    ) : contactBooks.length === 0 ? (
-                                        <div className="text-center py-8">
-                                            <div className="mb-2"><Mailbox size={40} className="mx-auto text-hint" /></div>
-                                            <p className="text-hint text-sm">Este usuario no tiene libros publicados</p>
-                                        </div>
-                                    ) : (
                                         <div className="space-y-2">
-                                            {contactBooks.map((book) => (
-                                                <BookSearchResult
-                                                    key={book.id}
-                                                    book={{ ...book, ownerName: selectedContact.name, ownerUsername: selectedContact.username, ownerImageURL: selectedContact.imageURL }}
-                                                    onExchange={() =>
-                                                        openExchangeModal({
-                                                            ...book,
-                                                            ownerName: selectedContact.name,
-                                                            ownerUsername: selectedContact.username,
-                                                            ownerImageURL: selectedContact.imageURL,
-                                                        })
-                                                    }
-                                                    onMessage={() => handleMessageOwner(book.ownerId)}
-                                                />
+                                            {[1, 2, 3].map((i) => (
+                                                <div key={i} className="animate-pulse flex items-center gap-4 p-3 bg-subtle rounded-xl">
+                                                    <div className="w-12 h-18 bg-dim rounded-lg" />
+                                                    <div className="flex-1 space-y-2">
+                                                        <div className="h-3 bg-dim rounded w-3/4" />
+                                                        <div className="h-2 bg-dim rounded w-1/2" />
+                                                    </div>
+                                                </div>
                                             ))}
                                         </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    {chatContacts.length === 0 ? (
+                                    ) : searchResults.length === 0 ? (
                                         <div className="text-center py-8">
-                                            <div className="mb-2"><MessageSquare size={40} className="mx-auto text-hint" /></div>
-                                            <p className="text-hint text-sm">No tienes chats activos</p>
-                                            <p className="text-hint text-xs mt-1">Inicia una conversación para ver contactos aquí</p>
+                                            <div className="mb-2"><BookOpenCheck size={40} className="mx-auto text-hint" /></div>
+                                            <p className="text-hint text-sm">
+                                                {searchQuery.length >= 2
+                                                    ? "No se encontraron libros"
+                                                    : "Libros disponibles aparecerán aquí"}
+                                            </p>
                                         </div>
                                     ) : (
-                                        chatContacts.map((contact) => (
-                                            <button
-                                                key={contact.id}
-                                                onClick={() => loadContactBooks(contact)}
-                                                className="w-full flex items-center gap-3 p-3 bg-subtle rounded-xl hover:bg-soft/50 transition-colors text-left"
-                                            >
-                                                <UserAvatar
-                                                    imageURL={contact.imageURL}
-                                                    name={contact.name}
-                                                    size="sm"
-                                                />
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="font-semibold text-sm text-body truncate">{contact.name}</p>
-                                                    <p className="text-xs text-light-purple dark:text-light-pink">@{contact.username}</p>
-                                                </div>
-                                                <ChevronRight size={16} className="text-hint" />
-                                            </button>
+                                        searchResults.map((book) => (
+                                            <BookSearchResult
+                                                key={book.id}
+                                                book={book}
+                                                onExchange={() => openExchangeModal(book)}
+                                                onMessage={() => handleMessageOwner(book.ownerId)}
+                                            />
                                         ))
                                     )}
                                 </div>
-                            )}
-                        </>
-                    )}
-                </div>
-            )}
+                            </>
+                        ) : (
+                            <>
+                                {/* Contact list or contact books */}
+                                {selectedContact ? (
+                                    <div>
+                                        <button
+                                            onClick={() => { setSelectedContact(null); setContactBooks([]); }}
+                                            className="flex items-center gap-2 text-sm text-hint hover:text-heading mb-4 transition-colors"
+                                        >
+                                            <ArrowLeft size={14} /> Volver a contactos
+                                        </button>
+                                        <div className="flex items-center gap-3 mb-4 p-3 bg-subtle rounded-xl">
+                                            <div className="w-10 h-10">
+                                                <UserAvatar
+                                                    imageURL={selectedContact.imageURL}
+                                                    name={selectedContact.name}
+                                                    size="sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-sm text-body">{selectedContact.name}</p>
+                                                <p className="text-xs text-light-purple dark:text-light-pink">@{selectedContact.username}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Contact's books */}
+                                        {searchLoading ? (
+                                            <div className="text-center py-8 text-hint">Cargando libros...</div>
+                                        ) : contactBooks.length === 0 ? (
+                                            <div className="text-center py-8">
+                                                <div className="mb-2"><Mailbox size={40} className="mx-auto text-hint" /></div>
+                                                <p className="text-hint text-sm">Este usuario no tiene libros publicados</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {contactBooks.map((book) => (
+                                                    <BookSearchResult
+                                                        key={book.id}
+                                                        book={{ ...book, ownerName: selectedContact.name, ownerUsername: selectedContact.username, ownerImageURL: selectedContact.imageURL }}
+                                                        onExchange={() =>
+                                                            openExchangeModal({
+                                                                ...book,
+                                                                ownerName: selectedContact.name,
+                                                                ownerUsername: selectedContact.username,
+                                                                ownerImageURL: selectedContact.imageURL,
+                                                            })
+                                                        }
+                                                        onMessage={() => handleMessageOwner(book.ownerId)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {chatContacts.length === 0 ? (
+                                            <div className="text-center py-8">
+                                                <div className="mb-2"><MessageSquare size={40} className="mx-auto text-hint" /></div>
+                                                <p className="text-hint text-sm">No tienes chats activos</p>
+                                                <p className="text-hint text-xs mt-1">Inicia una conversación para ver contactos aquí</p>
+                                            </div>
+                                        ) : (
+                                            chatContacts.map((contact) => (
+                                                <button
+                                                    key={contact.id}
+                                                    onClick={() => loadContactBooks(contact)}
+                                                    className="w-full flex items-center gap-3 p-3 bg-subtle rounded-xl hover:bg-soft/50 transition-colors text-left"
+                                                >
+                                                    <UserAvatar
+                                                        imageURL={contact.imageURL}
+                                                        name={contact.name}
+                                                        size="sm"
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-semibold text-sm text-body truncate">{contact.name}</p>
+                                                        <p className="text-xs text-light-purple dark:text-light-pink">@{contact.username}</p>
+                                                    </div>
+                                                    <ChevronRight size={16} className="text-hint" />
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                )
+            }
 
             {/* Exchange List for non-search tabs */}
-            {activeTab !== "buscar" && (
-                <div className="space-y-3">
-                    {loading ? (
-                        <div className="space-y-3">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="animate-pulse bg-subtle rounded-2xl p-4">
-                                    <div className="flex gap-4">
-                                        <div className="w-16 h-24 bg-dim rounded-xl" />
-                                        <div className="flex-1 space-y-2">
-                                            <div className="h-4 bg-dim rounded w-3/4" />
-                                            <div className="h-3 bg-dim rounded w-1/2" />
-                                            <div className="h-3 bg-dim rounded w-1/3" />
+            {
+                activeTab !== "buscar" && (
+                    <div className="space-y-3">
+                        {loading ? (
+                            <div className="space-y-3">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="animate-pulse bg-subtle rounded-2xl p-4">
+                                        <div className="flex gap-4">
+                                            <div className="w-16 h-24 bg-dim rounded-xl" />
+                                            <div className="flex-1 space-y-2">
+                                                <div className="h-4 bg-dim rounded w-3/4" />
+                                                <div className="h-3 bg-dim rounded w-1/2" />
+                                                <div className="h-3 bg-dim rounded w-1/3" />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : exchanges.length === 0 ? (
-                        <div className="text-center py-12">
-                            <div className="mb-4 flex justify-center">{emptyMessages[activeTab].icon}</div>
-                            <h3 className="text-lg font-semibold text-body mb-1">
-                                {emptyMessages[activeTab].title}
-                            </h3>
-                            <p className="text-hint text-sm">
-                                {emptyMessages[activeTab].subtitle}
-                            </p>
-                            {(activeTab === "activos" || activeTab === "enviados") && (
-                                <button
-                                    onClick={() => setActiveTab("buscar")}
-                                    className="mt-4 px-6 py-2.5 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25 text-sm"
-                                >
-                                    <Search size={16} className="inline mr-1" /> Buscar libros
-                                </button>
-                            )}
-                        </div>
-                    ) : (
-                        exchanges.map((exchange) => (
-                            <ExchangeCard
-                                key={exchange.id}
-                                exchange={exchange}
-                                currentUserId={currentUserId}
-                                onUpdate={() => { loadExchanges(); loadAllExchanges(); }}
-                            />
-                        ))
-                    )}
-                </div>
-            )}
+                                ))}
+                            </div>
+                        ) : exchanges.length === 0 ? (
+                            <div className="text-center py-12">
+                                <div className="mb-4 flex justify-center">{emptyMessages[activeTab].icon}</div>
+                                <h3 className="text-lg font-semibold text-body mb-1">
+                                    {emptyMessages[activeTab].title}
+                                </h3>
+                                <p className="text-hint text-sm">
+                                    {emptyMessages[activeTab].subtitle}
+                                </p>
+                                {(activeTab === "activos" || activeTab === "enviados") && (
+                                    <button
+                                        onClick={() => setActiveTab("buscar")}
+                                        className="mt-4 px-6 py-2.5 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25 text-sm"
+                                    >
+                                        <Search size={16} className="inline mr-1" /> Buscar libros
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            exchanges.map((exchange) => (
+                                <ExchangeCard
+                                    key={exchange.id}
+                                    exchange={exchange}
+                                    currentUserId={currentUserId}
+                                    onUpdate={() => { loadExchanges(); loadAllExchanges(); }}
+                                />
+                            ))
+                        )}
+                    </div>
+                )
+            }
 
             {/* Exchange Request Modal */}
-            {selectedBook && (
-                <ExchangeRequestModal
-                    isOpen={modalOpen}
-                    onClose={() => {
-                        setModalOpen(false);
-                        setSelectedBook(null);
-                    }}
-                    bookId={selectedBook.id}
-                    bookTitle={selectedBook.title}
-                    ownerName={selectedBook.ownerName}
-                    onSuccess={() => {
-                        loadExchanges();
-                        loadAllExchanges();
-                        setActiveTab("enviados");
-                    }}
-                />
-            )}
-        </div>
+            {
+                selectedBook && (
+                    <ExchangeRequestModal
+                        isOpen={modalOpen}
+                        onClose={() => {
+                            setModalOpen(false);
+                            setSelectedBook(null);
+                        }}
+                        bookId={selectedBook.id}
+                        bookTitle={selectedBook.title}
+                        ownerName={selectedBook.ownerName}
+                        onSuccess={() => {
+                            loadExchanges();
+                            loadAllExchanges();
+                            setActiveTab("enviados");
+                        }}
+                    />
+                )
+            }
+        </div >
     );
 }
 
