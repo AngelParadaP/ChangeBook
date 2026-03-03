@@ -18,6 +18,7 @@ import { BOOK_GENRES } from "@/lib/constants/genres";
 import { Loader2, Trash2, Undo2, AlertTriangle, UserCircle, Users, UserMinus, Search, X } from "lucide-react";
 import { getFriends, FriendProfile } from "@/server/actions/friends/getFriends";
 import { removeFriend } from "@/server/actions/friends";
+import { ProfileSkeleton } from "@/components/ui/skeletons";
 
 export interface UserProfile {
   id: string;
@@ -321,14 +322,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
   };
 
   if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 size={48} className="animate-spin text-primary dark:text-primary-light mx-auto mb-4" />
-          <p className="text-caption text-lg">Cargando...</p>
-        </div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (!profile) {

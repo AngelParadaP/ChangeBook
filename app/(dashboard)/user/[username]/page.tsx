@@ -15,6 +15,7 @@ import { BOOK_GENRES } from "@/lib/constants/genres";
 import { Loader2 } from "lucide-react";
 import { getFriendStatus, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend } from "@/server/actions/friends";
 import { Search, X, MessageSquare, UserPlus, UserCheck, Clock, UserMinus, Check, XCircle } from "lucide-react";
+import { ProfileSkeleton } from "@/components/ui/skeletons";
 
 interface UserProfile {
     id: string;
@@ -244,14 +245,7 @@ export default function UserProfilePage() {
     };
 
     if (loading) {
-        return (
-            <div className="h-full flex items-center justify-center">
-                <div className="text-center">
-                    <Loader2 size={48} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-4" />
-                    <p className="text-caption text-lg">Cargando perfil...</p>
-                </div>
-            </div>
-        );
+        return <ProfileSkeleton />;
     }
 
 
@@ -439,9 +433,20 @@ export default function UserProfilePage() {
                     )}
 
                     {loadingBooks ? (
-                        <div className="text-center py-8">
-                            <Loader2 size={32} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-2" />
-                            <p className="text-hint">Cargando libros...</p>
+                        <div className="space-y-4">
+                            {Array.from({ length: 4 }).map((_, i) => (
+                                <div key={i} className="flex gap-4 p-3 bg-subtle rounded-2xl border border-card-border/30 animate-pulse">
+                                    <div className="w-14 h-20 rounded-xl bg-dim flex-shrink-0" />
+                                    <div className="flex-1 space-y-2 py-1">
+                                        <div className="h-4 bg-dim rounded-full w-3/4" />
+                                        <div className="h-3 bg-dim rounded-full w-1/2" />
+                                        <div className="flex gap-1 mt-3">
+                                            <div className="h-5 bg-dim rounded-full w-16" />
+                                            <div className="h-5 bg-dim rounded-full w-14" />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : books.length === 0 ? (
                         <div className="text-center py-8">

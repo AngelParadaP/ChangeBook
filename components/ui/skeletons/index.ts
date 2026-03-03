@@ -5,3 +5,4 @@ export { CommunityCardSkeleton } from "./CommunityCardSkeleton";
 export { RecommendationSkeleton } from "./RecommendationSkeleton";
 export { BookDetailSkeleton } from "./BookDetailSkeleton";
 export { ChatSkeleton } from "./ChatSkeleton";
+export { ProfileSkeleton } from "./ProfileSkeleton";
