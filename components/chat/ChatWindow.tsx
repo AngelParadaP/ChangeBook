@@ -5,10 +5,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChatBubble } from "./ChatBubble";
 import { ChatInput } from "./ChatInput";
-import { ChatSkeleton } from "./ChatSkeleton";
+import { ChatSkeleton } from "@/components/ui/skeletons";
 import { getMessages, sendMessage, markAsRead, getChatRooms } from "@/server/actions/chat";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { User } from "lucide-react";
+import Link from "next/link";
+import { User, ExternalLink } from "lucide-react";
 
 interface Message {
     id: string;
@@ -166,16 +167,27 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
         <div className="flex flex-col h-full bg-card rounded-2xl shadow-sm overflow-hidden">
             {/* Header */}
             <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-light-purple to-dark-purple text-white">
-                <UserAvatar
-                    imageURL={otherUser.imageURL}
-                    name={otherUser.name}
-                    size="sm"
-                    useNextImage={false}
-                />
-                <div>
-                    <h2 className="font-bold text-lg">{otherUser.name}</h2>
-                    <p className="text-sm text-white/80">@{otherUser.username}</p>
-                </div>
+                <Link
+                    href={`/user/${otherUser.username}`}
+                    className="flex items-center gap-3 flex-1 group min-w-0"
+                    title={`Ver perfil de ${otherUser.name}`}
+                >
+                    <div className="flex-shrink-0 ring-2 ring-white/30 group-hover:ring-white/60 rounded-full transition-all">
+                        <UserAvatar
+                            imageURL={otherUser.imageURL}
+                            name={otherUser.name}
+                            size="sm"
+                            useNextImage={false}
+                        />
+                    </div>
+                    <div className="min-w-0">
+                        <h2 className="font-bold text-lg leading-tight group-hover:underline truncate flex items-center gap-1.5">
+                            {otherUser.name}
+                            <ExternalLink size={14} className="opacity-0 group-hover:opacity-70 transition-opacity flex-shrink-0" />
+                        </h2>
+                        <p className="text-sm text-white/80 truncate">@{otherUser.username}</p>
+                    </div>
+                </Link>
             </div>
 
             {/* Messages Container */}
