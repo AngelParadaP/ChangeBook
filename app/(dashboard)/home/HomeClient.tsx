@@ -12,54 +12,9 @@ import { getCommunityFeed } from "@/server/actions/communities/getCommunityFeed"
 import BookRecommendationSidebar from "@/components/community/BookRecommendationSidebar";
 import { updateBook } from "@/server/actions/books";
 import { Home } from "lucide-react";
+import { BookCardSkeleton, PostCardSkeleton } from "@/components/ui/skeletons";
 
-// ─── Skeleton Components ─────────────────────────────────────────────────────
 
-function BookCardSkeleton() {
-  return (
-    <div className="bg-card rounded-2xl border-2 border-card-border p-4 animate-pulse">
-      <div className="aspect-[2/3] bg-dim rounded-xl mb-3" />
-      <div className="space-y-2">
-        <div className="h-4 bg-dim rounded-full w-3/4" />
-        <div className="h-3 bg-dim rounded-full w-1/2" />
-        <div className="flex gap-1 mt-2">
-          <div className="h-5 bg-dim rounded-full w-16" />
-          <div className="h-5 bg-dim rounded-full w-12" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PostCardSkeleton() {
-  return (
-    <div className="bg-card border border-card-border rounded-xl p-4 shadow-sm mb-4 animate-pulse">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-4 h-4 rounded-full bg-dim" />
-        <div className="h-3 bg-dim rounded-full w-28" />
-        <div className="h-3 bg-dim rounded-full w-3" />
-        <div className="h-3 bg-dim rounded-full w-36" />
-        <div className="h-3 bg-dim rounded-full w-3" />
-        <div className="h-3 bg-dim rounded-full w-20" />
-      </div>
-      <div className="space-y-2 mb-3">
-        <div className="h-3.5 bg-dim rounded-full w-full" />
-        <div className="h-3.5 bg-dim rounded-full w-5/6" />
-        <div className="h-3.5 bg-dim rounded-full w-2/3" />
-      </div>
-      <div className="flex items-center gap-4 border-t border-card-border/50 pt-3">
-        <div className="flex items-center gap-1.5">
-          <div className="w-[18px] h-[18px] rounded bg-dim" />
-          <div className="h-3 bg-dim rounded-full w-6" />
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-[18px] h-[18px] rounded bg-dim" />
-          <div className="h-3 bg-dim rounded-full w-20" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export interface Book {
   id: string;
@@ -281,8 +236,8 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
             <button
               onClick={() => handleTabChange('books')}
               className={`pb-2 px-1 text-lg font-medium transition-colors relative ${activeTab === 'books'
-                  ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple'
-                  : 'text-hint hover:text-body'
+                ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple'
+                : 'text-hint hover:text-body'
                 }`}
             >
               Libros para ti
@@ -290,8 +245,8 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
             <button
               onClick={() => handleTabChange('communities')}
               className={`pb-2 px-1 text-lg font-medium transition-colors relative ${activeTab === 'communities'
-                  ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple'
-                  : 'text-hint hover:text-body'
+                ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple'
+                : 'text-hint hover:text-body'
                 }`}
             >
               Comunidades

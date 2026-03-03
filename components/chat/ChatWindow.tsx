@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChatBubble } from "./ChatBubble";
 import { ChatInput } from "./ChatInput";
-import { ChatSkeleton } from "./ChatSkeleton";
+import { ChatSkeleton } from "@/components/ui/skeletons";
 import { getMessages, sendMessage, markAsRead, getChatRooms } from "@/server/actions/chat";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { User } from "lucide-react";

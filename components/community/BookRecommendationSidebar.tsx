@@ -6,6 +6,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { BookOpen, X, Plus, Loader2, ChevronDown } from "lucide-react";
+import { RecommendationSkeleton } from "@/components/ui/skeletons";
 import { toast } from "@/components/ui/GlobalToast";
 import {
   getCommunityBookRecommendations,
@@ -50,20 +51,7 @@ interface BookRecommendationSidebarProps {
   communityGenres?: string[];
 }
 
-// ─── Skeleton ──────────────────────────────────────────────────────────────────
 
-function RecommendationSkeleton() {
-  return (
-    <div className="flex gap-3 animate-pulse">
-      <div className="w-12 h-16 rounded-lg bg-dim flex-shrink-0" />
-      <div className="flex-1 min-w-0 space-y-1.5">
-        <div className="h-3 bg-dim rounded-full w-3/4" />
-        <div className="h-2.5 bg-dim rounded-full w-1/2" />
-        <div className="h-2 bg-dim rounded-full w-2/3" />
-      </div>
-    </div>
-  );
-}
 
 // ─── Book Selection Modal ──────────────────────────────────────────────────────
 
@@ -185,8 +173,8 @@ function BookSelectionModal({
                     key={book.id}
                     onClick={() => setSelectedBookId(book.id)}
                     className={`w-full flex gap-3 p-3 rounded-xl border-2 text-left transition-all ${selectedBookId === book.id
-                        ? "border-primary bg-primary-soft dark:bg-primary-dark/20"
-                        : "border-card-border hover:border-card-border"
+                      ? "border-primary bg-primary-soft dark:bg-primary-dark/20"
+                      : "border-card-border hover:border-card-border"
                       }`}
                   >
                     <div className="w-10 h-14 rounded-lg bg-dim overflow-hidden relative flex-shrink-0">
@@ -496,8 +484,8 @@ export default function BookRecommendationSidebar({
                   <div className="absolute bottom-1 right-1">
                     <span
                       className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${rec.bookStatus === "disponible"
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                         }`}
                     >
                       {rec.bookStatus === "disponible"
