@@ -24,17 +24,21 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  const [isOpen, setIsOpen] = useState(true);
+  // Start closed on mobile (< lg breakpoint = 1024px), open on desktop
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window === "undefined") return true; // SSR default: open
+    return window.innerWidth >= 1024;
+  });
 
   const toggle = () => setIsOpen((prev) => !prev);
 
   return (
-    <SidebarContext.Provider 
-      value={{ 
-        isOpen, 
-        toggle, 
+    <SidebarContext.Provider
+      value={{
+        isOpen,
+        toggle,
         sidebarWidth: SIDEBAR_WIDTH,
-        sidebarMargin: SIDEBAR_WIDTH_ML 
+        sidebarMargin: SIDEBAR_WIDTH_ML
       }}
     >
       {children}

@@ -4,8 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { useEffect, useState } from "react";
 import { useSidebar } from "./SidebarContext";
+import { useEffect, useRef, useState } from "react";
 import { getUnreadCount } from "@/server/actions/chat";
 import { getPendingExchangeCount } from "@/server/actions/exchanges";
 
@@ -37,10 +37,19 @@ function SvgIcon({
 // navItems moved inside component to access dynamic values
 
 export function Sidebar() {
-  const { isOpen, sidebarWidth } = useSidebar();
+  const { isOpen, toggle, sidebarWidth } = useSidebar();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
   const [exchangeCount, setExchangeCount] = useState(0);
+  const isMobileRef = useRef(false);
+
+  // Detect mobile on mount and resize
+  useEffect(() => {
+    const check = () => { isMobileRef.current = window.innerWidth < 1024; };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   /* ── Polling de mensajes no leídos (lógica original intacta) ── */
   useEffect(() => {
@@ -145,6 +154,10 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => {
+                  // Close sidebar automatically on mobile after navigation
+                  if (isMobileRef.current && isOpen) toggle();
+                }}
                 className={`relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group ${isActive
                   ? "bg-white/15 border-l-2 border-light-pink"
                   : "hover:bg-white/8 border-l-2 border-transparent"
@@ -190,11 +203,11 @@ export function Sidebar() {
         </div>
       </aside>
 
-      {/* Overlay móvil */}
+      {/* Overlay móvil — cierra sidebar al tocar fuera */}
       {isOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black/50 z-30"
-          onClick={() => { }}
+          onClick={toggle}
         />
       )}
     </>

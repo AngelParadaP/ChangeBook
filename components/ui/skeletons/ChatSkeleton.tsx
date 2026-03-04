@@ -15,9 +15,7 @@ export function ChatSkeleton({ count = 5 }: ChatSkeletonProps) {
                         style={{ animationDelay: `${i * 100}ms` }}
                     >
                         <div
-                            className={`max-w-[70%] rounded-2xl p-4 space-y-2 ${isOwnMessage
-                                    ? "bg-purple-200 dark:bg-purple-900/30"
-                                    : "bg-dim"
+                            className={`max-w-[70%] rounded-2xl p-4 space-y-2 ${isOwnMessage ? "bg-primary-soft" : "bg-dim"
                                 }`}
                         >
                             <div className="h-3 bg-dim rounded w-full" />
@@ -29,3 +27,4 @@ export function ChatSkeleton({ count = 5 }: ChatSkeletonProps) {
         </div>
     );
 }
+
