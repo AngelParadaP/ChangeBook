@@ -295,11 +295,10 @@ export default function ImageCropper({
                   <button
                     key={ratio.label}
                     onClick={() => handleRatioChange(ratio.value)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive
-                        ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-sm"
-                        : "bg-card text-caption hover:bg-soft border border-card-border"
-                    }`}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${isActive
+                      ? "bg-primary text-white shadow-sm"
+                      : "bg-card text-caption hover:bg-soft border border-card-border"
+                      }`}
                   >
                     {getRatioIcon(ratio.icon)}
                     {ratio.label}
@@ -388,7 +387,8 @@ export default function ImageCropper({
                   setOffset((prev) => clampOffset(prev.x, prev.y, clampedZoom));
                 }
               }}
-              className="flex-1 accent-purple-600 h-1.5"
+              className="flex-1 h-1.5"
+              style={{ accentColor: "var(--color-primary)" }}
             />
             <button
               onClick={handleZoomIn}
@@ -416,7 +416,7 @@ export default function ImageCropper({
             <button
               onClick={handleCrop}
               disabled={processing || !imageLoaded}
-              className="px-5 py-2.5 bg-light-purple hover:bg-dark-purple text-white rounded-xl font-semibold transition-all disabled:opacity-50 flex items-center gap-2"
+              className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold transition-all disabled:opacity-50 flex items-center gap-2"
             >
               {processing ? (
                 <>

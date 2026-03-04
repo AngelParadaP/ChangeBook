@@ -265,7 +265,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                 {books.map((book) => (
                   <BookCard
                     key={book.id}
@@ -326,7 +326,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
 
         <div ref={loaderRef} className="py-4">
           {activeTab === 'books' && loading && books.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
               {Array.from({ length: 5 }).map((_, i) => (
                 <BookCardSkeleton key={`load-book-${i}`} />
               ))}
