@@ -6,15 +6,15 @@ import { Navbar } from "@/components/layout/Navbar";
 import { useSidebar } from "@/components/layout/SidebarContext";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
-  const { isOpen } = useSidebar();
+  const { isOpen, sidebarMargin } = useSidebar();
 
   return (
-    <div className="h-screen bg-yellowed-white dark:bg-background overflow-hidden">
+    <div className="h-screen bg-yellowed-white dark:bg-background overflow-hidden relative">
       <Sidebar />
 
       <div
-        className={`transition-all duration-300 h-screen flex flex-col ${isOpen ? "ml-65" : "ml-0"
-          } p-3`}
+        className={`transition-all duration-300 h-screen flex flex-col ml-0 ${isOpen ? sidebarMargin : "lg:ml-0"
+          } p-2 md:p-3`}
       >
         <div className="mb-3 flex-shrink-0">
           <Navbar />

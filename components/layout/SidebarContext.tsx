@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 /**
  * SIDEBAR WIDTH CONFIGURATION
@@ -11,8 +11,8 @@ import { createContext, useContext, useState, ReactNode } from "react";
  * 
  * All components will automatically adapt to the new width!
  */
-const SIDEBAR_WIDTH = "w-65"; // Current: 240px (15rem)
-const SIDEBAR_WIDTH_ML = "ml-65"; // Must match SIDEBAR_WIDTH
+const SIDEBAR_WIDTH = "w-64"; // Current: 256px (16rem)
+const SIDEBAR_WIDTH_ML = "lg:ml-64"; // Must match SIDEBAR_WIDTH
 
 interface SidebarContextType {
   isOpen: boolean;
@@ -24,11 +24,14 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  // Start closed on mobile (< lg breakpoint = 1024px), open on desktop
-  const [isOpen, setIsOpen] = useState(() => {
-    if (typeof window === "undefined") return true; // SSR default: open
-    return window.innerWidth >= 1024;
-  });
+  const [isOpen, setIsOpen] = useState(true);
+
+  // Auto-close on small screens after hydration
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setIsOpen(false);
+    }
+  }, []);
 
   const toggle = () => setIsOpen((prev) => !prev);
 
