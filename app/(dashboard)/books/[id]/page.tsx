@@ -13,6 +13,8 @@ import { BOOK_GENRES } from "@/lib/constants/genres";
 import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModal";
 import { addFavorite, removeFavorite, isFavorite as checkIsFavorite } from "@/server/actions/favorites";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
+import { sendMessage } from "@/server/actions/chat/sendMessage";
+import { encodeBookCardMessage } from "@/lib/utils/bookCardMessage";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { BookOpen, CircleCheck, CirclePause, CircleX, ArrowLeft, Pencil, Save, Mailbox, CalendarDays, MessageSquare, Heart } from "lucide-react";
 import { BookDetailSkeleton } from "@/components/ui/skeletons";
@@ -472,6 +474,13 @@ export default function BookDetailPage() {
                                         onClick={async () => {
                                             const result = await getOrCreateRoom(book.ownerId);
                                             if (result.success && result.roomId) {
+                                                const bookCardMsg = encodeBookCardMessage({
+                                                    bookId: book.id,
+                                                    title: book.title,
+                                                    author: book.author,
+                                                    imageUrl: book.imageUrl,
+                                                });
+                                                await sendMessage(result.roomId, bookCardMsg);
                                                 router.push(`/chat/${result.roomId}`);
                                             }
                                         }}

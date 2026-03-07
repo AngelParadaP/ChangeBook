@@ -14,6 +14,7 @@ import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Users, BookOpen, User, Building2, Search, Loader2, X, Filter, Tag, Sparkles, RefreshCw } from "lucide-react";
+import { addFavorite, removeFavorite, getMyFavoriteIds } from "@/server/actions/favorites";
 import { BookCardSkeleton, UserCardSkeleton, CommunityCardSkeleton } from "@/components/ui/skeletons";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 
@@ -70,8 +71,30 @@ const TABS: { key: SearchTab; label: string; icon: React.ReactNode }[] = [
 
 // ─── Book Search Card (grid version) ─────────────────────────────────────────
 
-function SearchBookCard({ book, onClick, matchCount, selectedGenres }: { book: BookResult; onClick: () => void; matchCount?: number; selectedGenres?: string[] }) {
+function SearchBookCard({ book, onClick, matchCount, selectedGenres, isFavorite: initialFav }: { book: BookResult; onClick: () => void; matchCount?: number; selectedGenres?: string[]; isFavorite?: boolean }) {
     const [imgError, setImgError] = useState(false);
+
+    // Favorite state
+    const showHeart = initialFav !== undefined;
+    const [isFav, setIsFav] = useState(initialFav ?? false);
+    const [favLoading, setFavLoading] = useState(false);
+    const [favAnimating, setFavAnimating] = useState(false);
+
+    const handleFavToggle = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (favLoading) return;
+        setFavLoading(true);
+        setFavAnimating(true);
+        if (isFav) {
+            const result = await removeFavorite(book.id);
+            if (result.success) setIsFav(false);
+        } else {
+            const result = await addFavorite(book.id);
+            if (result.success) setIsFav(true);
+        }
+        setFavLoading(false);
+        setTimeout(() => setFavAnimating(false), 400);
+    };
 
     const isValidImage = (() => {
         try {
@@ -130,6 +153,32 @@ function SearchBookCard({ book, onClick, matchCount, selectedGenres }: { book: B
                             {matchCount}/{selectedGenres.length}
                         </span>
                     </div>
+                )}
+
+                {/* Favorite heart */}
+                {showHeart && (
+                    <button
+                        onClick={handleFavToggle}
+                        disabled={favLoading}
+                        className="absolute top-2 left-2 p-1.5 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all disabled:opacity-50 z-10"
+                        aria-label={isFav ? "Quitar de favoritos" : "Agregar a favoritos"}
+                        style={matchCount !== undefined && matchCount > 0 && selectedGenres && selectedGenres.length > 1 ? { top: "2.25rem" } : {}}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            className={`w-4 h-4 transition-all duration-300 ${favAnimating ? "scale-125" : "scale-100"
+                                } ${isFav
+                                    ? "fill-red-500 stroke-red-500"
+                                    : "fill-transparent stroke-white/80 hover:stroke-red-400"
+                                }`}
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </button>
                 )}
             </div>
 
@@ -312,6 +361,19 @@ function SearchPageContent() {
     const [genreBookResults, setGenreBookResults] = useState<GenreBookResult[]>([]);
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
+
+    // Favorite IDs for heart toggles
+    const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        const loadFavIds = async () => {
+            const result = await getMyFavoriteIds();
+            if (result.success) {
+                setFavoriteIds(new Set(result.ids));
+            }
+        };
+        loadFavIds();
+    }, []);
 
     // Genre filter state (for books/communities tabs)
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
@@ -623,8 +685,8 @@ function SearchPageContent() {
                             <button
                                 onClick={toggleAllGenres}
                                 className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${allGenresSelected
-                                        ? "bg-primary text-white shadow-sm shadow-primary-glow hover:bg-primary-dark"
-                                        : "bg-card border border-card-border text-caption hover:border-primary/40 hover:text-primary"
+                                    ? "bg-primary text-white shadow-sm shadow-primary-glow hover:bg-primary-dark"
+                                    : "bg-card border border-card-border text-caption hover:border-primary/40 hover:text-primary"
                                     }`}
                             >
                                 {allGenresSelected ? "✓ Todos" : "Seleccionar todos"}
@@ -688,8 +750,8 @@ function SearchPageContent() {
                                             key={genre}
                                             onClick={() => toggleGenre(genre)}
                                             className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
-                                                    ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
-                                                    : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
+                                                ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
+                                                : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
                                                 }`}
                                         >
                                             {isSelected && <span className="mr-1">✓</span>}
@@ -790,8 +852,8 @@ function SearchPageContent() {
                                                 key={`gt-${genre}`}
                                                 onClick={() => toggleGenreTab(genre)}
                                                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
-                                                        ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
-                                                        : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
+                                                    ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
+                                                    : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
                                                     }`}
                                             >
                                                 {isSelected && <span className="mr-1">✓</span>}
@@ -833,6 +895,7 @@ function SearchPageContent() {
                                             onClick={() => handleBookClick(book)}
                                             matchCount={book.matchCount}
                                             selectedGenres={genreTabGenres}
+                                            isFavorite={favoriteIds.has(book.id)}
                                         />
                                     ))}
                                 </div>
@@ -906,7 +969,7 @@ function SearchPageContent() {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {bookResults.map((book) => (
-                                <SearchBookCard key={book.id} book={book} onClick={() => handleBookClick(book)} />
+                                <SearchBookCard key={book.id} book={book} onClick={() => handleBookClick(book)} isFavorite={favoriteIds.has(book.id)} />
                             ))}
                         </div>
                     </>

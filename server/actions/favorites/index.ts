@@ -110,6 +110,9 @@ export async function getMyFavorites() {
                 bookTitle: books.title,
                 bookAuthor: books.author,
                 bookImageUrl: books.imageUrl,
+                bookDescription: books.description,
+                bookPublisher: books.publisher,
+                bookYear: books.year,
                 bookStatus: books.status,
                 bookGenres: books.genres,
                 ownerId: books.ownerId,
@@ -128,5 +131,25 @@ export async function getMyFavorites() {
     } catch (error) {
         console.error("Error fetching favorites:", error);
         return { success: false, error: "Error al obtener favoritos" };
+    }
+}
+
+// Obtener solo los IDs de libros favoritos del usuario (para marcar corazones en listas)
+export async function getMyFavoriteIds(): Promise<{ success: boolean; ids: string[] }> {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.id) {
+            return { success: false, ids: [] };
+        }
+
+        const results = await db
+            .select({ bookId: favorites.bookId })
+            .from(favorites)
+            .where(eq(favorites.userId, session.user.id));
+
+        return { success: true, ids: results.map((r) => r.bookId) };
+    } catch (error) {
+        console.error("Error fetching favorite ids:", error);
+        return { success: false, ids: [] };
     }
 }
