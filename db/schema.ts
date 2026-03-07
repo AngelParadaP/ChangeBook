@@ -1,5 +1,6 @@
 
 import { pgTable, text, integer, timestamp, uuid, index, primaryKey } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 // CamelCase en TS, snake_case en DB
 export const users = pgTable("users", {
@@ -34,6 +35,7 @@ export const books = pgTable("books", {
   return {
     titleIdx: index("title_idx").on(table.title),
     authorIdx: index("author_idx").on(table.author),
+    genresIdx: index("genres_gin_idx").using("gin", table.genres),
   };
 });
 
@@ -83,6 +85,10 @@ export const communities = pgTable("communities", {
   genres: text("genres").array().notNull().default([]),
   ownerId: uuid("owner_id").references(() => users.id).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    genresIdx: index("communities_genres_gin_idx").using("gin", table.genres),
+  };
 });
 
 // Tabla para miembros de comunidades

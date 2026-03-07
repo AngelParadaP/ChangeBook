@@ -57,6 +57,20 @@
       "when": 1772319535592,
       "tag": "0007_futuristic_longshot",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1772847849949,
+      "tag": "0008_unknown_tarantula",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1772848847871,
+      "tag": "0009_greedy_frank_castle",
+      "breakpoints": true
     }
   ]
 }

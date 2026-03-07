@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -12,8 +12,9 @@ import { updateBook } from "@/server/actions/books";
 import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { Users, BookOpen, User, Building2, Search, Loader2 } from "lucide-react";
+import { Users, BookOpen, User, Building2, Search, Loader2, X, Filter } from "lucide-react";
 import { BookCardSkeleton, UserCardSkeleton, CommunityCardSkeleton } from "@/components/ui/skeletons";
+import { BOOK_GENRES } from "@/lib/constants/genres";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -290,6 +291,35 @@ function SearchPageContent() {
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
+    // Genre filter state
+    const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+    const [genreSearch, setGenreSearch] = useState("");
+
+    const allGenresSelected = selectedGenres.length === BOOK_GENRES.length;
+
+    const filteredGenres = useMemo(() => {
+        if (!genreSearch.trim()) return [...BOOK_GENRES];
+        const q = genreSearch.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return BOOK_GENRES.filter((g) => {
+            const normalized = g.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            return normalized.includes(q);
+        });
+    }, [genreSearch]);
+
+    const toggleGenre = (genre: string) => {
+        setSelectedGenres((prev) =>
+            prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
+        );
+    };
+
+    const toggleAllGenres = () => {
+        if (allGenresSelected) {
+            setSelectedGenres([]);
+        } else {
+            setSelectedGenres([...BOOK_GENRES]);
+        }
+    };
+
     // Modal state
     const [selectedBook, setSelectedBook] = useState<BookResult | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -350,7 +380,7 @@ function SearchPageContent() {
 
     // Run search when query or tab changes
     const executeSearch = useCallback(
-        async (q: string, tab: SearchTab) => {
+        async (q: string, tab: SearchTab, genres: string[]) => {
             if (q.length < 2) {
                 setBookResults([]);
                 setUserResults([]);
@@ -364,7 +394,9 @@ function SearchPageContent() {
 
             try {
                 if (tab === "books") {
-                    const result = await searchBooks(q, 20);
+                    // If all genres selected or none selected, don't filter by genre
+                    const genreFilter = genres.length > 0 && genres.length < BOOK_GENRES.length ? genres : undefined;
+                    const result = await searchBooks(q, 20, genreFilter);
                     if (result.success && result.books) {
                         setBookResults(result.books as BookResult[]);
                     }
@@ -374,7 +406,9 @@ function SearchPageContent() {
                         setUserResults(result.users as UserResult[]);
                     }
                 } else if (tab === "communities") {
-                    const result = await getCommunities({ query: q, limit: 20 });
+                    // If all genres selected or none selected, don't filter by genre
+                    const genreFilter = genres.length > 0 && genres.length < BOOK_GENRES.length ? genres : undefined;
+                    const result = await getCommunities({ query: q, limit: 20, genres: genreFilter });
                     if (result.success && result.communities) {
                         setCommunityResults(result.communities as CommunityResult[]);
                     }
@@ -391,11 +425,11 @@ function SearchPageContent() {
     // Debounced search
     useEffect(() => {
         const timer = setTimeout(() => {
-            executeSearch(query, activeTab);
+            executeSearch(query, activeTab, selectedGenres);
         }, 400);
 
         return () => clearTimeout(timer);
-    }, [query, activeTab, executeSearch]);
+    }, [query, activeTab, selectedGenres, executeSearch]);
 
     // Sync URL query param on initial load
     useEffect(() => {
@@ -412,6 +446,9 @@ function SearchPageContent() {
         setUserResults([]);
         setCommunityResults([]);
         setHasSearched(false);
+        // Reset genre filter when switching tabs
+        setSelectedGenres([]);
+        setGenreSearch("");
     };
 
     const currentResults =
@@ -481,6 +518,103 @@ function SearchPageContent() {
                         </button>
                     ))}
                 </div>
+
+                {/* ─── Genre Filter (for books and communities tabs) ──────────────────────── */}
+                {(activeTab === "books" || activeTab === "communities") && (
+                    <div className="mb-6 bg-soft/50 rounded-2xl border border-card-border/50 p-4 sm:p-5">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <Filter size={16} className="text-primary" />
+                                <span className="text-sm font-semibold text-heading">Filtrar por género</span>
+                                {selectedGenres.length > 0 && !allGenresSelected && (
+                                    <span className="text-xs font-semibold text-primary bg-primary-soft px-2 py-0.5 rounded-full">
+                                        {selectedGenres.length} seleccionado{selectedGenres.length !== 1 ? "s" : ""}
+                                    </span>
+                                )}
+                            </div>
+                            <button
+                                onClick={toggleAllGenres}
+                                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${
+                                    allGenresSelected
+                                        ? "bg-primary text-white shadow-sm shadow-primary-glow hover:bg-primary-dark"
+                                        : "bg-card border border-card-border text-caption hover:border-primary/40 hover:text-primary"
+                                }`}
+                            >
+                                {allGenresSelected ? "✓ Todos" : "Seleccionar todos"}
+                            </button>
+                        </div>
+
+                        {/* Genre search input */}
+                        <div className="relative mb-3">
+                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-hint" />
+                            <input
+                                type="text"
+                                value={genreSearch}
+                                onChange={(e) => setGenreSearch(e.target.value)}
+                                placeholder="Buscar género..."
+                                className="w-full pl-9 pr-8 py-2 bg-card border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading text-sm transition-all"
+                            />
+                            {genreSearch && (
+                                <button
+                                    onClick={() => setGenreSearch("")}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption transition-colors"
+                                >
+                                    <X size={14} />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Selected genres (pills) */}
+                        {selectedGenres.length > 0 && !allGenresSelected && (
+                            <div className="flex flex-wrap gap-1.5 mb-3">
+                                {selectedGenres.map((genre) => (
+                                    <button
+                                        key={`selected-${genre}`}
+                                        onClick={() => toggleGenre(genre)}
+                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm hover:bg-primary-dark transition-all group"
+                                    >
+                                        {genre}
+                                        <X size={12} className="opacity-70 group-hover:opacity-100" />
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setSelectedGenres([])}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-red-500 hover:text-red-600 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 transition-all"
+                                >
+                                    Limpiar
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Genre bubbles grid */}
+                        <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto custom-scrollbar p-2 bg-card/50 rounded-xl border border-card-border/30">
+                            {filteredGenres.length === 0 ? (
+                                <p className="text-sm text-hint py-2 w-full text-center">
+                                    No se encontraron géneros para &quot;{genreSearch}&quot;
+                                </p>
+                            ) : (
+                                filteredGenres.map((genre) => {
+                                    const isSelected = selectedGenres.includes(genre);
+                                    return (
+                                        <button
+                                            key={genre}
+                                            onClick={() => toggleGenre(genre)}
+                                            className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${
+                                                isSelected
+                                                    ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
+                                                    : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
+                                            }`}
+                                        >
+                                            {isSelected && <span className="mr-1">✓</span>}
+                                            {genre}
+                                        </button>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* ─── Content ─────────────────────────────────────────────────── */}
 

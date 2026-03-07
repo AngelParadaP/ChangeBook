@@ -1,0 +1,1 @@
+CREATE INDEX "communities_genres_gin_idx" ON "communities" USING gin ("genres");

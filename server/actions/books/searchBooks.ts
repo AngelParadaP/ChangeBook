@@ -2,15 +2,31 @@
 
 import { db } from "@/db";
 import { books, users } from "@/db/schema";
-import { ilike, or, desc, eq } from "drizzle-orm";
+import { ilike, or, desc, eq, and, arrayOverlaps } from "drizzle-orm";
 
-export async function searchBooks(query: string, limit = 5) {
+export async function searchBooks(query: string, limit = 5, genres?: string[]) {
   if (!query || query.length < 2) {
     return { success: true, books: [] };
   }
 
   try {
     const searchPattern = `%${query}%`;
+
+    // Build the where conditions
+    const textFilter = or(
+      ilike(books.title, searchPattern),
+      ilike(books.author, searchPattern)
+    );
+
+    // If genres are provided and not empty, add arrayOverlaps filter
+    const genreFilter =
+      genres && genres.length > 0
+        ? arrayOverlaps(books.genres, genres)
+        : undefined;
+
+    const whereClause = genreFilter
+      ? and(textFilter, genreFilter)
+      : textFilter;
 
     const results = await db
       .select({
@@ -29,12 +45,7 @@ export async function searchBooks(query: string, limit = 5) {
       })
       .from(books)
       .leftJoin(users, eq(books.ownerId, users.id))
-      .where(
-        or(
-          ilike(books.title, searchPattern),
-          ilike(books.author, searchPattern)
-        )
-      )
+      .where(whereClause)
       .limit(limit)
       .orderBy(desc(books.createdAt));
 

@@ -3,16 +3,17 @@
 import { db } from "@/db";
 import { communities, communityMembers } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { and, count, eq, ilike, inArray, notInArray } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, notInArray, arrayOverlaps } from "drizzle-orm";
 
 interface GetCommunitiesParams {
   query?: string;
   page?: number;
   limit?: number;
   filter?: "all" | "mine" | "discover";
+  genres?: string[];
 }
 
-export async function getCommunities({ query = "", page = 0, limit = 20, filter = "all" }: GetCommunitiesParams = {}) {
+export async function getCommunities({ query = "", page = 0, limit = 20, filter = "all", genres }: GetCommunitiesParams = {}) {
   try {
     const offset = page * limit;
     const user = await getCurrentUser();
@@ -22,6 +23,11 @@ export async function getCommunities({ query = "", page = 0, limit = 20, filter 
 
     if (query) {
       conditions.push(ilike(communities.name, `%${query}%`));
+    }
+
+    // If genres are provided and not empty, add arrayOverlaps filter
+    if (genres && genres.length > 0) {
+      conditions.push(arrayOverlaps(communities.genres, genres));
     }
 
     // For "mine" and "discover" filters, we need the user's community IDs
@@ -87,3 +93,4 @@ export async function getCommunities({ query = "", page = 0, limit = 20, filter 
     return { success: false, error: "Error al cargar comunidades", communities: [] };
   }
 }
+
