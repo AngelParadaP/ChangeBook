@@ -17,7 +17,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sidebar />
 
       <div
-        className={`transition-all duration-300 h-screen flex flex-col ${isOpen ? sidebarMargin : "ml-0"
+        className={`transition-all duration-300 h-screen flex flex-col ml-0 ${isOpen ? sidebarMargin : "lg:ml-0"
           } p-3`}
       >
         {/* Navbar - Fixed height */}
@@ -26,7 +26,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Content Container - Scrollable with custom scrollbar */}
-        <div className="bg-card rounded-2xl shadow-sm p-6 flex-1 overflow-y-auto custom-scrollbar">
+        <div className="bg-card rounded-2xl shadow-sm p-4 md:p-6 flex-1 overflow-y-auto custom-scrollbar">
           {children}
         </div>
       </div>

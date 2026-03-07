@@ -53,7 +53,7 @@ export function BookCard({ title, author, imageUrl, genres, ownerUsername, onCli
   return (
     <div
       onClick={onClick}
-      className="bg-card rounded-2xl border-2 border-primary/30 p-4 hover:shadow-xl hover:border-primary/60 hover:scale-105 transition-all duration-300 cursor-pointer"
+      className="bg-card rounded-2xl border-2 border-primary/30 p-3 sm:p-4 hover:shadow-xl hover:border-primary/60 hover:scale-105 transition-all duration-300 cursor-pointer"
     >
       {/* Book Cover */}
       <div className="aspect-[2/3] bg-dim rounded-xl mb-3 overflow-hidden relative">

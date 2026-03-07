@@ -108,7 +108,7 @@ export function Sidebar() {
   return (
     <>
       <aside
-        className={`fixed left-0 top-0 bottom-0 z-40 flex flex-col transition-all duration-300 rounded-r-3xl overflow-hidden shadow-2xl ${isOpen ? sidebarWidth : "w-0"
+        className={`fixed left-0 top-0 bottom-0 z-[60] flex flex-col transition-all duration-300 rounded-r-3xl overflow-hidden shadow-2xl ${isOpen ? sidebarWidth : "w-0"
           }`}
         style={{
           background: "linear-gradient(160deg, var(--sidebar-gradient-start) 0%, var(--sidebar-gradient-mid) 50%, var(--sidebar-gradient-end) 100%)",
@@ -206,7 +206,7 @@ export function Sidebar() {
       {/* Overlay móvil — cierra sidebar al tocar fuera */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          className="lg:hidden fixed inset-0 bg-black/50 z-50"
           onClick={toggle}
         />
       )}
