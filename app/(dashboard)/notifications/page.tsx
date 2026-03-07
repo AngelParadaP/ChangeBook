@@ -6,7 +6,11 @@ import { acceptFriendRequest, declineFriendRequest } from "@/server/actions/frie
 import { getFriendUsernameFromRequest } from "@/server/actions/friends/getFriendUsernameFromRequest";
 import { Toast } from "@/components/ui/Toast";
 import { useRouter } from "next/navigation";
-import { Loader2, BellOff, Check, XCircle, Trash2, Pin, UserPlus, UserCheck, UserMinus, Rocket, PartyPopper, Ban, Mailbox, RefreshCw, CheckCircle2 } from "lucide-react";
+import {
+    Loader2, BellOff, Check, XCircle, Trash2, Pin,
+    UserPlus, UserCheck, UserMinus, Rocket, PartyPopper,
+    Ban, Mailbox, RefreshCw, CheckCircle2, Bell, Calendar, Clock, MessageCircle
+} from "lucide-react";
 
 export default function NotificationsPage() {
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -25,12 +29,21 @@ export default function NotificationsPage() {
             const res = await getNotifications(50);
             if (res.success && res.notifications) {
                 setNotifications(res.notifications);
-                await markAllNotificationsAsRead();
             }
         } catch (error) {
             setToast({ message: "Error al cargar notificaciones", type: "error" });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            await markAllNotificationsAsRead();
+            setNotifications((prev) => prev.map((n) => ({ ...n, isRead: 1 })));
+            setToast({ message: "Todas las notificaciones marcadas como leídas", type: "success" });
+        } catch (error) {
+            setToast({ message: "Error al marcar como leídas", type: "error" });
         }
     };
 
@@ -96,6 +109,8 @@ export default function NotificationsPage() {
                 break;
             case "exchange_accepted":
             case "exchange_started":
+            case "exchange_reminder_tomorrow":
+            case "exchange_reminder_today":
                 targetPath = `/exchanges?tab=activos`;
                 break;
             case "friend_request":
@@ -106,7 +121,7 @@ export default function NotificationsPage() {
                     if (result.success && result.username) {
                         targetPath = `/user/${result.username}`;
                     } else {
-                        return; // do nothing if we can't find the user
+                        return;
                     }
                 } else {
                     return;
@@ -119,18 +134,59 @@ export default function NotificationsPage() {
         router.push(targetPath);
     };
 
-    const notificationConfig: Record<string, { icon: React.ReactNode; color: string }> = {
-        exchange_requested: { icon: <Mailbox size={20} />, color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" },
-        exchange_accepted: { icon: <CheckCircle2 size={20} />, color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400" },
-        exchange_rejected: { icon: <XCircle size={20} />, color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
-        exchange_auto_rejected: { icon: <RefreshCw size={20} />, color: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400" },
-        exchange_started: { icon: <Rocket size={20} />, color: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" },
-        exchange_completed: { icon: <PartyPopper size={20} />, color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400" },
-        exchange_cancelled: { icon: <Ban size={20} />, color: "bg-soft text-caption" },
-        friend_request: { icon: <UserPlus size={20} />, color: "bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400" },
-        friend_accepted: { icon: <UserCheck size={20} />, color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" },
-        friend_declined: { icon: <UserMinus size={20} />, color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
+    const notificationConfig: Record<string, { icon: React.ReactNode; color: string; gradient?: string }> = {
+        exchange_requested: {
+            icon: <Mailbox size={18} />,
+            color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
+        },
+        exchange_accepted: {
+            icon: <CheckCircle2 size={18} />,
+            color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+        },
+        exchange_rejected: {
+            icon: <XCircle size={18} />,
+            color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+        },
+        exchange_auto_rejected: {
+            icon: <RefreshCw size={18} />,
+            color: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
+        },
+        exchange_started: {
+            icon: <Rocket size={18} />,
+            color: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+        },
+        exchange_completed: {
+            icon: <PartyPopper size={18} />,
+            color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+        },
+        exchange_cancelled: {
+            icon: <Ban size={18} />,
+            color: "bg-soft text-caption",
+        },
+        exchange_reminder_tomorrow: {
+            icon: <Calendar size={18} />,
+            color: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+        },
+        exchange_reminder_today: {
+            icon: <Clock size={18} />,
+            color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+            gradient: "from-red-500/5 to-orange-500/5 dark:from-red-500/10 dark:to-orange-500/10",
+        },
+        friend_request: {
+            icon: <UserPlus size={18} />,
+            color: "bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400",
+        },
+        friend_accepted: {
+            icon: <UserCheck size={18} />,
+            color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+        },
+        friend_declined: {
+            icon: <UserMinus size={18} />,
+            color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+        },
     };
+
+    const unreadCount = notifications.filter((n) => n.isRead === 0).length;
 
     if (loading) {
         return (
@@ -141,84 +197,157 @@ export default function NotificationsPage() {
     }
 
     return (
-        <div className="p-6 max-w-4xl mx-auto space-y-6">
+        <div className="flex flex-col h-full max-w-4xl mx-auto">
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-heading">Notificaciones</h1>
-                {notifications.length > 0 && (
-                    <button
-                        onClick={handleDeleteAll}
-                        className="px-4 py-2 bg-danger/10 text-danger hover:bg-danger hover:text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2"
-                    >
-                        <Trash2 size={16} />
-                        Borrar todas
-                    </button>
-                )}
+            {/* Header – sticky on mobile */}
+            <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b border-card-border/50">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <Bell size={20} className="text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                            <h1 className="text-xl sm:text-2xl font-bold text-heading truncate">Notificaciones</h1>
+                            {notifications.length > 0 && (
+                                <p className="text-xs text-hint">
+                                    {unreadCount > 0
+                                        ? `${unreadCount} sin leer · ${notifications.length} total`
+                                        : `${notifications.length} notificaciones`}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    {notifications.length > 0 && (
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                            {unreadCount > 0 && (
+                                <button
+                                    onClick={handleMarkAllAsRead}
+                                    className="px-3 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl text-xs font-medium transition-all flex items-center gap-1.5"
+                                    title="Marcar todas como leídas"
+                                >
+                                    <CheckCircle2 size={14} />
+                                    <span className="hidden sm:inline">Marcar leídas</span>
+                                </button>
+                            )}
+                            <button
+                                onClick={handleDeleteAll}
+                                className="px-3 py-2 bg-danger/10 text-danger hover:bg-danger hover:text-white rounded-xl text-xs font-medium transition-all flex items-center gap-1.5"
+                                title="Borrar todas"
+                            >
+                                <Trash2 size={14} />
+                                <span className="hidden sm:inline">Borrar todas</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            <div className="bg-card shadow-md rounded-2xl overflow-hidden border border-card-border">
+            {/* Notifications list – scrollable */}
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-2">
                 {notifications.length === 0 ? (
-                    <div className="p-12 text-center text-hint">
-                        <BellOff size={48} className="mx-auto mb-4 opacity-50" />
-                        <p className="text-xl">No tienes notificaciones</p>
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="w-20 h-20 rounded-full bg-soft flex items-center justify-center mb-4">
+                            <BellOff size={36} className="text-hint opacity-50" />
+                        </div>
+                        <p className="text-lg font-semibold text-heading">No tienes notificaciones</p>
+                        <p className="text-sm text-hint mt-1">Cuando tengas actividad nueva, aparecerá aquí</p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-card-border dark:divide-zinc-800">
-                        {notifications.map((notif) => {
-                            const config = notificationConfig[notif.type] || { icon: <Pin size={20} />, color: "bg-soft text-caption" };
-                            const isActioning = actionLoading === notif.id;
+                    notifications.map((notif) => {
+                        const config = notificationConfig[notif.type] || { icon: <Pin size={18} />, color: "bg-soft text-caption" };
+                        const isActioning = actionLoading === notif.id;
+                        const isUnread = notif.isRead === 0;
+                        const isReminder = notif.type === "exchange_reminder_tomorrow" || notif.type === "exchange_reminder_today";
 
-                            return (
-                                <div
-                                    key={notif.id}
-                                    onClick={() => handleNotificationClick(notif)}
-                                    className={`p-6 flex flex-col sm:flex-row gap-4 hover:bg-subtle transition-colors items-center cursor-pointer ${notif.isRead === 0 ? "bg-primary-soft/30 dark:bg-primary-dark/10" : ""}`}
-                                >
-                                    <div className={`shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${config.color}`}>
+                        return (
+                            <div
+                                key={notif.id}
+                                onClick={() => handleNotificationClick(notif)}
+                                className={`
+                                    relative rounded-2xl border transition-all duration-200 cursor-pointer
+                                    hover:shadow-md hover:scale-[1.01] active:scale-[0.99]
+                                    ${isUnread
+                                        ? "bg-primary-soft/20 border-primary/20 dark:bg-primary-dark/10 dark:border-primary/15"
+                                        : "bg-card/60 border-card-border/50 hover:bg-card"
+                                    }
+                                    ${config.gradient ? `bg-gradient-to-r ${config.gradient}` : ""}
+                                `}
+                            >
+                                {/* Unread indicator dot */}
+                                {isUnread && (
+                                    <div className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+                                )}
+
+                                <div className="p-3 sm:p-4 flex gap-3 items-start">
+                                    {/* Icon */}
+                                    <div className={`shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center ${config.color}`}>
                                         {config.icon}
                                     </div>
-                                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                        <p className="text-lg text-heading font-medium leading-tight">
+
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                        <p className={`text-sm sm:text-[15px] leading-relaxed ${isUnread ? "text-heading font-semibold" : "text-body"}`}>
                                             {notif.message}
                                         </p>
-                                        <p className="text-sm text-hint mt-1">
-                                            {new Date(notif.createdAt).toLocaleDateString()} a las {new Date(notif.createdAt).toLocaleTimeString()}
+                                        <p className="text-[11px] text-hint mt-1.5">
+                                            {new Date(notif.createdAt).toLocaleDateString("es-MX", {
+                                                day: "numeric",
+                                                month: "short",
+                                            })}{" "}
+                                            a las{" "}
+                                            {new Date(notif.createdAt).toLocaleTimeString("es-MX", {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            })}
                                         </p>
-                                    </div>
-                                    <div className="shrink-0 flex items-center gap-3">
+
+                                        {/* Reminder UX hint */}
+                                        {isReminder && (
+                                            <div className="mt-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200/50 dark:border-amber-700/30 inline-block">
+                                                <p className="text-[11px] font-medium text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                                    <MessageCircle size={12} className="flex-shrink-0" /> Pónganse de acuerdo para la hora y lugar de recogida
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Friend request actions */}
                                         {notif.type === "friend_request" && notif.friendRequestId && (
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 mt-2.5">
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleAcceptFriend(notif.id, notif.friendRequestId as string); }}
                                                     disabled={isActioning}
-                                                    className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors disabled:opacity-50"
+                                                    className="bg-primary hover:bg-primary-dark text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                                                 >
-                                                    <Check size={18} />
+                                                    <Check size={14} />
                                                     {isActioning ? "..." : "Aceptar"}
                                                 </button>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleDeclineFriend(notif.id, notif.friendRequestId as string); }}
                                                     disabled={isActioning}
-                                                    className="bg-danger hover:bg-danger-dark text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors disabled:opacity-50"
+                                                    className="bg-danger hover:bg-danger-dark text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                                                 >
-                                                    <XCircle size={18} />
+                                                    <XCircle size={14} />
                                                     {isActioning ? "..." : "Rechazar"}
                                                 </button>
                                             </div>
                                         )}
-                                        <button
-                                            onClick={(e) => handleDelete(e, notif.id)}
-                                            className="text-hint hover:text-danger p-2 rounded-full hover:bg-danger/10 transition-colors"
-                                            title="Eliminar notificación"
-                                        >
-                                            <Trash2 size={20} />
-                                        </button>
                                     </div>
+
+                                    {/* Delete button */}
+                                    <button
+                                        onClick={(e) => handleDelete(e, notif.id)}
+                                        className="shrink-0 text-hint hover:text-danger p-1.5 rounded-full hover:bg-danger/10 transition-colors mt-0.5"
+                                        title="Eliminar notificación"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
                                 </div>
-                            );
-                        })}
-                    </div>
+                            </div>
+                        );
+                    })
                 )}
             </div>
         </div>

@@ -164,6 +164,8 @@ export const exchanges = pgTable("exchanges", {
   endDate: timestamp("end_date").notNull(),
   // Lugar de entrega dentro de CUCEI
   meetingLocation: text("meeting_location").notNull(),
+  // Hora de encuentro (formato HH:mm)
+  meetingTime: text("meeting_time"),
   // Notas opcionales del solicitante
   requesterNote: text("requester_note"),
   // Notas opcionales del dueño (al aceptar/rechazar)
@@ -191,6 +193,7 @@ export const notifications = pgTable("notifications", {
   type: text("type", {
     enum: [
       "exchange_requested", "exchange_accepted", "exchange_rejected", "exchange_auto_rejected", "exchange_started", "exchange_completed", "exchange_cancelled",
+      "exchange_reminder_tomorrow", "exchange_reminder_today",
       "friend_request", "friend_accepted", "friend_declined"
     ],
   }).notNull(),

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { createExchange } from "@/server/actions/exchanges/createExchange";
 import { getBlockedDates } from "@/server/actions/exchanges/getBlockedDates";
-import { Mailbox, CalendarDays, MapPin, MessageSquare, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Mailbox, CalendarDays, MapPin, MessageSquare, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, X, Clock } from "lucide-react";
 
 interface BlockedRange {
     start: Date;
@@ -50,6 +50,7 @@ export function ExchangeRequestModal({
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [meetingLocation, setMeetingLocation] = useState("");
+    const [meetingTime, setMeetingTime] = useState("");
     const [note, setNote] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -65,6 +66,7 @@ export function ExchangeRequestModal({
             setStartDate(null);
             setEndDate(null);
             setMeetingLocation("");
+            setMeetingTime("");
             setNote("");
             setError("");
             setSuccess("");
@@ -247,6 +249,7 @@ export function ExchangeRequestModal({
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
             meetingLocation,
+            meetingTime: meetingTime || undefined,
             note: note || undefined,
         });
 
@@ -430,6 +433,20 @@ export function ExchangeRequestModal({
                                 </option>
                             ))}
                         </select>
+                    </div>
+
+                    {/* Meeting Time */}
+                    <div>
+                        <label className="block text-xs font-bold text-hint uppercase tracking-wide mb-2">
+                            <Clock size={14} className="inline mr-1" /> Hora de encuentro (opcional)
+                        </label>
+                        <input
+                            type="time"
+                            value={meetingTime}
+                            onChange={(e) => setMeetingTime(e.target.value)}
+                            className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm"
+                        />
+                        <p className="text-[10px] text-hint mt-1">Puedes sugerir una hora para el encuentro</p>
                     </div>
 
                     {/* Note */}
