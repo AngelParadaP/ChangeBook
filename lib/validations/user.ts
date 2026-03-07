@@ -14,6 +14,17 @@ const passwordSchema = z
   .string()
   .min(8, "La contraseña debe tener al menos 8 caracteres");
 
+export const emailSchema = z
+  .string()
+  .email("El correo no es válido")
+  .refine(
+    (email) => {
+      const domain = email.split("@")[1]?.toLowerCase();
+      return domain === "alumnos.udg.mx" || domain === "academicos.udg.mx";
+    },
+    { message: "Usa tu correo institucional (@alumnos.udg.mx o @academicos.udg.mx)" }
+  );
+
 export const loginSchema = z.object({
   studentCode: studentCodeSchema,
   password: z.string().min(4, "El NIP es obligatorio"),
@@ -22,6 +33,7 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   code: studentCodeSchema,
   nip: z.string().min(4, "El NIP de SIIAU es obligatorio"),
+  email: emailSchema,
   username: z
     .string()
     .min(3, "El usuario debe tener al menos 3 caracteres")
@@ -40,3 +52,4 @@ export const userSchema = z.object({
 export type User = z.infer<typeof userSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+
