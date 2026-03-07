@@ -71,6 +71,13 @@
       "when": 1772848847871,
       "tag": "0009_greedy_frank_castle",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1772853762985,
+      "tag": "0010_tough_junta",
+      "breakpoints": true
     }
   ]
 }

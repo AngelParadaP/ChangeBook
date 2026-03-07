@@ -3,6 +3,10 @@
         {
             "path": "/api/cron/exchanges",
             "schedule": "0 0 * * *"
+        },
+        {
+            "path": "/api/cron/exchanges",
+            "schedule": "0 14 * * *"
         }
     ]
 }

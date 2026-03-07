@@ -11,6 +11,7 @@ interface CreateExchangeData {
     startDate: string; // ISO string
     endDate: string; // ISO string
     meetingLocation: string;
+    meetingTime?: string; // HH:mm format
     note?: string;
 }
 
@@ -95,6 +96,7 @@ export async function createExchange(data: CreateExchangeData) {
                 startDate,
                 endDate,
                 meetingLocation: data.meetingLocation.trim(),
+                meetingTime: data.meetingTime?.trim() || null,
                 requesterNote: data.note?.trim() || null,
                 status: "pendiente",
             })
@@ -107,10 +109,11 @@ export async function createExchange(data: CreateExchangeData) {
         const requesterName = requester?.username || requester?.name || "Alguien";
 
         // Notificar al dueño del libro
+        const timeInfo = data.meetingTime ? ` a las ${data.meetingTime}` : "";
         await db.insert(notifications).values({
             userId: book.ownerId,
             type: "exchange_requested",
-            message: `@${requesterName} quiere intercambiar "${book.title}". ¡Revisa la solicitud!`,
+            message: `@${requesterName} quiere intercambiar "${book.title}". Lugar: ${data.meetingLocation.trim()}${timeInfo}. ¡Revisa la solicitud!`,
             exchangeId: newExchange.id,
         });
 

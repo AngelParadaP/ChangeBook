@@ -24,6 +24,7 @@ export interface ExchangeWithDetails {
     startDate: Date;
     endDate: Date;
     meetingLocation: string;
+    meetingTime: string | null;
     requesterNote: string | null;
     ownerNote: string | null;
     createdAt: Date;
@@ -78,6 +79,7 @@ export async function getMyExchanges(filter?: "all" | "sent" | "received" | "act
                 startDate: exchanges.startDate,
                 endDate: exchanges.endDate,
                 meetingLocation: exchanges.meetingLocation,
+                meetingTime: exchanges.meetingTime,
                 requesterNote: exchanges.requesterNote,
                 ownerNote: exchanges.ownerNote,
                 createdAt: exchanges.createdAt,

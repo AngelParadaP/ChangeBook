@@ -21,7 +21,7 @@ import {
   NotificationItem,
 } from "@/server/actions/notifications";
 import { getFriendUsernameFromRequest } from "@/server/actions/friends/getFriendUsernameFromRequest";
-import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X, UserPlus, UserCheck, UserMinus } from "lucide-react";
+import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X, UserPlus, UserCheck, UserMinus, Calendar, Clock } from "lucide-react";
 
 interface BookResult {
   id: string;
@@ -106,6 +106,8 @@ const notificationConfig: Record<string, { icon: React.ReactNode; color: string 
   exchange_started: { icon: <Rocket size={14} />, color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
   exchange_completed: { icon: <PartyPopper size={14} />, color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400" },
   exchange_cancelled: { icon: <Ban size={14} />, color: "bg-soft text-caption" },
+  exchange_reminder_tomorrow: { icon: <Calendar size={14} />, color: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" },
+  exchange_reminder_today: { icon: <Clock size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
   friend_request: { icon: <UserPlus size={14} />, color: "bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400" },
   friend_accepted: { icon: <UserCheck size={14} />, color: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" },
   friend_declined: { icon: <UserMinus size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
@@ -220,6 +222,8 @@ export function Navbar() {
         break;
       case "exchange_accepted":
       case "exchange_started":
+      case "exchange_reminder_tomorrow":
+      case "exchange_reminder_today":
         targetPath = `/exchanges?tab=activos`;
         break;
       case "friend_request":
