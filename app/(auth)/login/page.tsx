@@ -177,7 +177,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Forgot password */}
+        {/* TODO: Descomentar cuando se configure un dominio en Resend para enviar correos
         <div className="mt-4 w-full text-center">
           <Link
             href="/forgot-password"
@@ -186,8 +186,9 @@ export default function LoginPage() {
             ¿Olvidaste tu contraseña?
           </Link>
         </div>
+        */}
 
-        <div className="mt-5 flex justify-between items-center w-full text-sm">
+        <div className="mt-8 flex justify-between items-center w-full text-sm">
           <span className="text-white/40">¿No tienes una cuenta?</span>
           <Link
             href="/register"
