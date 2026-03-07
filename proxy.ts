@@ -10,7 +10,7 @@ export async function proxy(req: NextRequest) {
   // Get pathname trying to be accessed
   const { pathname } = req.nextUrl;
 
-  const isAuthPage = pathname == "/login" || pathname == "/register";
+  const isAuthPage = pathname == "/login" || pathname == "/register" || pathname == "/forgot-password" || pathname == "/reset-password";
   const isAuthProtectedPage =
     pathname.startsWith("/home") ||
     pathname.startsWith("/profile") ||
@@ -49,6 +49,8 @@ export const config = {
   matcher: [
     "/login",
     "/register",
+    "/forgot-password",
+    "/reset-password",
     "/home/:path*",
     "/profile/:path*",
     "/publish/:path*",

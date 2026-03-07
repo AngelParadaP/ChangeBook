@@ -8,6 +8,7 @@ export const users = pgTable("users", {
   studentCode: text("student_code").notNull().unique(),
   name: text("name").notNull(), // Nombre real que viene de SIIAU
   username: text("username").notNull().unique(), // El "handle" del usuario en Kyboo
+  email: text("email"), // Correo institucional UDG (@alumnos.udg.mx o @academicos.udg.mx)
   password: text("password").notNull(), // Hash de la contraseña
   imageURL: text("image_url"),
   preferences: text("preferences").array().notNull().default([]),
@@ -276,5 +277,26 @@ export const friends = pgTable("friends", {
     addresseeIdx: index("friend_addressee_idx").on(table.addresseeId),
     statusIdx: index("friend_status_idx").on(table.status),
     uniqueIdx: index("friend_unique_idx").on(table.requesterId, table.addresseeId),
+  };
+});
+
+// ─── Tabla para tokens de recuperación de contraseña ────────────────────────
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // Usuario que solicitó el reset
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  // Token único para el reset (se envía por correo)
+  token: text("token").notNull().unique(),
+  // Fecha de expiración (1 hora desde la creación)
+  expiresAt: timestamp("expires_at").notNull(),
+  // Si ya fue usado
+  used: integer("used").default(0).notNull(), // 0 = no usado, 1 = usado
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    tokenIdx: index("prt_token_idx").on(table.token),
+    userIdx: index("prt_user_idx").on(table.userId),
   };
 });
