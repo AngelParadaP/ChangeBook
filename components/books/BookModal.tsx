@@ -9,6 +9,8 @@ import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModal";
 import { addFavorite, removeFavorite, isFavorite as checkIsFavorite } from "@/server/actions/favorites";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
+import { sendMessage } from "@/server/actions/chat/sendMessage";
+import { encodeBookCardMessage } from "@/lib/utils/bookCardMessage";
 import { deleteBook } from "@/server/actions/books/deleteBook";
 import { Search, X, Trash2, Edit2, MessageSquare, ExternalLink, BookOpen, CircleCheck, CirclePause, CircleX, CheckCircle2 } from "lucide-react";
 
@@ -596,6 +598,13 @@ export function BookModal({
                   onClick={async () => {
                     const result = await getOrCreateRoom(book.ownerId);
                     if (result.success && result.roomId) {
+                      const bookCardMsg = encodeBookCardMessage({
+                        bookId: book.id,
+                        title: book.title,
+                        author: book.author,
+                        imageUrl: book.imageUrl,
+                      });
+                      await sendMessage(result.roomId, bookCardMsg);
                       router.push(`/chat/${result.roomId}`);
                     }
                   }}
