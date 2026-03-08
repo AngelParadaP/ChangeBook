@@ -39,8 +39,8 @@ function BookCardEmbed({ bookId, title, author, imageUrl, isSender }: {
             href={`/books/${bookId}`}
             onClick={(e) => e.stopPropagation()}
             className={`block rounded-xl overflow-hidden border transition-all hover:shadow-md mb-2 ${isSender
-                    ? "bg-white/10 border-white/20 hover:bg-white/15"
-                    : "bg-card border-card-border hover:bg-soft"
+                ? "bg-white/10 border-white/20 hover:bg-white/15"
+                : "bg-card border-card-border hover:bg-soft"
                 }`}
         >
             <div className="flex gap-3 p-2.5">
@@ -74,7 +74,7 @@ function BookCardEmbed({ bookId, title, author, imageUrl, isSender }: {
                     </p>
                     <p className={`text-[10px] mt-1 font-medium ${isSender ? "text-white/50" : "text-primary"
                         }`}>
-                        📚 Ver libro →
+                        xVer libro →
                     </p>
                 </div>
             </div>
