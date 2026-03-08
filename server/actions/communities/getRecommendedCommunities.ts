@@ -111,7 +111,9 @@ export async function getRecommendedCommunities({ page = 0, limit = 10 }: Commun
           createdAt: row.created_at,
           ownerUsername: row.owner_username,
           memberCount: Number(row.member_count),
-          similarityScore: row.similarity_score !== null ? parseFloat(Number(row.similarity_score).toFixed(4)) : null,
+          similarityScore: (row.similarity_score !== null && !isNaN(Number(row.similarity_score)))
+            ? parseFloat(Number(row.similarity_score).toFixed(4))
+            : null,
           genreMatch: Number(row.genre_match || 0),
         }));
 

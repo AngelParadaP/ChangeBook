@@ -75,8 +75,11 @@ def train_and_extract_vectors():
     user_means = np.zeros(n_users)
     for i in range(n_users):
         non_zero = R[i, R[i, :] > 0]
-        if len(non_zero) > 0:
+        if len(non_zero) > 1 and non_zero.std() > 0:
             user_means[i] = non_zero.mean()
+        elif len(non_zero) > 0:
+            # Prevents collapsing homogeneous interactions to completely zero vectors
+            user_means[i] = non_zero.mean() / 2.0
     
     R_normalized = R.copy()
     for i in range(n_users):
@@ -220,8 +223,10 @@ def train_and_extract_vectors():
         comm_user_means = np.zeros(n_comm_users)
         for i in range(n_comm_users):
             non_zero = RC[i, RC[i, :] > 0]
-            if len(non_zero) > 0:
+            if len(non_zero) > 1 and non_zero.std() > 0:
                 comm_user_means[i] = non_zero.mean()
+            elif len(non_zero) > 0:
+                comm_user_means[i] = non_zero.mean() / 2.0
         
         RC_normalized = RC.copy()
         for i in range(n_comm_users):

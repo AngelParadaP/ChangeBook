@@ -99,7 +99,8 @@ export async function getCommunityRecommendationLog(): Promise<{
       `);
 
       for (const row of result.rows as any[]) {
-        const hasSim = row.similarity_score !== null;
+        const rawSim = Number(row.similarity_score);
+        const hasSim = row.similarity_score !== null && !isNaN(rawSim);
         entries.push({
           communityId: row.id,
           name: row.name,
@@ -107,7 +108,7 @@ export async function getCommunityRecommendationLog(): Promise<{
           genres: row.genres || [],
           ownerUsername: row.owner_username,
           memberCount: Number(row.member_count),
-          similarityScore: hasSim ? parseFloat(Number(row.similarity_score).toFixed(4)) : null,
+          similarityScore: hasSim ? parseFloat(rawSim.toFixed(4)) : null,
           matchScore: Number(row.genre_match || 0),
           strategy: hasSim ? "vector" : (Number(row.genre_match) > 0 ? "genre" : "popular"),
         });

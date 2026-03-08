@@ -96,14 +96,15 @@ export async function getRecommendationLog(): Promise<{
       `);
 
       for (const row of vectorRes.rows as any[]) {
-        const hasSimilarity = row.similarity_score !== null;
+        const rawSim = Number(row.similarity_score);
+        const hasSimilarity = row.similarity_score !== null && !isNaN(rawSim);
         entries.push({
           bookId: row.id,
           title: row.title,
           author: row.author,
           genres: row.genres || [],
           ownerUsername: row.owner_username,
-          similarityScore: hasSimilarity ? parseFloat(Number(row.similarity_score).toFixed(4)) : null,
+          similarityScore: hasSimilarity ? parseFloat(rawSim.toFixed(4)) : null,
           matchScore: Number(row.genre_match || 0),
           strategy: hasSimilarity ? "vector" : (Number(row.genre_match) > 0 ? "genre" : "recent"),
         });
