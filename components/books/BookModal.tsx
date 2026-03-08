@@ -101,6 +101,8 @@ export function BookModal({
     setImageError(false);
     setExchangeToast(null);
     setGenreSearch("");
+    setIsDeleting(false);
+    setShowDeleteConfirm(false);
     // Load favorite status
     if (!isOwner && book.id) {
       checkIsFavorite(book.id).then((res) => {

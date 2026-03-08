@@ -71,6 +71,20 @@
       "when": 1772848847871,
       "tag": "0009_greedy_frank_castle",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1772915782056,
+      "tag": "0010_silly_guardsmen",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1772939209640,
+      "tag": "0011_open_zarek",
+      "breakpoints": true
     }
   ]
 }

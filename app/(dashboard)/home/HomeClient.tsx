@@ -10,6 +10,7 @@ import { Toast } from "@/components/ui/Toast";
 import { getPersonalizedFeed } from "@/server/actions/feed/getPersonalizedFeed";
 import { getCommunityFeed } from "@/server/actions/communities/getCommunityFeed";
 import BookRecommendationSidebar from "@/components/community/BookRecommendationSidebar";
+import CommunityRecommendationSidebar from "@/components/community/CommunityRecommendationSidebar";
 import { updateBook } from "@/server/actions/books";
 import { Home } from "lucide-react";
 import { BookCardSkeleton, PostCardSkeleton } from "@/components/ui/skeletons";
@@ -284,6 +285,13 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
         ) : (
           // Communities Feed
           <div className="flex justify-center gap-6">
+            {/* Community Recommendations Sidebar - Left */}
+            <div className="hidden xl:block w-80 flex-shrink-0">
+              <div className="sticky top-6">
+                <CommunityRecommendationSidebar />
+              </div>
+            </div>
+
             {/* Main Posts Column */}
             <div className="w-full max-w-2xl">
               {postsLoading && posts.length === 0 && (
@@ -312,7 +320,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
               )}
             </div>
 
-            {/* Book Recommendations Sidebar */}
+            {/* Book Recommendations Sidebar - Right */}
             <div className="hidden xl:block w-80 flex-shrink-0">
               <div className="sticky top-6">
                 <BookRecommendationSidebar

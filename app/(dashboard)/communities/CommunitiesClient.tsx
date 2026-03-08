@@ -6,8 +6,9 @@ import Image from "next/image";
 import { joinCommunity } from "@/server/actions/communities/actions";
 import { createCommunity } from "@/server/actions/communities/createCommunity";
 import { getCommunities } from "@/server/actions/communities/getCommunities";
+import { getRecommendedCommunities } from "@/server/actions/communities/getRecommendedCommunities";
 import { toast } from "@/components/ui/GlobalToast";
-import { Search, Plus, Users, Compass, PartyPopper, Hand } from "lucide-react";
+import { Search, Plus, Users, Compass, PartyPopper, Hand, Sparkles, Crown } from "lucide-react";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 
 interface Community {
@@ -18,6 +19,8 @@ interface Community {
   genres?: string[];
   memberCount: number;
   isMember: boolean;
+  similarityScore?: number | null;
+  role?: string | null;
 }
 
 
@@ -47,12 +50,27 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
     e.preventDefault();
     setSearching(true);
     try {
-      const filter = activeTab === "discover" ? "discover" : "mine";
-      const result = await getCommunities({ query: searchQuery, filter });
-      if (result.success && result.communities) {
-        if (activeTab === "discover") {
-          setDiscoverCommunities(result.communities);
+      if (activeTab === "discover") {
+        if (searchQuery.trim()) {
+          // Search falls back to generic getCommunities
+          const result = await getCommunities({ query: searchQuery, filter: "discover" });
+          if (result.success && result.communities) {
+            setDiscoverCommunities(result.communities);
+          }
         } else {
+          // Empty search → reload recommended
+          const result = await getRecommendedCommunities({ limit: 30 });
+          if (result.success && result.communities) {
+            setDiscoverCommunities(result.communities.map(c => ({
+              ...c,
+              imageUrl: (c as any).imageUrl || null,
+              isMember: false,
+            })));
+          }
+        }
+      } else {
+        const result = await getCommunities({ query: searchQuery, filter: "mine" });
+        if (result.success && result.communities) {
           setMyCommunities(result.communities);
         }
       }
@@ -64,15 +82,20 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
   const handleTabChange = async (tab: TabKey) => {
     setActiveTab(tab);
     setSearchQuery("");
-    // Reload the tab data
     setSearching(true);
     try {
-      const filter = tab === "discover" ? "discover" : "mine";
-      const result = await getCommunities({ filter });
-      if (result.success && result.communities) {
-        if (tab === "discover") {
-          setDiscoverCommunities(result.communities);
-        } else {
+      if (tab === "discover") {
+        const result = await getRecommendedCommunities({ limit: 30 });
+        if (result.success && result.communities) {
+          setDiscoverCommunities(result.communities.map(c => ({
+            ...c,
+            imageUrl: (c as any).imageUrl || null,
+            isMember: false,
+          })));
+        }
+      } else {
+        const result = await getCommunities({ filter: "mine" });
+        if (result.success && result.communities) {
           setMyCommunities(result.communities);
         }
       }
@@ -229,7 +252,19 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
                   <div>
                     <h3 className="font-bold text-lg text-heading line-clamp-1">{community.name}</h3>
                     <p className="text-sm text-hint mb-1">{community.memberCount} miembros</p>
-                    {community.isMember && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">Miembro</span>}
+                    <div className="flex items-center gap-1.5">
+                      {community.isMember && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">Miembro</span>}
+                      {activeTab === "mine" && community.role === "admin" && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
+                          <Crown size={10} /> Creador
+                        </span>
+                      )}
+                      {activeTab === "discover" && !community.isMember && community.similarityScore != null && community.similarityScore > 0.1 && (
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full dark:bg-purple-900/30 dark:text-purple-400 flex items-center gap-1">
+                          <Sparkles size={10} /> Para ti
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <p className="text-caption text-sm mb-4 line-clamp-2 h-10">

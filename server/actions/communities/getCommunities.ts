@@ -68,23 +68,24 @@ export async function getCommunities({ query = "", page = 0, limit = 20, filter 
       .limit(limit)
       .offset(offset);
 
-    // Get membership status if user is logged in
-    let memberCommunityIds = new Set<string>();
+    // Get membership status and role if user is logged in
+    let memberCommunityData = new Map<string, string>(); // communityId -> role
 
     if (user?.id && results.length > 0) {
       const ids = results.map(c => c.id);
-      const memberships = await db.select({ cid: communityMembers.communityId })
+      const memberships = await db.select({ cid: communityMembers.communityId, role: communityMembers.role })
         .from(communityMembers)
         .where(and(eq(communityMembers.userId, user.id), eq(communityMembers.status, "active"), inArray(communityMembers.communityId, ids)));
       
-      memberships.forEach(m => memberCommunityIds.add(m.cid));
+      memberships.forEach(m => memberCommunityData.set(m.cid, m.role));
     }
 
     // Drizzle count returns string in some drivers, cast to number
     const formattedResults = results.map(c => ({
       ...c,
       memberCount: Number(c.memberCount),
-      isMember: memberCommunityIds.has(c.id)
+      isMember: memberCommunityData.has(c.id),
+      role: memberCommunityData.get(c.id) || null,
     }));
 
     return { success: true, communities: formattedResults };

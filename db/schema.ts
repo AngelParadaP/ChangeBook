@@ -1,5 +1,5 @@
 
-import { pgTable, text, integer, timestamp, uuid, index, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, timestamp, uuid, index, primaryKey, customType } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 // CamelCase en TS, snake_case en DB
@@ -274,4 +274,31 @@ export const friends = pgTable("friends", {
     statusIdx: index("friend_status_idx").on(table.status),
     uniqueIdx: index("friend_unique_idx").on(table.requesterId, table.addresseeId),
   };
+});
+
+const vector50 = customType<{ data: number[] }>({
+  dataType() {
+    return "vector(50)";
+  },
+});
+
+export const userVectors = pgTable("user_vectors", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  embedding: vector50("embedding").notNull(),
+});
+
+export const bookVectors = pgTable("book_vectors", {
+  bookId: uuid("book_id")
+    .primaryKey()
+    .references(() => books.id, { onDelete: "cascade" }),
+  embedding: vector50("embedding").notNull(),
+});
+
+export const communityVectors = pgTable("community_vectors", {
+  communityId: uuid("community_id")
+    .primaryKey()
+    .references(() => communities.id, { onDelete: "cascade" }),
+  embedding: vector50("embedding").notNull(),
 });
