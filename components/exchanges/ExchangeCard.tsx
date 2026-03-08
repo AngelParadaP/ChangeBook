@@ -230,7 +230,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                 <CalendarDays size={10} className="inline mr-0.5" /> {formatDate(exchange.startDate)} → {formatDate(exchange.endDate)}
                             </span>
                             <span className="text-[10px] bg-subtle text-caption px-2 py-1 rounded-lg">
-                                <MapPin size={10} className="inline mr-0.5" /> {exchange.meetingLocation}
+                                <MapPin size={10} className="inline mr-0.5" /> {exchange.meetingLocation}{exchange.meetingTime ? ` · ${exchange.meetingTime}` : ""}
                             </span>
                             {(exchange.status === "en_curso" || exchange.status === "aceptado") && (
                                 <span className={`text-[10px] px-2 py-1 rounded-lg font-medium ${daysLeft <= 2

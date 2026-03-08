@@ -6,19 +6,21 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { searchBooks } from "@/server/actions/books/searchBooks";
+import { searchBooksByGenres } from "@/server/actions/books/searchBooksByGenres";
 import { searchUsers } from "@/server/actions/user/searchUsers";
 import { getCommunities } from "@/server/actions/communities/getCommunities";
 import { updateBook } from "@/server/actions/books";
 import { BookModal } from "@/components/books";
 import { Toast } from "@/components/ui/Toast";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { Users, BookOpen, User, Building2, Search, Loader2, X, Filter } from "lucide-react";
+import { Users, BookOpen, User, Building2, Search, Loader2, X, Filter, Tag, Sparkles, RefreshCw } from "lucide-react";
+import { addFavorite, removeFavorite, getMyFavoriteIds } from "@/server/actions/favorites";
 import { BookCardSkeleton, UserCardSkeleton, CommunityCardSkeleton } from "@/components/ui/skeletons";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type SearchTab = "books" | "users" | "communities";
+type SearchTab = "books" | "users" | "communities" | "genres";
 
 interface BookResult {
     id: string;
@@ -33,6 +35,10 @@ interface BookResult {
     createdAt: Date | null;
     ownerId: string;
     ownerUsername: string | null;
+}
+
+interface GenreBookResult extends BookResult {
+    matchCount: number;
 }
 
 interface UserResult {
@@ -58,14 +64,37 @@ const TABS: { key: SearchTab; label: string; icon: React.ReactNode }[] = [
     { key: "books", label: "Libros", icon: <BookOpen size={16} /> },
     { key: "users", label: "Usuarios", icon: <User size={16} /> },
     { key: "communities", label: "Comunidades", icon: <Building2 size={16} /> },
+    { key: "genres", label: "Géneros", icon: <Tag size={16} /> },
 ];
 
 
 
 // ─── Book Search Card (grid version) ─────────────────────────────────────────
 
-function SearchBookCard({ book, onClick }: { book: BookResult; onClick: () => void }) {
+function SearchBookCard({ book, onClick, matchCount, selectedGenres, isFavorite: initialFav }: { book: BookResult; onClick: () => void; matchCount?: number; selectedGenres?: string[]; isFavorite?: boolean }) {
     const [imgError, setImgError] = useState(false);
+
+    // Favorite state
+    const showHeart = initialFav !== undefined;
+    const [isFav, setIsFav] = useState(initialFav ?? false);
+    const [favLoading, setFavLoading] = useState(false);
+    const [favAnimating, setFavAnimating] = useState(false);
+
+    const handleFavToggle = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (favLoading) return;
+        setFavLoading(true);
+        setFavAnimating(true);
+        if (isFav) {
+            const result = await removeFavorite(book.id);
+            if (result.success) setIsFav(false);
+        } else {
+            const result = await addFavorite(book.id);
+            if (result.success) setIsFav(true);
+        }
+        setFavLoading(false);
+        setTimeout(() => setFavAnimating(false), 400);
+    };
 
     const isValidImage = (() => {
         try {
@@ -116,6 +145,41 @@ function SearchBookCard({ book, onClick }: { book: BookResult; onClick: () => vo
                         </span>
                     </div>
                 )}
+                {/* Match count badge */}
+                {matchCount !== undefined && matchCount > 0 && selectedGenres && selectedGenres.length > 1 && (
+                    <div className="absolute top-2 left-2">
+                        <span className="text-[10px] px-2 py-1 rounded-full font-bold backdrop-blur-sm bg-amber-500/90 text-white flex items-center gap-1">
+                            <Sparkles size={10} />
+                            {matchCount}/{selectedGenres.length}
+                        </span>
+                    </div>
+                )}
+
+                {/* Favorite heart */}
+                {showHeart && (
+                    <button
+                        onClick={handleFavToggle}
+                        disabled={favLoading}
+                        className="absolute top-2 left-2 p-1.5 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all disabled:opacity-50 z-10"
+                        aria-label={isFav ? "Quitar de favoritos" : "Agregar a favoritos"}
+                        style={matchCount !== undefined && matchCount > 0 && selectedGenres && selectedGenres.length > 1 ? { top: "2.25rem" } : {}}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            className={`w-4 h-4 transition-all duration-300 ${favAnimating ? "scale-125" : "scale-100"
+                                } ${isFav
+                                    ? "fill-red-500 stroke-red-500"
+                                    : "fill-transparent stroke-white/80 hover:stroke-red-400"
+                                }`}
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </button>
+                )}
             </div>
 
             {/* Info */}
@@ -134,14 +198,20 @@ function SearchBookCard({ book, onClick }: { book: BookResult; onClick: () => vo
                 )}
                 {book.genres.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                        {book.genres.slice(0, 2).map((genre, idx) => (
-                            <span
-                                key={idx}
-                                className="text-xs px-2 py-0.5 bg-primary-soft dark:bg-primary-dark/20 text-primary dark:text-primary-light rounded-full"
-                            >
-                                {genre}
-                            </span>
-                        ))}
+                        {book.genres.slice(0, 2).map((genre, idx) => {
+                            const isMatched = selectedGenres?.includes(genre);
+                            return (
+                                <span
+                                    key={idx}
+                                    className={`text-xs px-2 py-0.5 rounded-full ${isMatched
+                                        ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold"
+                                        : "bg-primary-soft dark:bg-primary-dark/20 text-primary dark:text-primary-light"
+                                        }`}
+                                >
+                                    {genre}
+                                </span>
+                            );
+                        })}
                         {book.genres.length > 2 && (
                             <span className="text-xs px-2 py-0.5 text-hint">
                                 +{book.genres.length - 2}
@@ -288,12 +358,31 @@ function SearchPageContent() {
     const [bookResults, setBookResults] = useState<BookResult[]>([]);
     const [userResults, setUserResults] = useState<UserResult[]>([]);
     const [communityResults, setCommunityResults] = useState<CommunityResult[]>([]);
+    const [genreBookResults, setGenreBookResults] = useState<GenreBookResult[]>([]);
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
-    // Genre filter state
+    // Favorite IDs for heart toggles
+    const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        const loadFavIds = async () => {
+            const result = await getMyFavoriteIds();
+            if (result.success) {
+                setFavoriteIds(new Set(result.ids));
+            }
+        };
+        loadFavIds();
+    }, []);
+
+    // Genre filter state (for books/communities tabs)
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
     const [genreSearch, setGenreSearch] = useState("");
+
+    // Genre tab state (separate from the filter)
+    const [genreTabGenres, setGenreTabGenres] = useState<string[]>([]);
+    const [genreTabSearch, setGenreTabSearch] = useState("");
+    const [genreTabLoading, setGenreTabLoading] = useState(false);
 
     const allGenresSelected = selectedGenres.length === BOOK_GENRES.length;
 
@@ -305,6 +394,15 @@ function SearchPageContent() {
             return normalized.includes(q);
         });
     }, [genreSearch]);
+
+    const filteredGenreTabGenres = useMemo(() => {
+        if (!genreTabSearch.trim()) return [...BOOK_GENRES];
+        const q = genreTabSearch.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return BOOK_GENRES.filter((g) => {
+            const normalized = g.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            return normalized.includes(q);
+        });
+    }, [genreTabSearch]);
 
     const toggleGenre = (genre: string) => {
         setSelectedGenres((prev) =>
@@ -318,6 +416,12 @@ function SearchPageContent() {
         } else {
             setSelectedGenres([...BOOK_GENRES]);
         }
+    };
+
+    const toggleGenreTab = (genre: string) => {
+        setGenreTabGenres((prev) =>
+            prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
+        );
     };
 
     // Modal state
@@ -357,6 +461,9 @@ function SearchPageContent() {
             setBookResults((prev) =>
                 prev.map((b) => (b.id === bookId ? { ...b, ...data } : b))
             );
+            setGenreBookResults((prev) =>
+                prev.map((b) => (b.id === bookId ? { ...b, ...data } : b))
+            );
             if (selectedBook?.id === bookId) {
                 setSelectedBook({ ...selectedBook, ...data } as BookResult);
             }
@@ -368,6 +475,7 @@ function SearchPageContent() {
 
     const handleDeleteBook = (bookId: string) => {
         setBookResults((prev) => prev.filter((b) => b.id !== bookId));
+        setGenreBookResults((prev) => prev.filter((b) => b.id !== bookId));
         setToast({ message: "Libro eliminado exitosamente", type: "success" });
         setIsModalOpen(false);
     };
@@ -378,9 +486,11 @@ function SearchPageContent() {
         }
     }, [status, router]);
 
-    // Run search when query or tab changes
+    // Run search when query or tab changes (for text-based tabs)
     const executeSearch = useCallback(
         async (q: string, tab: SearchTab, genres: string[]) => {
+            if (tab === "genres") return; // Genres tab has its own search
+
             if (q.length < 2) {
                 setBookResults([]);
                 setUserResults([]);
@@ -422,14 +532,44 @@ function SearchPageContent() {
         []
     );
 
-    // Debounced search
+    // Genre tab search
+    const executeGenreSearch = useCallback(async (genres: string[]) => {
+        if (genres.length === 0) {
+            setGenreBookResults([]);
+            return;
+        }
+
+        setGenreTabLoading(true);
+        try {
+            const result = await searchBooksByGenres(genres, 40);
+            if (result.success && result.books) {
+                setGenreBookResults(result.books as GenreBookResult[]);
+            }
+        } catch (error) {
+            console.error("Genre search error:", error);
+        } finally {
+            setGenreTabLoading(false);
+        }
+    }, []);
+
+    // Debounced search for text tabs
     useEffect(() => {
+        if (activeTab === "genres") return;
         const timer = setTimeout(() => {
             executeSearch(query, activeTab, selectedGenres);
         }, 400);
 
         return () => clearTimeout(timer);
     }, [query, activeTab, selectedGenres, executeSearch]);
+
+    // Genre tab: search when genres change
+    useEffect(() => {
+        if (activeTab !== "genres") return;
+        const timer = setTimeout(() => {
+            executeGenreSearch(genreTabGenres);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [genreTabGenres, activeTab, executeGenreSearch]);
 
     // Sync URL query param on initial load
     useEffect(() => {
@@ -451,12 +591,20 @@ function SearchPageContent() {
         setGenreSearch("");
     };
 
+    const handleRefreshGenres = () => {
+        if (genreTabGenres.length > 0) {
+            executeGenreSearch(genreTabGenres);
+        }
+    };
+
     const currentResults =
         activeTab === "books"
             ? bookResults
             : activeTab === "users"
                 ? userResults
-                : communityResults;
+                : activeTab === "communities"
+                    ? communityResults
+                    : genreBookResults;
 
     return (
         <>
@@ -481,34 +629,36 @@ function SearchPageContent() {
                     </p>
                 </div>
 
-                {/* Search Input */}
-                <div className="mb-6">
-                    <div className="relative max-w-2xl">
-                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-hint" />
-                        <input
-                            type="text"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder={
-                                activeTab === "books"
-                                    ? "Buscar por título o autor..."
-                                    : activeTab === "users"
-                                        ? "Buscar por nombre, usuario o código..."
-                                        : "Buscar comunidades por nombre..."
-                            }
-                            className="w-full pl-12 pr-4 py-4 bg-soft border-2 border-card-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted focus:border-primary dark:focus:border-primary-muted focus:bg-card transition-all text-heading text-lg"
-                            autoFocus
-                        />
+                {/* Search Input (hidden for genres tab) */}
+                {activeTab !== "genres" && (
+                    <div className="mb-6">
+                        <div className="relative max-w-2xl">
+                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-hint" />
+                            <input
+                                type="text"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder={
+                                    activeTab === "books"
+                                        ? "Buscar por título o autor..."
+                                        : activeTab === "users"
+                                            ? "Buscar por nombre, usuario o código..."
+                                            : "Buscar comunidades por nombre..."
+                                }
+                                className="w-full pl-12 pr-4 py-4 bg-soft border-2 border-card-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted focus:border-primary dark:focus:border-primary-muted focus:bg-card transition-all text-heading text-lg"
+                                autoFocus
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Tabs */}
-                <div className="flex items-center gap-2 mb-8 border-b border-card-border pb-4">
+                <div className="flex items-center gap-2 mb-8 border-b border-card-border pb-4 overflow-x-auto">
                     {TABS.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => handleTabChange(tab.key)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === tab.key
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeTab === tab.key
                                 ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg shadow-primary-glow"
                                 : "text-hint hover:bg-soft hover:text-heading"
                                 }`}
@@ -534,11 +684,10 @@ function SearchPageContent() {
                             </div>
                             <button
                                 onClick={toggleAllGenres}
-                                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${
-                                    allGenresSelected
-                                        ? "bg-primary text-white shadow-sm shadow-primary-glow hover:bg-primary-dark"
-                                        : "bg-card border border-card-border text-caption hover:border-primary/40 hover:text-primary"
-                                }`}
+                                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${allGenresSelected
+                                    ? "bg-primary text-white shadow-sm shadow-primary-glow hover:bg-primary-dark"
+                                    : "bg-card border border-card-border text-caption hover:border-primary/40 hover:text-primary"
+                                    }`}
                             >
                                 {allGenresSelected ? "✓ Todos" : "Seleccionar todos"}
                             </button>
@@ -600,11 +749,10 @@ function SearchPageContent() {
                                         <button
                                             key={genre}
                                             onClick={() => toggleGenre(genre)}
-                                            className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${
-                                                isSelected
-                                                    ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
-                                                    : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
-                                            }`}
+                                            className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
+                                                ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
+                                                : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
+                                                }`}
                                         >
                                             {isSelected && <span className="mr-1">✓</span>}
                                             {genre}
@@ -616,7 +764,175 @@ function SearchPageContent() {
                     </div>
                 )}
 
-                {/* ─── Content ─────────────────────────────────────────────────── */}
+                {/* ─── Genres Tab Content ──────────────────────────────────────────── */}
+                {activeTab === "genres" && (
+                    <div className="mb-6">
+                        {/* Genre selector with nice UI */}
+                        <div className="bg-gradient-to-br from-primary-soft/30 to-primary-soft/10 dark:from-primary-dark/10 dark:to-primary-dark/5 rounded-2xl border border-primary/20 dark:border-primary-muted/20 p-4 sm:p-5">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <Tag size={16} className="text-primary" />
+                                    <span className="text-sm font-bold text-heading">Selecciona géneros</span>
+                                    {genreTabGenres.length > 0 && (
+                                        <span className="text-xs font-bold text-white bg-primary px-2.5 py-0.5 rounded-full">
+                                            {genreTabGenres.length}
+                                        </span>
+                                    )}
+                                </div>
+                                {genreBookResults.length > 0 && (
+                                    <button
+                                        onClick={handleRefreshGenres}
+                                        className="text-xs font-semibold px-3 py-1.5 rounded-full bg-card border border-card-border text-caption hover:border-primary/40 hover:text-primary transition-all flex items-center gap-1.5"
+                                        title="Mezclar resultados"
+                                    >
+                                        <RefreshCw size={12} />
+                                        Mezclar
+                                    </button>
+                                )}
+                            </div>
+
+                            <p className="text-xs text-hint mb-3">
+                                Los libros con más géneros en común aparecerán primero
+                            </p>
+
+                            {/* Genre search */}
+                            <div className="relative mb-3">
+                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-hint" />
+                                <input
+                                    type="text"
+                                    value={genreTabSearch}
+                                    onChange={(e) => setGenreTabSearch(e.target.value)}
+                                    placeholder="Buscar género..."
+                                    className="w-full pl-9 pr-8 py-2 bg-card border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading text-sm transition-all"
+                                />
+                                {genreTabSearch && (
+                                    <button
+                                        onClick={() => setGenreTabSearch("")}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption transition-colors"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Selected pills */}
+                            {genreTabGenres.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                    {genreTabGenres.map((genre) => (
+                                        <button
+                                            key={`gt-selected-${genre}`}
+                                            onClick={() => toggleGenreTab(genre)}
+                                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm hover:bg-primary-dark transition-all group"
+                                        >
+                                            {genre}
+                                            <X size={12} className="opacity-70 group-hover:opacity-100" />
+                                        </button>
+                                    ))}
+                                    <button
+                                        onClick={() => setGenreTabGenres([])}
+                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-red-500 hover:text-red-600 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 transition-all"
+                                    >
+                                        Limpiar
+                                        <X size={12} />
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Genre grid */}
+                            <div className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto custom-scrollbar p-2 bg-card/50 rounded-xl border border-card-border/30">
+                                {filteredGenreTabGenres.length === 0 ? (
+                                    <p className="text-sm text-hint py-2 w-full text-center">
+                                        No se encontraron géneros para &quot;{genreTabSearch}&quot;
+                                    </p>
+                                ) : (
+                                    filteredGenreTabGenres.map((genre) => {
+                                        const isSelected = genreTabGenres.includes(genre);
+                                        return (
+                                            <button
+                                                key={`gt-${genre}`}
+                                                onClick={() => toggleGenreTab(genre)}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
+                                                    ? "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-muted/30 ring-1 ring-primary/20 shadow-sm"
+                                                    : "bg-card text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-muted/40 hover:bg-primary-soft hover:text-primary dark:hover:text-primary-light"
+                                                    }`}
+                                            >
+                                                {isSelected && <span className="mr-1">✓</span>}
+                                                {genre}
+                                            </button>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Genre results */}
+                        {genreTabLoading && (
+                            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                {Array.from({ length: 10 }).map((_, i) => (
+                                    <BookCardSkeleton key={i} />
+                                ))}
+                            </div>
+                        )}
+
+                        {!genreTabLoading && genreBookResults.length > 0 && (
+                            <div className="mt-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <p className="text-sm text-hint">
+                                        {genreBookResults.length} {genreBookResults.length === 1 ? "libro encontrado" : "libros encontrados"}
+                                    </p>
+                                    {genreTabGenres.length > 1 && (
+                                        <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                                            <Sparkles size={12} />
+                                            <span className="font-medium">Ordenados por relevancia</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                    {genreBookResults.map((book) => (
+                                        <SearchBookCard
+                                            key={book.id}
+                                            book={book}
+                                            onClick={() => handleBookClick(book)}
+                                            matchCount={book.matchCount}
+                                            selectedGenres={genreTabGenres}
+                                            isFavorite={favoriteIds.has(book.id)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {!genreTabLoading && genreTabGenres.length > 0 && genreBookResults.length === 0 && (
+                            <div className="text-center py-16 mt-6">
+                                <div className="mb-4 flex justify-center">
+                                    <BookOpen size={56} className="text-hint" />
+                                </div>
+                                <h3 className="text-xl font-semibold text-body mb-2">
+                                    Sin resultados
+                                </h3>
+                                <p className="text-hint max-w-sm mx-auto">
+                                    No se encontraron libros con los géneros seleccionados. Intenta con otros géneros.
+                                </p>
+                            </div>
+                        )}
+
+                        {!genreTabLoading && genreTabGenres.length === 0 && (
+                            <div className="text-center py-16 mt-6">
+                                <div className="mb-6 flex justify-center">
+                                    <Tag size={64} className="text-hint" />
+                                </div>
+                                <h3 className="text-xl font-semibold text-body mb-2">
+                                    Explora por género
+                                </h3>
+                                <p className="text-hint max-w-sm mx-auto">
+                                    Selecciona uno o más géneros arriba para descubrir libros. Los que coincidan con más géneros aparecerán primero.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* ─── Content (for non-genre tabs) ────────────────────────────────── */}
 
                 {/* Loading Skeletons */}
                 {loading && activeTab === "books" && (
@@ -653,7 +969,7 @@ function SearchPageContent() {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {bookResults.map((book) => (
-                                <SearchBookCard key={book.id} book={book} onClick={() => handleBookClick(book)} />
+                                <SearchBookCard key={book.id} book={book} onClick={() => handleBookClick(book)} isFavorite={favoriteIds.has(book.id)} />
                             ))}
                         </div>
                     </>
@@ -691,8 +1007,9 @@ function SearchPageContent() {
                     </>
                 )}
 
-                {/* Empty states */}
+                {/* Empty states (text-based tabs only) */}
                 {!loading &&
+                    activeTab !== "genres" &&
                     hasSearched &&
                     currentResults.length === 0 && (
                         <div className="text-center py-16">
@@ -709,8 +1026,8 @@ function SearchPageContent() {
                         </div>
                     )}
 
-                {/* Initial state – no search entered yet */}
-                {!loading && !hasSearched && (
+                {/* Initial state – no search entered yet (text-based tabs only) */}
+                {!loading && !hasSearched && activeTab !== "genres" && (
                     <div className="text-center py-16">
                         <div className="mb-6 flex justify-center"><Search size={64} className="text-hint" /></div>
                         <h3 className="text-xl font-semibold text-body mb-2">

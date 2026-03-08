@@ -1,28 +1,17 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { exchanges, books } from "@/db/schema";
-import { eq, and, lte } from "drizzle-orm";
+import { exchanges, books, notifications, users } from "@/db/schema";
+import { eq, and, lte, gte, ne } from "drizzle-orm";
 
-// Cron job: auto-start exchanges whose start date has arrived
-// This can be triggered by:
-// 1. Vercel Cron (add to vercel.json)
-// 2. An external cron service calling this endpoint
-// 3. Client-side polling from the exchanges page
+
+// Cron job: auto-start exchanges, auto-complete, and send return reminders
+// Triggered by Vercel Cron daily at midnight (vercel.json)
 
 export async function GET(request: Request) {
     try {
-        // Optional: verify a secret key for security
-        const { searchParams } = new URL(request.url);
-        const secret = searchParams.get("secret");
-
-        // In production you'd want a proper secret check:
-        // if (secret !== process.env.CRON_SECRET) {
-        //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        // }
-
         const now = new Date();
 
-        // Find all accepted exchanges where the start date has passed
+        // ─── 1. Auto-start accepted exchanges whose start date has arrived ───
         const exchangesToStart = await db
             .select()
             .from(exchanges)
@@ -37,7 +26,6 @@ export async function GET(request: Request) {
         let skipped = 0;
 
         for (const exchange of exchangesToStart) {
-            // Check if there's already an en_curso exchange for this book
             const existingInProgress = await db
                 .select()
                 .from(exchanges)
@@ -49,12 +37,10 @@ export async function GET(request: Request) {
                 );
 
             if (existingInProgress.length > 0) {
-                // Can't start — another exchange is already in progress for this book
                 skipped++;
                 continue;
             }
 
-            // Transition to en_curso
             await db
                 .update(exchanges)
                 .set({
@@ -63,7 +49,6 @@ export async function GET(request: Request) {
                 })
                 .where(eq(exchanges.id, exchange.id));
 
-            // Mark book as ocupado
             await db
                 .update(books)
                 .set({ status: "ocupado" })
@@ -72,8 +57,7 @@ export async function GET(request: Request) {
             started++;
         }
 
-        // Auto-complete: exchanges that are en_curso and end date has passed (at 23:59)
-        // We set the end-of-day to 23:59 of the end date
+        // ─── 2. Auto-complete exchanges past their end date ─────────────────
         const exchangesEnCurso = await db
             .select()
             .from(exchanges)
@@ -85,16 +69,13 @@ export async function GET(request: Request) {
 
         for (const exchange of exchangesEnCurso) {
             const endDate = new Date(exchange.endDate);
-            // Set the threshold to 23:59 of the end date
             const endOfDay = new Date(endDate);
             endOfDay.setHours(23, 59, 0, 0);
 
-            // Only auto-complete if we've passed 23:59 of the end date
             if (now < endOfDay) {
                 continue;
             }
 
-            // Auto-complete
             await db
                 .update(exchanges)
                 .set({
@@ -103,7 +84,6 @@ export async function GET(request: Request) {
                 })
                 .where(eq(exchanges.id, exchange.id));
 
-            // Check if there are remaining active exchanges for this book
             const remaining = await db
                 .select()
                 .from(exchanges)
@@ -114,8 +94,6 @@ export async function GET(request: Request) {
                     )
                 );
 
-            // Also check if there's another accepted exchange starting tomorrow
-            // (to avoid briefly marking the book as disponible)
             const tomorrow = new Date(now);
             tomorrow.setDate(tomorrow.getDate() + 1);
             tomorrow.setHours(0, 0, 0, 0);
@@ -131,7 +109,6 @@ export async function GET(request: Request) {
                     )
                 );
 
-            // If no more active and no next-day exchange, set book back to disponible
             if (remaining.length === 0 && nextDayExchange.length === 0) {
                 await db
                     .update(books)
@@ -142,12 +119,135 @@ export async function GET(request: Request) {
             completed++;
         }
 
+        // ─── 3. Send return reminder notifications ──────────────────────────
+        // Find exchanges that are "en_curso" and their endDate is tomorrow or today
+        const todayStart = new Date(now);
+        todayStart.setHours(0, 0, 0, 0);
+
+        const todayEnd = new Date(now);
+        todayEnd.setHours(23, 59, 59, 999);
+
+        const tomorrowStart = new Date(todayStart);
+        tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+        const tomorrowEnd = new Date(tomorrowStart);
+        tomorrowEnd.setHours(23, 59, 59, 999);
+
+        // Get all in-progress exchanges
+        const activeExchanges = await db
+            .select()
+            .from(exchanges)
+            .where(
+                eq(exchanges.status, "en_curso")
+            );
+
+        let remindersSent = 0;
+
+        for (const exchange of activeExchanges) {
+            const endDate = new Date(exchange.endDate);
+            endDate.setHours(0, 0, 0, 0);
+
+            const isTomorrow = endDate.getTime() === tomorrowStart.getTime();
+            const isToday = endDate.getTime() === todayStart.getTime();
+
+            if (!isTomorrow && !isToday) continue;
+
+            // Get book title
+            const book = await db.query.books.findFirst({
+                where: eq(books.id, exchange.bookId),
+            });
+            const bookTitle = book?.title || "Libro";
+
+            // Get names for personalized messages
+            const owner = await db.query.users.findFirst({
+                where: eq(users.id, exchange.ownerId),
+            });
+            const requester = await db.query.users.findFirst({
+                where: eq(users.id, exchange.requesterId),
+            });
+            const ownerName = owner?.username || owner?.name || "el dueño";
+            const requesterName = requester?.username || requester?.name || "el solicitante";
+
+            const locationInfo = exchange.meetingLocation
+                ? ` en ${exchange.meetingLocation}`
+                : "";
+            const timeInfo = exchange.meetingTime
+                ? ` a las ${exchange.meetingTime}`
+                : "";
+
+            if (isTomorrow) {
+                // Check if we already sent this reminder today (avoid duplicates)
+                const existingReminder = await db
+                    .select()
+                    .from(notifications)
+                    .where(
+                        and(
+                            eq(notifications.exchangeId, exchange.id),
+                            eq(notifications.type, "exchange_reminder_tomorrow"),
+                            gte(notifications.createdAt, todayStart),
+                            lte(notifications.createdAt, todayEnd)
+                        )
+                    );
+
+                if (existingReminder.length === 0) {
+                    // Notify both owner and requester
+                    await db.insert(notifications).values([
+                        {
+                            userId: exchange.ownerId,
+                            type: "exchange_reminder_tomorrow" as const,
+                            message: `¡Mañana se entrega "${bookTitle}"! Ponte de acuerdo con @${requesterName} para la hora y lugar de recogida.`,
+                            exchangeId: exchange.id,
+                        },
+                        {
+                            userId: exchange.requesterId,
+                            type: "exchange_reminder_tomorrow" as const,
+                            message: `¡Mañana devuelves "${bookTitle}"! Ponte de acuerdo con @${ownerName} para la hora y lugar de recogida.`,
+                            exchangeId: exchange.id,
+                        },
+                    ]);
+                    remindersSent += 2;
+                }
+            }
+
+            if (isToday) {
+                const existingReminder = await db
+                    .select()
+                    .from(notifications)
+                    .where(
+                        and(
+                            eq(notifications.exchangeId, exchange.id),
+                            eq(notifications.type, "exchange_reminder_today"),
+                            gte(notifications.createdAt, todayStart),
+                            lte(notifications.createdAt, todayEnd)
+                        )
+                    );
+
+                if (existingReminder.length === 0) {
+                    await db.insert(notifications).values([
+                        {
+                            userId: exchange.ownerId,
+                            type: "exchange_reminder_today" as const,
+                            message: `¡Hoy se devuelve "${bookTitle}"! Coordina con @${requesterName} para recoger tu libro. ¡No lo olviden!`,
+                            exchangeId: exchange.id,
+                        },
+                        {
+                            userId: exchange.requesterId,
+                            type: "exchange_reminder_today" as const,
+                            message: `¡Hoy devuelves "${bookTitle}"! Coordina con @${ownerName} la entrega del libro. ¡No lo olviden!`,
+                            exchangeId: exchange.id,
+                        },
+                    ]);
+                    remindersSent += 2;
+                }
+            }
+        }
+
         return NextResponse.json({
             success: true,
-            message: `Cron ejecutado: ${started} iniciados, ${skipped} omitidos, ${completed} completados`,
+            message: `Cron ejecutado: ${started} iniciados, ${skipped} omitidos, ${completed} completados, ${remindersSent} recordatorios enviados`,
             started,
             skipped,
             completed,
+            remindersSent,
             timestamp: now.toISOString(),
         });
     } catch (error) {

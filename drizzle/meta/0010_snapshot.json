@@ -1,48 +1,9 @@
 {
-  "id": "c5d2e1f0-02b0-4330-83bc-2cf2bd056906",
+  "id": "89367fff-a342-4cab-92b5-58ef2e759bbb",
   "prevId": "d8284d40-5452-41fd-8d94-37f124d4a588",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.book_vectors": {
-      "name": "book_vectors",
-      "schema": "",
-      "columns": {
-        "book_id": {
-          "name": "book_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "embedding": {
-          "name": "embedding",
-          "type": "vector(50)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "book_vectors_book_id_books_id_fk": {
-          "name": "book_vectors_book_id_books_id_fk",
-          "tableFrom": "book_vectors",
-          "tableTo": "books",
-          "columnsFrom": [
-            "book_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.books": {
       "name": "books",
       "schema": "",
@@ -738,6 +699,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "meeting_time": {
+          "name": "meeting_time",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "requester_note": {
           "name": "requester_note",
@@ -1536,45 +1503,6 @@
             "id"
           ],
           "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.user_vectors": {
-      "name": "user_vectors",
-      "schema": "",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "embedding": {
-          "name": "embedding",
-          "type": "vector(50)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "user_vectors_user_id_users_id_fk": {
-          "name": "user_vectors_user_id_users_id_fk",
-          "tableFrom": "user_vectors",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },

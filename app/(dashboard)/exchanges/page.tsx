@@ -11,6 +11,8 @@ import { ExchangeRequestModal } from "@/components/exchanges/ExchangeRequestModa
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
 import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
+import { sendMessage } from "@/server/actions/chat/sendMessage";
+import { encodeBookCardMessage } from "@/lib/utils/bookCardMessage";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BookOpen, Inbox, Send, ClipboardList, Search, RefreshCw, Clock, PartyPopper, BookOpenCheck, MessageSquare, ArrowLeft, ChevronRight, Mailbox, BookMarked, Trash2, ArrowLeftRight, Users } from "lucide-react";
 import { getFriends, FriendProfile } from "@/server/actions/friends/getFriends";
@@ -211,9 +213,16 @@ function ExchangesPageContent() {
         setModalOpen(true);
     };
 
-    const handleMessageOwner = async (ownerId: string) => {
-        const result = await getOrCreateRoom(ownerId);
+    const handleMessageOwner = async (book: AvailableBook) => {
+        const result = await getOrCreateRoom(book.ownerId);
         if (result.success && result.roomId) {
+            const bookCardMsg = encodeBookCardMessage({
+                bookId: book.id,
+                title: book.title,
+                author: book.author,
+                imageUrl: book.imageUrl,
+            });
+            await sendMessage(result.roomId, bookCardMsg);
             router.push(`/chat/${result.roomId}`);
         }
     };
@@ -405,7 +414,7 @@ function ExchangesPageContent() {
                                                 key={book.id}
                                                 book={book}
                                                 onExchange={() => openExchangeModal(book)}
-                                                onMessage={() => handleMessageOwner(book.ownerId)}
+                                                onMessage={() => handleMessageOwner(book)}
                                             />
                                         ))
                                     )}
@@ -458,7 +467,12 @@ function ExchangesPageContent() {
                                                                 ownerImageURL: selectedContact.imageURL,
                                                             })
                                                         }
-                                                        onMessage={() => handleMessageOwner(book.ownerId)}
+                                                        onMessage={() => handleMessageOwner({
+                                                            ...book,
+                                                            ownerName: selectedContact.name,
+                                                            ownerUsername: selectedContact.username,
+                                                            ownerImageURL: selectedContact.imageURL,
+                                                        })}
                                                     />
                                                 ))}
                                             </div>

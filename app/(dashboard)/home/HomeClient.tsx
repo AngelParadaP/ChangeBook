@@ -14,6 +14,7 @@ import CommunityRecommendationSidebar from "@/components/community/CommunityReco
 import { updateBook } from "@/server/actions/books";
 import { Home } from "lucide-react";
 import { BookCardSkeleton, PostCardSkeleton } from "@/components/ui/skeletons";
+import { getMyFavoriteIds } from "@/server/actions/favorites";
 
 
 
@@ -92,6 +93,19 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  // Favorite IDs for heart toggles
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const loadFavIds = async () => {
+      const result = await getMyFavoriteIds();
+      if (result.success) {
+        setFavoriteIds(new Set(result.ids));
+      }
+    };
+    loadFavIds();
+  }, []);
 
   // Load community posts when tab changes
   useEffect(() => {
@@ -276,6 +290,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
                     imageUrl={book.imageUrl}
                     genres={book.genres}
                     ownerUsername={book.ownerUsername}
+                    isFavorite={favoriteIds.has(book.id)}
                     onClick={() => handleBookClick(book)}
                   />
                 ))}
