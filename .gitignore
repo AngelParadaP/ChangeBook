@@ -184,3 +184,7 @@ storybook-static
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# Seed scripts
+scripts/seed.ts
+scripts/seed2.ts

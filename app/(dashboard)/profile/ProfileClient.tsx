@@ -430,12 +430,15 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                   <div>
                     <label className="block text-sm font-medium text-body mb-2">Nombre</label>
                     {isEditing ? (
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading"
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={profile.name}
+                          disabled
+                          className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl text-hint cursor-not-allowed opacity-70"
+                          title="El nombre está asociado a tu correo institucional y no se puede modificar manualmente"
+                        />
+                      </div>
                     ) : (
                       <p className="text-lg text-heading">{profile.name}</p>
                     )}

@@ -21,31 +21,50 @@ export async function registerAction(data: RegisterInput) {
 
   const validatedData = result.data;
 
-  // 1. Validar contra SIIAU (ahora también intenta obtener el nombre del alumno)
+  // 1. Validar que los números del correo coinciden con las posiciones 5-8 del código de alumno (índices 4-7)
+  // Para académicos (@academicos.udg.mx) saltamos esta validación ya que sus correos no llevan número ni coinciden con códigos
+  if (validatedData.email.endsWith("@alumnos.udg.mx")) {
+    const emailLocalPart = validatedData.email.split("@")[0];
+    const emailNumbersMatch = emailLocalPart.match(/\d+$/);
+
+    if (!emailNumbersMatch) {
+      return { error: "Tu correo parece estar incorrecto." };
+    }
+
+    const emailNumbers = emailNumbersMatch[0];
+    const codePart = validatedData.code.substring(4, 8);
+
+    if (emailNumbers !== codePart) {
+      return { error: `Tu correo no coincide con tu código de alumno.` };
+    }
+  }
+
+  // 2. Validar contra SIIAU (ahora también intenta obtener el nombre del alumno)
   const siiau = await validateWithSIIAU(validatedData.code, validatedData.nip);
   if (!siiau.success) return { error: "Código o NIP de SIIAU incorrectos" };
 
-  // 2. Verificar duplicados de código
+  // 3. Verificar duplicados de código
   const [existingCode] = await db
     .select()
     .from(users)
     .where(eq(users.studentCode, validatedData.code));
   if (existingCode) return { error: "Este código ya tiene una cuenta en Kyboo" };
 
-  // 3. Verificar duplicados de email
+  // 4. Verificar duplicados de email
   const [existingEmail] = await db
     .select()
     .from(users)
     .where(eq(users.email, validatedData.email));
   if (existingEmail) return { error: "Este correo ya está registrado en Kyboo" };
 
-  // 4. Determinar el nombre del usuario
-  // Prioridad: nombre de SIIAU > nombre derivado del email > fallback
-  const userName = siiau.name
-    || deriveNameFromEmail(validatedData.email)
+  // 5. Determinar el nombre del usuario
+  // Prioridad: nombre derivado del email
+  // El nombre derivado de SIIAU se puede omitir si el email es más confiable y formateable o dejarlo como estaba
+  const userName = deriveNameFromEmail(validatedData.email)
+    || siiau.name
     || "Usuario de Kyboo";
 
-  // 5. Hashear y Guardar
+  // 6. Hashear y Guardar
   const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
   await db.insert(users).values({
@@ -61,19 +80,20 @@ export async function registerAction(data: RegisterInput) {
 
 /**
  * Deriva un nombre legible a partir del email institucional.
- * "juan.perez@alumnos.udg.mx" → "Juan Perez"
+ * "angel.parada9110@alumnos.udg.mx" → "Angel Parada"
  */
 function deriveNameFromEmail(email: string): string | null {
   const localPart = email.split("@")[0];
   if (!localPart) return null;
 
-  // Reemplazar puntos, guiones bajos and guiones por espacios
-  const parts = localPart
+  // Eliminar números y luego reemplazar puntos, guiones bajos y guiones por espacios
+  const nameOnly = localPart.replace(/\d+/g, "");
+  const parts = nameOnly
     .replace(/[._-]/g, " ")
     .split(/\s+/)
-    .filter(Boolean)
+    .filter(word => word.length > 0)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
 
-  return parts.length >= 2 ? parts.join(" ") : null;
+  return parts.length > 0 ? parts.join(" ") : null;
 }
 
