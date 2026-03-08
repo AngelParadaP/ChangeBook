@@ -1,315 +1,108 @@
 # Kyboo 📚
 
-A modern book exchange platform built with Next.js, allowing students to share and exchange books within their community.
+🌐 **Ruta oficial de la aplicación:** [kybooo.vercel.app](https://kybooo.vercel.app)
 
-## 🚀 Tech Stack
+Kyboo es una plataforma moderna centrada en promover una comunidad lectora dentro de la UDG (Universidad de Guadalajara). El objetivo principal de la aplicación es conectar a estudiantes a través de la lectura, permitiendo publicar libros para intercambiar con otros usuarios, además de crear comunidades que se centren en géneros literarios específicos. La plataforma cuenta con chat para comunicación y ofrece recomendaciones altamente personalizadas gracias al análisis de tus interacciones dentro de la app.
 
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript
-- **Database:** PostgreSQL with Drizzle ORM
-- **Authentication:** NextAuth.js
-- **Styling:** Tailwind CSS
-- **Package Manager:** pnpm
+## 🚀 Tecnologías Utilizadas
 
-## 📋 Prerequisites
+- <img src="https://img.shields.io/badge/Neon-00E599?style=flat-square&logo=neon&logoColor=white" alt="Neon" /> **Neon (PostgreSQL)**
+- <img src="https://img.shields.io/badge/Next.js-black?style=flat-square&logo=next.js&logoColor=white" alt="Next.js" /> **Next.js 14**
+- <img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" alt="Vercel" /> **Vercel**
+- <img src="https://img.shields.io/badge/Uploadthing-black?style=flat-square" alt="Uploadthing" /> **Uploadthing**
+- <img src="https://img.shields.io/badge/NextAuth-000000?style=flat-square&logo=next.js&logoColor=white" alt="NextAuth.js" /> **NextAuth.js**
+- <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" /> **Tailwind CSS**
+- <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" /> **TypeScript**
+- <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white" alt="GitHub Actions" /> **GitHub Actions**
+- <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python" /> **Python**
 
-- Node.js 18+ and pnpm installed
-- Docker and Docker Compose (for database)
+### ¿Cómo funciona la aplicación con estas tecnologías?
 
-## 🛠️ Setup Instructions
+- **Frontend & Backend Integrado**: Toda la aplicación y servidor corren sobre **Next.js** desplegado y alojado en la infraestructura de punta de **Vercel**. Esto permite una experiencia rápida y fluida, conectándose de manera segura con el motor PostgreSQL a través del uso de Drizzle ORM. Todo mantenido bajo el tipado seguro de **TypeScript** y estilos construidos con agilidad gracias a **Tailwind CSS**.
+- **Autenticación Segura**: **NextAuth.js** provee un flujo de inicio de sesión y registro protegido para manejar las sesiones de los estudiantes de manera eficiente, resguardando su información.
+- **Gestión de Archivos**: Al publicar la portada de un libro, cambiar un avatar o agregar una imagen a una comunidad, entra en juego **Uploadthing**, gestionando los archivos multimedia subidos y devolviendo URLs optimizadas que se guardan en la base de datos.
+- **Base de Datos Dinámica**: **Neon** provee una base de datos relacional (PostgreSQL) robusta sin servidor que almacena de manera centralizada los usuarios, libros, comunidades, mensajes de chat y preferencias. Además, su soporte a diversas extensiones permite habilitar la lógica vectorial necesaria para la aplicación sin fricciones.
+- **Sistema de Recomendaciones (SVD)**: Aquí convergen **Python** y **GitHub Actions**. Diariamente (a las 00:00 hrs de MX), mediante el uso de flujos y funciones programadas con GitHub Actions, se ejecuta un script en Python que procesa masivamente las interacciones de los usuarios en la plataforma. Utilizando la técnica de reducción de dimensionalidad **Singular Value Decomposition (SVD)** (un pilar para métodos de filtrado colaborativo o Matrix Factorization), el sistema perfila las afinidades subyacentes de los usuarios comparándolos entre sí, calculando y guardando de vuelta **vectores de afinidad** en la base de datos de Neon. La plataforma (con **Next.js**) luego utiliza y consulta esos vectores en conjunto un algoritmo basado en **similitud de cosenos**, generando interacciones cruzadas en tiempo real para recomendarte afinidades extremadamente precisas de nuevos libros y comunidades personalizadas.
 
-### 1. Clone the Repository
+## 🛠️ Instrucciones de Instalación y Configuración
+
+Sigue estos pasos para poner a correr la aplicación de forma local:
+
+### 1. Clonar el repositorio e instalar dependencias
 
 ```bash
-git clone <your-repo-url>
-cd kyboo
-```
-
-### 2. Install Dependencies
-
-```bash
+git clone <https://github.com/AngelParadaP/ChangeBook.git>
+cd ChangeBook
 pnpm install
 ```
 
-### 3. Set Up PostgreSQL with Docker
+### 2. Base de Datos (Neon)
 
-Start the PostgreSQL container using Docker Compose:
+1. Crea un nuevo proyecto en la página oficial de [Neon](https://neon.tech/).
+2. Copia la URL de tu base de datos de la plataforma y asegúrate **muy importante** de que tenga agregada en el string de conexión los siguientes 3 parámetros. Debe de quedar similar a este formato:
+   `postgresql://usuario:contraseña@neon-host.com/dbname?sslmode=require&channel_binding=require&uselibpqcompat=true`
+3. Antes de siquiera correr las migraciones, ve a la sección de **SQL Editor** dentro del proyecto en Neon y ejecuta el siguiente comando explícito para habilitar el uso de arreglos vectoriales dentro para nuestra base de datos.
+   ```sql
+   CREATE EXTENSION IF NOT EXISTS vector;
+   ```
 
-```bash
-# Start database in detached mode
-docker-compose up -d
+### 3. Almacenamiento (Uploadthing)
 
-# Verify it's running
-docker ps
+1. Ve hacia [Uploadthing](https://uploadthing.com/) e inicia sesión. Crea allí un bucket o aplicación nueva.
+2. Extrae las claves provistas por la plataforma en su panel principal; necesitarás tanto el `secret` como la `key` o (App ID).
 
-# Check logs if needed
-docker logs kyboo-db
-```
+### 4. Variables de Entorno
 
-The `docker-compose.yml` is already configured with:
-- **Database:** kyboo_db
-- **User:** db_user
-- **Password:** db_password
-- **Port:** 5432
-
-### 4. Configure Environment Variables
-
-Create a `.env.local` file in the root directory:
-
-```bash
-# Copy the example file
-cp .env.example .env.local
-```
-
-Add the following to `.env.local`:
+Una vez tengamos lo anterior, crea un archivo `.env.local` en el nivel base del repositorio de proyecto para alojarlas:
 
 ```env
-# Database
-DATABASE_URL=postgresql://db_user:db_password@localhost:5432/kyboo_db
+# Base de Datos
+DATABASE_URL="pegada-de-neon-con-parametros"
 
 # NextAuth
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-here
+# Para originar un código nextauth_secret de alta seguridad para cifrar las contraseñas, corre el comando en tu terminal: openssl rand -base64 32
+NEXTAUTH_SECRET="el-hash-generado-por-ti"
 
-# Generate NEXTAUTH_SECRET with:
-# openssl rand -base64 32
+# Y en nextauth_url será tu URI local, o bien, si planeas enviarlo a produccion, pega el link raíz final del despliegue en Vercel
+NEXTAUTH_URL="http://localhost:3000"
+
+# Uploadthing 
+UPLOADTHING_SECRET="tu-secreto-uploadthing"
+UPLOADTHING_APP_ID="tu-llave-uploadthing"
 ```
 
-### 5. Run Database Migrations
+> **⚠️ IMPORTANTE para las Recomendaciones (GitHub Actions):** 
+> Para que el script de Python que genera las recomendaciones pueda ejecutarse correctamente y conectarse a la base de datos de Neon de forma automatizada, es **indispensable** que agregues el mismo valor de tu `DATABASE_URL` como un **Secret del repositorio en GitHub** (en *Settings > Secrets and variables > Actions > New repository secret* con el nombre `DATABASE_URL`).
 
-Push the database schema using Drizzle:
+### 5. Empuje de Migración al Schema de Datos
+
+Ahora estamos listos para alinear nuestra base de datos remota en la nube a la que creaste localmente, tomando la configuración original sin romper nada:
 
 ```bash
-# Push schema to database
-pnpm db:push
-
-# Or run migrations (if you have migration files)
-pnpm db:migrate
+pnpm exec drizzle-kit migrate
 ```
+(*El comando aplicará la última estructura faltante a tu base de datos, incluyendo desde las tablas nativas hasta las columnas vectoriales implementadas de los exchanges.*)
 
-Check your `package.json` for the exact migration commands. Common ones are:
-```bash
-pnpm drizzle-kit push:pg
-# or
-pnpm drizzle-kit migrate
-```
+### 6. Ejecución del Servidor
 
-### 6. Start the Development Server
+Por final, pon a lanzar el host local para usar la app mediante el último script:
 
 ```bash
-pnpm dev
+pnpm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Abre o navega directamente dentro de tu navegador buscando **[http://localhost:3000](http://localhost:3000)**. 🚀
 
-## 🐳 Docker Database Commands
+## 🧠 Sistema de Inteligencia Artificial (Machine Learning)
 
-### Basic Operations
+El proyecto cumple con requerimientos técnicos avanzados de Inteligencia Artificial enfocados en un motor de recomendaciones altamente personalizado. Esto se logra implementando **Factorización de Matrices (Matrix Factorization)** orientado a un modelo de **Filtrado Colaborativo Implícito**.
 
-```bash
-# Start database
-docker-compose up -d
+- **Uso de Singular Value Decomposition (SVD):** A través de un script dedicado en Python (`recommendations.py`), el sistema forma y construye una enorme matriz de interacciones cruzadas. Esta es una matriz dispersa llena de *"calificaciones implícitas"* (las cuales son derivadas al evaluar distintas acciones con pesos ponderados, como: agregar a favoritos, el estatus de avance en intercambios y la afinidad natural por géneros). Posteriormente, el script descompone matemáticamente esta gráfica con la función `np.linalg.svd`. Esta descomposición extrae relaciones matemáticas ocultas o *características latentes* entre los nodos.
+- **Atributos Latentes y Reducción de Dimensionalidad:** Al sintetizar el número de factores durante la factorización de las matrices, se fuerza a la IA a aprender generalizaciones por sí sola. Si varios usuarios con gustos anónimos demuestran un consumo recurrente en patrones idénticos en la plataforma, la reducción dimensiona las correlaciones que definiremos como un "Vector de Perfilamiento Múltiple".
+- **Similitud de Coseno Integrada (Backend):** Tras reducirse, los tensores (*embeddings*) generados en Python se inyectan a la estructura vectorial de nuestra base de datos **Neon**. Posteriormente, el backend de Next.js evalúa rápidamente su volumen usando el teorema de **Similitud de Coseno** comparando métricas contra los vectores de los libros/comunidades a renderizar. Todo esto ocurre al vuelo (en tiempo real) para el cliente que solicita resultados refrescados en su dashboard.
 
-# Stop database
-docker-compose down
+## 👥 Autores
 
-# Stop and remove all data
-docker-compose down -v
-
-# View logs
-docker logs -f kyboo-db
-
-# Restart database
-docker-compose restart
-```
-
-### Access PostgreSQL CLI
-
-```bash
-# Connect to PostgreSQL inside the container
-docker exec -it kyboo-db psql -U db_user -d kyboo_db
-
-# Once inside psql, useful commands:
-\dt          # List all tables
-\d users     # Describe users table
-\d books     # Describe books table
-SELECT * FROM users;    # Query users
-\q           # Exit psql
-```
-
-### Database Management
-
-```bash
-# Create a database backup
-docker exec kyboo-db pg_dump -U db_user kyboo_db > backup.sql
-
-# Restore from backup
-docker exec -i kyboo-db psql -U db_user kyboo_db < backup.sql
-
-# View database size
-docker exec kyboo-db psql -U db_user -d kyboo_db -c "SELECT pg_size_pretty(pg_database_size('kyboo_db'));"
-```
-
-## 📁 Project Structure
-
-```
-kyboo/
-├── app/                    # Next.js app directory
-│   ├── (auth)/            # Authentication pages (login, register)
-│   ├── (dashboard)/       # Main app pages (home, profile, publish)
-│   ├── api/               # API routes (NextAuth)
-│   └── test-register/     # Test user registration
-├── components/            # React components
-│   ├── books/            # Book modal and related
-│   ├── feed/             # Feed components
-│   ├── layout/           # Sidebar, Navbar
-│   ├── profile/          # Profile components
-│   └── ui/               # Reusable UI components
-├── db/                   # Database configuration
-│   └── schema.ts         # Drizzle schema definitions
-├── drizzle/              # Database migrations
-├── lib/                  # Utility functions
-├── server/               # Server actions
-│   └── actions/          # Server-side logic
-│       ├── auth/         # Authentication actions
-│       ├── books/        # Book CRUD operations
-│       ├── feed/         # Personalized feed
-│       ├── test/         # Test utilities
-│       └── user/         # User operations
-└── public/               # Static assets
-```
-
-## 🗄️ Database Schema
-
-Main tables:
-- **users** - User accounts, preferences, and authentication
-  - id, studentCode, name, username, password, imageURL, preferences
-- **books** - Published books for exchange
-  - id, ownerId, title, author, publisher, year, imageUrl, description, genres, status
-
-## 🎨 Features
-
-- ✅ User Authentication (NextAuth.js)
-- ✅ Book Publishing with genre selection
-- ✅ Personalized Feed based on preferences
-- ✅ User Profiles with editable preferences
-- ✅ Book Details Modal with edit functionality
-- ✅ Dark Mode toggle
-- ✅ Responsive Design
-- ✅ Infinite scroll feed
-- ✅ Image upload support
-
-## 📝 Available Scripts
-
-```bash
-pnpm dev          # Start development server
-pnpm build        # Build for production
-pnpm start        # Start production server
-pnpm lint         # Run ESLint
-pnpm db:push      # Push schema changes to database
-pnpm db:studio    # Open Drizzle Studio (database GUI)
-```
-
-## 🔧 Drizzle ORM Commands
-
-```bash
-# Generate migrations from schema changes
-pnpm drizzle-kit generate:pg
-
-# Push schema directly to database (no migration files)
-pnpm drizzle-kit push:pg
-
-# Open Drizzle Studio - visual database browser
-pnpm drizzle-kit studio
-
-# Apply migrations
-pnpm drizzle-kit migrate
-```
-
-## 🧪 Testing
-
-For quick testing without SIIAU validation:
-- Navigate to `/test-register`
-- Create test users with any student code
-- Login with created credentials
-
-## 🔐 Security Notes
-
-**NEVER commit these files:**
-- `.env.local` or any `.env.*` files
-- `node_modules/`
-- `.next/` build artifacts
-
-**Before pushing to GitHub:**
-```bash
-# Run safety check
-.\check-safety.ps1
-
-# Or manually verify
-git ls-files | grep "\.env"  # Should only show .env.example
-```
-
-## 🚨 Troubleshooting
-
-### Database Connection Issues
-
-```bash
-# Check if container is running
-docker ps | grep kyboo-db
-
-# Check container logs
-docker logs kyboo-db
-
-# Restart database
-docker-compose restart
-
-# Verify connection from host
-docker exec kyboo-db psql -U db_user -d kyboo_db -c "SELECT version();"
-```
-
-### Migration Issues
-
-```bash
-# Reset database (WARNING: deletes all data)
-docker-compose down -v
-docker-compose up -d
-pnpm db:push
-
-# Check migration status
-pnpm drizzle-kit check
-
-# Force schema push
-pnpm db:push --force
-```
-
-### Port Already in Use
-
-```bash
-# Find process using port 5432
-netstat -ano | findstr :5432
-
-# Stop existing PostgreSQL service
-# Or change port in docker-compose.yml to 5433:5432
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-[Add your license here]
-
-## 👥 Authors
-
-- Angel Parada Perez
-- Cesar Balam Espinosa Nuñez
-- Brenda Zamarripa Ramirez
-
----
-
-**Happy coding! 🚀📚**
+- **Angel Parada Perez**
+- **Cesar Balam Espinosa Nuñez**
+- **Brenda Zamarripa Ramirez**
