@@ -606,8 +606,10 @@ export function BookModal({
                         author: book.author,
                         imageUrl: book.imageUrl,
                       });
-                      await sendMessage(result.roomId, bookCardMsg);
-                      router.push(`/chat/${result.roomId}`);
+
+                      // En lugar de enviar el mensaje, redirigimos al chat pasando el "draft"
+                      const params = new URLSearchParams({ draft: bookCardMsg });
+                      router.push(`/chat/${result.roomId}?${params.toString()}`);
                     }
                   }}
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-card text-body font-semibold rounded-xl transition-all hover:bg-soft border border-card-border shadow-sm cursor-pointer disabled:cursor-not-allowed"

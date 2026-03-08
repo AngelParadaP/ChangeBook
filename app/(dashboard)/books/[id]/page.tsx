@@ -480,8 +480,9 @@ export default function BookDetailPage() {
                                                     author: book.author,
                                                     imageUrl: book.imageUrl,
                                                 });
-                                                await sendMessage(result.roomId, bookCardMsg);
-                                                router.push(`/chat/${result.roomId}`);
+                                                // En lugar de enviar el mensaje, redirigimos al chat pasando el "draft"
+                                                const params = new URLSearchParams({ draft: bookCardMsg });
+                                                router.push(`/chat/${result.roomId}?${params.toString()}`);
                                             }
                                         }}
                                         className="w-full sm:w-auto px-5 py-2.5 bg-white dark:bg-card border border-card-border text-primary font-bold rounded-xl shadow-sm hover:shadow-md hover:border-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm"

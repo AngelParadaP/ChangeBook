@@ -95,8 +95,9 @@ export default function FavoritesPage() {
                 author: fav.bookAuthor || "Autor desconocido",
                 imageUrl: fav.bookImageUrl || "",
             });
-            await sendMessage(result.roomId, bookCardMsg);
-            router.push(`/chat/${result.roomId}`);
+            // En lugar de enviar el mensaje, redirigimos al chat pasando el "draft"
+            const params = new URLSearchParams({ draft: bookCardMsg });
+            router.push(`/chat/${result.roomId}?${params.toString()}`);
         }
     };
 
