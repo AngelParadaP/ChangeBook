@@ -11,6 +11,47 @@ export async function GET(request: Request) {
     try {
         const now = new Date();
 
+        const todayStartForCancel = new Date(now);
+        todayStartForCancel.setHours(0, 0, 0, 0);
+
+        // ─── 0. Auto-cancel pending exchanges past their start date ─────────
+        const pendingExchangesToCancel = await db
+            .select()
+            .from(exchanges)
+            .where(
+                and(
+                    eq(exchanges.status, "pendiente"),
+                    lte(exchanges.startDate, new Date(todayStartForCancel.getTime() - 1))
+                )
+            );
+
+        let autoCancelled = 0;
+
+        for (const exchange of pendingExchangesToCancel) {
+            await db
+                .update(exchanges)
+                .set({
+                    status: "cancelado",
+                    ownerNote: "Solicitud expirada automáticamente (el dueño no respondió a tiempo la fecha solicitada).",
+                    updatedAt: new Date(),
+                })
+                .where(eq(exchanges.id, exchange.id));
+
+            const bookInfo = await db.query.books.findFirst({
+                where: eq(books.id, exchange.bookId),
+            });
+            const bTitle = bookInfo?.title || "el libro";
+
+            await db.insert(notifications).values({
+                userId: exchange.requesterId,
+                type: "exchange_auto_rejected" as const,
+                message: `La solicitud por "${bTitle}" fue cancelada automáticamente porque el dueño no aceptó a tiempo.`,
+                exchangeId: exchange.id,
+            });
+
+            autoCancelled++;
+        }
+
         // ─── 1. Auto-start accepted exchanges whose start date has arrived ───
         const exchangesToStart = await db
             .select()
@@ -243,7 +284,8 @@ export async function GET(request: Request) {
 
         return NextResponse.json({
             success: true,
-            message: `Cron ejecutado: ${started} iniciados, ${skipped} omitidos, ${completed} completados, ${remindersSent} recordatorios enviados`,
+            message: `Cron ejecutado: ${autoCancelled} cancelados auto, ${started} iniciados, ${skipped} omitidos, ${completed} completados, ${remindersSent} recordatorios enviados`,
+            autoCancelled,
             started,
             skipped,
             completed,
