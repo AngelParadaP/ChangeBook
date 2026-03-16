@@ -1,69 +1,66 @@
 export function ProfileSkeleton() {
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-full overflow-hidden">
-            {/* Left Column – User Info */}
-            <div className="bg-card rounded-2xl shadow-md p-4 sm:p-6 overflow-y-auto custom-scrollbar animate-pulse">
-                {/* Page title */}
-                <div className="h-7 sm:h-8 bg-dim rounded-full w-40 sm:w-48 mb-2" />
-                <div className="h-3 sm:h-4 bg-dim rounded-full w-56 sm:w-64 mb-5 sm:mb-6" />
+        <div className="h-full overflow-y-auto custom-scrollbar pb-8">
+            {/* Profile Card Skeleton */}
+            <div className="bg-card rounded-2xl shadow-md overflow-hidden animate-pulse">
+                {/* Banner */}
+                <div className="h-28 sm:h-36 bg-dim" />
 
-                <div className="bg-subtle rounded-2xl p-4 sm:p-6 border-2 border-card-border/30 shadow-inner">
-                    {/* Avatar + fields: stacked on mobile, row on md+ */}
-                    <div className="flex flex-col sm:flex-row gap-5 sm:gap-6 items-center">
-                        {/* Avatar circle */}
-                        <div className="flex flex-col items-center gap-4 flex-shrink-0">
-                            <div className="w-28 h-28 sm:w-44 sm:h-44 rounded-full bg-dim" />
+                <div className="px-4 sm:px-6 pb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+                        {/* Avatar + name — centered mobile */}
+                        <div className="flex flex-col items-center sm:flex-row sm:items-end gap-3 sm:gap-4 -mt-12 sm:-mt-16">
+                            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-soft ring-4 ring-card flex-shrink-0" />
+                            <div className="text-center sm:text-left sm:pb-2 space-y-2">
+                                <div className="h-6 sm:h-7 bg-dim rounded-full w-36 sm:w-48 mx-auto sm:mx-0" />
+                                <div className="h-3.5 bg-dim rounded-full w-24 mx-auto sm:mx-0" />
+                            </div>
                         </div>
-
-                        {/* Fields */}
-                        <div className="flex-1 w-full space-y-4 sm:space-y-5">
-                            <div>
-                                <div className="h-3 bg-dim rounded-full w-16 mb-1.5" />
-                                <div className="h-5 sm:h-6 bg-dim rounded-full w-40 sm:w-48" />
-                            </div>
-                            <div>
-                                <div className="h-3 bg-dim rounded-full w-24 mb-1.5" />
-                                <div className="h-5 sm:h-6 bg-dim rounded-full w-32 sm:w-36" />
-                            </div>
-                            <div>
-                                <div className="h-3 bg-dim rounded-full w-28 mb-1.5" />
-                                <div className="h-5 sm:h-6 bg-dim rounded-full w-24 sm:w-28" />
-                            </div>
-                            {/* Button placeholder */}
-                            <div className="h-10 sm:h-11 bg-dim rounded-xl w-32 sm:w-36 mt-1" />
+                        {/* Button — desktop only */}
+                        <div className="hidden sm:flex gap-2 sm:pb-2">
+                            <div className="h-9 w-28 bg-dim rounded-xl" />
                         </div>
                     </div>
 
-                    {/* Divider */}
-                    <div className="my-5 sm:my-8 h-px bg-dim" />
+                    {/* Mobile button */}
+                    <div className="sm:hidden flex justify-center mt-1">
+                        <div className="h-9 w-28 bg-dim rounded-xl" />
+                    </div>
 
-                    {/* Reading preferences */}
-                    <div>
-                        <div className="h-5 sm:h-6 bg-dim rounded-full w-44 sm:w-52 mb-2" />
-                        <div className="h-3 sm:h-4 bg-dim rounded-full w-60 sm:w-72 mb-4 sm:mb-6" />
-                        <div className="flex flex-wrap gap-2">
-                            {[80, 64, 96, 72, 56, 88].map((w, i) => (
-                                <div key={i} className="h-7 sm:h-8 bg-dim rounded-full" style={{ width: `${w}px` }} />
-                            ))}
-                        </div>
+                    {/* Info chips — centered on mobile */}
+                    <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
+                        <div className="h-6 w-28 bg-dim rounded-full" />
+                        <div className="h-6 w-36 bg-dim rounded-full" />
+                        <div className="h-6 w-24 bg-dim rounded-full" />
+                        <div className="h-6 w-20 bg-dim rounded-full" />
+                    </div>
+                </div>
+
+                {/* Tabs */}
+                <div className="border-t border-card-border px-4 sm:px-6">
+                    <div className="flex gap-1 py-0.5">
+                        <div className="h-10 w-24 bg-dim rounded-t-lg" />
+                        <div className="h-10 w-24 bg-dim/50 rounded-t-lg" />
+                        <div className="h-10 w-28 bg-dim/30 rounded-t-lg" />
                     </div>
                 </div>
             </div>
 
-            {/* Right Column – Books (hidden on mobile, only visible on lg+) */}
-            <div className="hidden lg:flex bg-card rounded-2xl shadow-md p-6 overflow-y-auto custom-scrollbar flex-col animate-pulse">
-                <div className="h-7 bg-dim rounded-full w-48 mb-6" />
-                {/* Book card skeletons */}
-                <div className="space-y-4 flex-1">
-                    {Array.from({ length: 5 }).map((_, i) => (
+            {/* Content skeleton */}
+            <div className="mt-4 bg-card rounded-2xl shadow-md p-4 sm:p-6 animate-pulse">
+                <div className="h-6 bg-dim rounded-full w-40 mb-5" />
+                <div className="h-10 bg-dim rounded-xl w-full mb-5" />
+                <div className="space-y-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
                         <div key={i} className="flex gap-4 p-3 bg-subtle rounded-2xl border border-card-border/30">
-                            <div className="w-14 h-20 rounded-xl bg-dim flex-shrink-0" />
+                            <div className="w-16 h-24 rounded-xl bg-dim flex-shrink-0" />
                             <div className="flex-1 space-y-2 py-1">
                                 <div className="h-4 bg-dim rounded-full w-3/4" />
                                 <div className="h-3 bg-dim rounded-full w-1/2" />
                                 <div className="flex gap-1 mt-3">
                                     <div className="h-5 bg-dim rounded-full w-16" />
                                     <div className="h-5 bg-dim rounded-full w-14" />
+                                    <div className="h-5 bg-dim rounded-full w-20" />
                                 </div>
                             </div>
                         </div>
@@ -73,4 +70,3 @@ export function ProfileSkeleton() {
         </div>
     );
 }
-

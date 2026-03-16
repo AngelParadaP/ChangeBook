@@ -15,7 +15,11 @@ import { getUserBooks } from "@/server/actions/user/getUserBooks";
 import { getUserProfile } from "@/server/actions/user/getUserProfile";
 import { updateBook } from "@/server/actions/books";
 import { BOOK_GENRES } from "@/lib/constants/genres";
-import { Loader2, Trash2, Undo2, AlertTriangle, UserCircle, Users, UserMinus, Search, X } from "lucide-react";
+import {
+  Loader2, Trash2, Undo2, UserCircle, Users, UserMinus,
+  Search, X, BookOpen, Heart, Edit3, Check, Save, BookMarked,
+  Calendar, Hash, ChevronDown, ChevronUp
+} from "lucide-react";
 import { getFriends, FriendProfile } from "@/server/actions/friends/getFriends";
 import { removeFriend } from "@/server/actions/friends";
 import { ProfileSkeleton } from "@/components/ui/skeletons";
@@ -50,6 +54,8 @@ interface ProfileClientProps {
   initialBooks: Book[];
 }
 
+type TabKey = "books" | "friends" | "preferences";
+
 export default function ProfileClient({ initialProfile, initialBooks }: ProfileClientProps) {
   const { data: session, update: updateSession } = useSession();
   const router = useRouter();
@@ -57,7 +63,6 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
 
   const [profile, setProfile] = useState<UserProfile | null>(initialProfile);
   const [books, setBooks] = useState<Book[]>(initialBooks);
-  // Loading states initialized to false because we have data
   const [loading, setLoading] = useState(false);
   const [loadingBooks, setLoadingBooks] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -75,14 +80,14 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
   const [friendToRemove, setFriendToRemove] = useState<FriendProfile | null>(null);
   const [showAllFriends, setShowAllFriends] = useState(false);
 
-  // Book modal state
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [genreSearch, setGenreSearch] = useState("");
 
-  // Book search & pagination
   const [bookSearch, setBookSearch] = useState("");
   const [booksToShow, setBooksToShow] = useState(10);
+
+  const [activeTab, setActiveTab] = useState<TabKey>("books");
 
   const [formData, setFormData] = useState({
     name: initialProfile?.name || "",
@@ -127,7 +132,6 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
     }
   };
 
-  // Keep loadBooks for potential re-fetching, though typical app flow might just use server data
   const loadBooks = async (userId: string) => {
     setLoadingBooks(true);
     try {
@@ -148,23 +152,16 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
 
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      setToast({
-        message: "Tipo de archivo no válido. Solo se permiten JPG, PNG y WebP.",
-        type: "error",
-      });
+      setToast({ message: "Tipo de archivo no válido. Solo se permiten JPG, PNG y WebP.", type: "error" });
       return;
     }
 
-    const maxSize = 4 * 1024 * 1024; // 4MB
+    const maxSize = 4 * 1024 * 1024;
     if (file.size > maxSize) {
-      setToast({
-        message: "El archivo es demasiado grande. Tamaño máximo: 4MB.",
-        type: "error",
-      });
+      setToast({ message: "El archivo es demasiado grande. Tamaño máximo: 4MB.", type: "error" });
       return;
     }
 
-    // No size limit check here - the cropper will compress it
     const dataUrl = await fileToDataUrl(file);
     setCropperSrc(dataUrl);
     setShowCropper(true);
@@ -187,20 +184,15 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
   const handleSave = async () => {
     setSaving(true);
     try {
-      const imageFile = fileInputRef.current?.files?.[0];
-
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("username", formData.username);
       submitData.append("preferences", formData.preferences.join(","));
 
-      // Use the cropped file instead of the raw file input
       if (croppedFile) {
         submitData.append("image", croppedFile);
       } else if (wantsRemoveImage) {
         submitData.append("removeImage", "true");
-      } else if (imageFile) {
-        submitData.append("image", imageFile);
       }
 
       const result = await updateUserProfile(submitData);
@@ -210,15 +202,9 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
         setImagePreview(null);
         setCroppedFile(null);
         setWantsRemoveImage(false);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-
+        if (fileInputRef.current) fileInputRef.current.value = "";
         await updateSession();
-
-        if (session?.user?.id) {
-          await loadProfile(session.user.id);
-        }
+        if (session?.user?.id) await loadProfile(session.user.id);
       } else {
         setToast({ message: result.error || "Error al actualizar perfil", type: "error" });
       }
@@ -231,18 +217,12 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
 
   const handleCancel = () => {
     if (profile) {
-      setFormData({
-        name: profile.name,
-        username: profile.username,
-        preferences: profile.preferences || [],
-      });
+      setFormData({ name: profile.name, username: profile.username, preferences: profile.preferences || [] });
     }
     setImagePreview(null);
     setCroppedFile(null);
     setWantsRemoveImage(false);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
     setIsEditing(false);
   };
 
@@ -298,17 +278,8 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
 
     if (result.success) {
       setToast({ message: result.message || "Libro actualizado exitosamente", type: "success" });
-
-      setBooks((prev) =>
-        prev.map((book) =>
-          book.id === bookId ? { ...book, ...data } : book
-        )
-      );
-
-      if (selectedBook?.id === bookId) {
-        setSelectedBook({ ...selectedBook, ...data });
-      }
-
+      setBooks((prev) => prev.map((book) => (book.id === bookId ? { ...book, ...data } : book)));
+      if (selectedBook?.id === bookId) setSelectedBook({ ...selectedBook, ...data });
       setIsModalOpen(false);
     } else {
       setToast({ message: result.error || "Error al actualizar libro", type: "error" });
@@ -321,465 +292,556 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
     setIsModalOpen(false);
   };
 
-  if (loading) {
-    return <ProfileSkeleton />;
-  }
+  if (loading) return <ProfileSkeleton />;
+  if (!profile) return null;
 
-  if (!profile) {
-    return null;
-  }
-
-  // We can assume session user id is same as profile id in this context
   const isOwner = true;
 
   const filteredGenres = BOOK_GENRES.filter((genre) =>
     genre.toLowerCase().includes(genreSearch.toLowerCase())
   );
 
+  const tabs: { key: TabKey; label: string; icon: React.ReactNode; count?: number }[] = [
+    { key: "books", label: "Libros", icon: <BookMarked size={16} />, count: books.length },
+    { key: "friends", label: "Amigos", icon: <Users size={16} />, count: friends.length },
+    { key: "preferences", label: "Preferencias", icon: <Heart size={16} />, count: formData.preferences.length },
+  ];
+
+  const filteredBooks = books.filter((book) => {
+    const s = bookSearch.toLowerCase();
+    return (
+      book.title.toLowerCase().includes(s) ||
+      book.author.toLowerCase().includes(s) ||
+      book.genres.some((g) => g.toLowerCase().includes(s))
+    );
+  });
+
+  const visibleBooks = filteredBooks.slice(0, booksToShow);
+  const hasMoreBooks = filteredBooks.length > booksToShow;
+
   return (
     <>
       {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-full overflow-hidden">
-        {/* Left Column - User Info & Preferences */}
-        <div className="bg-card rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar">
-          <h1 className="text-3xl font-bold text-heading mb-2 flex items-center gap-3">
-            <div className="p-2 sm:p-2.5 bg-primary-soft rounded-xl">
-              <UserCircle size={24} className="text-primary" />
-            </div>
-            {isOwner ? "Mi Perfil" : `Perfil de ${profile.username}`}
-          </h1>
-          <p className="text-caption mb-6">
-            {isOwner ? "Administra tu información y preferencias" : "Información del usuario"}
-          </p>
+      {/* Page wrapper */}
+      <div className="h-full overflow-y-auto custom-scrollbar pb-8">
 
-          <div className="space-y-6">
-            <div className="bg-subtle rounded-2xl p-6 border-2 border-primary/30 dark:border-primary-dark/50 shadow-inner">
-              <div className="flex flex-col md:flex-row gap-6 items-center">
-                <div className="flex flex-col items-center gap-4">
-                  <div
-                    onClick={() => isEditing && isOwner && fileInputRef.current?.click()}
-                    className={`w-44 h-44 rounded-full p-[6px] bg-gradient-to-br from-primary-light/80 to-primary-muted dark:from-primary-dark dark:to-primary flex items-center justify-center relative shadow-xl shadow-primary/20 ${isEditing && isOwner ? "cursor-pointer hover:scale-105 transition-transform" : ""
-                      }`}
-                  >
-                    <div className="w-full h-full rounded-full overflow-hidden relative shadow-inner">
-                      {imagePreview ? (
-                        <Image src={imagePreview} alt="Preview" fill className="object-cover" />
-                      ) : (
-                        <UserAvatar
-                          imageURL={wantsRemoveImage ? null : profile.imageURL}
-                          name={profile.name}
-                          size="2xl"
-                          className="w-full h-full"
-                        />
-                      )}
-                      {isEditing && isOwner && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                          <span className="text-white text-sm font-semibold">Cambiar foto</span>
-                        </div>
-                      )}
-                    </div>
+        {/* ── Profile Card ───────────────────────────────────── */}
+        <div className="bg-card rounded-2xl shadow-md overflow-hidden">
+
+          {/* Banner */}
+          <div className="relative h-28 sm:h-36 bg-gradient-to-r from-primary-dark via-primary to-primary-muted">
+            {/* subtle pattern overlay */}
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)",
+                backgroundSize: "40px 40px",
+              }}
+            />
+          </div>
+
+          {/* Avatar + actions row */}
+          <div className="px-4 sm:px-6 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+
+              {/* Avatar + name — centered on mobile, left-aligned on sm+ */}
+              <div className="flex flex-col items-center sm:flex-row sm:items-end gap-3 sm:gap-4 -mt-12 sm:-mt-16">
+                <div
+                  onClick={() => isEditing && fileInputRef.current?.click()}
+                  className={`relative w-24 h-24 sm:w-32 sm:h-32 rounded-full ring-4 ring-card bg-gradient-to-br from-primary-light/80 to-primary-muted dark:from-primary-dark dark:to-primary flex-shrink-0 shadow-xl ${isEditing ? "cursor-pointer" : ""}`}
+                >
+                  <div className="w-full h-full rounded-full overflow-hidden">
+                    {imagePreview ? (
+                      <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                    ) : (
+                      <UserAvatar
+                        imageURL={wantsRemoveImage ? null : profile.imageURL}
+                        name={profile.name}
+                        size="2xl"
+                        className="w-full h-full"
+                      />
+                    )}
                   </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/jpg,image/png,image/webp"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                  {isEditing && isOwner && (
-                    <div className="flex flex-col items-center gap-2">
-                      <p className="text-xs text-hint text-center max-w-[160px]">
-                        Click en la imagen para cambiar (JPG, PNG, WebP - max 4MB)
-                      </p>
-                      {(profile.imageURL || imagePreview) && !wantsRemoveImage && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setWantsRemoveImage(true);
-                            setImagePreview(null);
-                            if (fileInputRef.current) {
-                              fileInputRef.current.value = "";
-                            }
-                          }}
-                          className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium flex items-center gap-1 transition-colors"
-                        >
-                          <Trash2 size={12} className="inline mr-0.5" /> Quitar foto de perfil
-                        </button>
-                      )}
-                      {wantsRemoveImage && (
-                        <button
-                          type="button"
-                          onClick={() => setWantsRemoveImage(false)}
-                          className="text-xs text-primary hover:text-primary-dark dark:text-primary-light font-medium flex items-center gap-1 transition-colors"
-                        >
-                          <Undo2 size={12} className="inline mr-0.5" /> Restaurar foto
-                        </button>
-                      )}
+                  {isEditing && (
+                    <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <Edit3 size={20} className="text-white" />
                     </div>
                   )}
                 </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
 
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-body mb-2">Nombre</label>
-                    {isEditing ? (
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={profile.name}
-                          disabled
-                          className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl text-hint cursor-not-allowed opacity-70"
-                          title="El nombre está asociado a tu correo institucional y no se puede modificar manualmente"
-                        />
-                      </div>
-                    ) : (
-                      <p className="text-lg text-heading">{profile.name}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-body mb-2">Nombre de usuario</label>
-                    {isEditing ? (
+                {/* Name + username stacked — centered on mobile */}
+                <div className="text-center sm:text-left sm:pb-2">
+                  {isEditing ? (
+                    <div className="space-y-1 flex flex-col items-center sm:items-start">
+                      <p className="text-xs text-hint">{profile.name}</p>
                       <input
                         type="text"
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                        className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading"
+                        className="px-3 py-1.5 bg-soft border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-heading text-sm w-40 sm:w-52"
+                        placeholder="Nombre de usuario"
                       />
-                    ) : (
-                      <p className="text-lg text-heading">@{profile.username}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-body mb-2">Código de alumno</label>
-                    <p className="text-lg text-heading">{profile.studentCode}</p>
-                  </div>
-
-                  {isOwner && (
-                    <div className="flex gap-3 pt-4">
-                      {isEditing ? (
-                        <>
-                          <button
-                            onClick={handleSave}
-                            disabled={saving}
-                            className="px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-all disabled:opacity-50"
-                          >
-                            {saving ? "Guardando..." : "Guardar cambios"}
-                          </button>
-                          <button
-                            onClick={handleCancel}
-                            disabled={saving}
-                            className="px-6 py-3 bg-dim text-heading font-semibold rounded-xl transition-all"
-                          >
-                            Cancelar
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => setIsEditing(true)}
-                          className="px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-all"
-                        >
-                          Editar perfil
-                        </button>
-                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <h1 className="text-xl sm:text-2xl font-bold text-heading leading-tight">{profile.name}</h1>
+                      <p className="text-sm text-hint">@{profile.username}</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              <hr className="my-8 border-card-border" />
+              {/* Action buttons — hidden on mobile in the top row, shown below avatar on mobile */}
+              <div className="hidden sm:flex items-center gap-2 sm:pb-2">
+                {isEditing ? (
+                  <>
+                    <button
+                      onClick={handleCancel}
+                      disabled={saving}
+                      className="px-4 py-2 bg-soft hover:bg-dim text-body font-semibold rounded-xl text-sm transition-all flex items-center gap-1.5"
+                    >
+                      <X size={15} />
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl text-sm transition-all flex items-center gap-1.5 disabled:opacity-60"
+                    >
+                      {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                      {saving ? "Guardando..." : "Guardar"}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl text-sm transition-all flex items-center gap-1.5"
+                  >
+                    <Edit3 size={15} />
+                    Editar perfil
+                  </button>
+                )}
+              </div>
+            </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-heading">Preferencias de lectura</h2>
-                  {isOwner && !isEditing && (
-                    <span className="text-sm text-hint">{formData.preferences.length} géneros</span>
-                  )}
-                </div>
-                <p className="text-caption mb-6">
-                  {isOwner ? "Selecciona tus géneros favoritos" : "Géneros favoritos de este usuario"}
+            {/* Mobile-only action buttons (below avatar, centered) */}
+            <div className="sm:hidden flex justify-center gap-2 mt-1">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={handleCancel}
+                    disabled={saving}
+                    className="px-4 py-2 bg-soft hover:bg-dim text-body font-semibold rounded-xl text-sm transition-all flex items-center gap-1.5"
+                  >
+                    <X size={15} />
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl text-sm transition-all flex items-center gap-1.5 disabled:opacity-60"
+                  >
+                    {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                    {saving ? "Guardando..." : "Guardar"}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl text-sm transition-all flex items-center gap-1.5"
+                >
+                  <Edit3 size={15} />
+                  Editar perfil
+                </button>
+              )}
+            </div>
+
+            {/* Avatar image controls when editing */}
+            {isEditing && (
+              <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                <p className="text-xs text-hint">
+                  Toca la foto para cambiarla (JPG, PNG, WebP · máx 4 MB)
                 </p>
-
-                {isOwner && isEditing ? (
-                  <div className="space-y-4">
-                    {/* Genre search */}
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hint">
-                        <Search size={16} />
-                      </span>
-                      <input
-                        type="text"
-                        value={genreSearch}
-                        onChange={(e) => setGenreSearch(e.target.value)}
-                        placeholder="Buscar género..."
-                        className="w-full pl-10 pr-8 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading text-sm"
-                      />
-                      {genreSearch && (
-                        <button
-                          type="button"
-                          onClick={() => setGenreSearch("")}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption cursor-pointer"
-                        >
-                          <X size={14} />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Selected genres visualization */}
-                    {formData.preferences.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {formData.preferences.map((genre) => (
-                          <button
-                            key={`selected-${genre}`}
-                            type="button"
-                            onClick={() => togglePreference(genre)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm hover:bg-primary-dark transition-all group cursor-pointer"
-                          >
-                            {genre}
-                            <X size={12} className="opacity-70 group-hover:opacity-100" />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Available genres scrollable grid */}
-                    <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar p-3 bg-card/50 rounded-xl border border-card-border/50">
-                      {filteredGenres.length === 0 ? (
-                        <p className="text-sm text-hint py-4 w-full text-center">
-                          No se encontraron géneros
-                        </p>
-                      ) : (
-                        filteredGenres.map((genre) => {
-                          const isSelected = formData.preferences.includes(genre);
-                          return (
-                            <button
-                              key={genre}
-                              type="button"
-                              onClick={() => togglePreference(genre)}
-                              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${isSelected
-                                ? "bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-dark/30 ring-1 ring-primary/20 shadow-sm"
-                                : "bg-soft text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-dark/40 hover:bg-primary hover:bg-opacity-10 hover:text-primary dark:hover:text-primary-light"
-                                }`}
-                            >
-                              {isSelected && <span className="mr-1">✓</span>}
-                              {genre}
-                            </button>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {formData.preferences.length > 0 ? (
-                      formData.preferences.map((genre) => (
-                        <span
-                          key={genre}
-                          className="px-4 py-2 rounded-full text-sm font-medium bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light ring-1 ring-primary/20 shadow-sm"
-                        >
-                          {genre}
-                        </span>
-                      ))
-                    ) : (
-                      <p className="text-hint text-sm italic">
-                        No hay preferencias seleccionadas.
-                      </p>
-                    )}
-                  </div>
+                {(profile.imageURL || imagePreview) && !wantsRemoveImage && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWantsRemoveImage(true);
+                      setImagePreview(null);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }}
+                    className="text-xs text-danger hover:text-danger/80 font-medium flex items-center gap-1 transition-colors"
+                  >
+                    <Trash2 size={12} /> Quitar foto
+                  </button>
                 )}
-
-                {isOwner && formData.preferences.length === 0 && (
-                  <p className="text-yellow-600 dark:text-yellow-400 mt-6 text-sm font-medium flex gap-2">
-                    <span>⚠️</span> Selecciona al menos un género para recibir recomendaciones personalizadas.
-                  </p>
+                {wantsRemoveImage && (
+                  <button
+                    type="button"
+                    onClick={() => setWantsRemoveImage(false)}
+                    className="text-xs text-primary hover:text-primary-dark font-medium flex items-center gap-1 transition-colors"
+                  >
+                    <Undo2 size={12} /> Restaurar foto
+                  </button>
                 )}
               </div>
+            )}
 
-              <hr className="my-8 border-card-border" />
+            {/* Info chips — centered on mobile, left on sm+ */}
+            <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
+              <span className="inline-flex items-center gap-1.5 text-xs text-caption bg-subtle border border-card-border rounded-full px-3 py-1">
+                <Hash size={12} className="text-hint" />
+                {profile.studentCode}
+              </span>
+              {profile.createdAt && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-caption bg-subtle border border-card-border rounded-full px-3 py-1">
+                  <Calendar size={12} className="text-hint" />
+                  Desde {new Date(profile.createdAt).toLocaleDateString("es-MX", { year: "numeric", month: "long" })}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5 text-xs text-caption bg-subtle border border-card-border rounded-full px-3 py-1">
+                <BookOpen size={12} className="text-hint" />
+                {books.length} {books.length === 1 ? "libro" : "libros"}
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs text-caption bg-subtle border border-card-border rounded-full px-3 py-1">
+                <Users size={12} className="text-hint" />
+                {friends.length} {friends.length === 1 ? "amigo" : "amigos"}
+              </span>
+            </div>
+          </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-heading flex items-center gap-2">
-                    <Users size={24} className="text-primary" />
-                    Mis amigos
-                  </h2>
-                  <span className="text-sm text-hint">{friends.length} amigos</span>
-                </div>
-                {loadingFriends ? (
-                  <div className="flex justify-center py-4"><Loader2 className="animate-spin text-primary" /></div>
-                ) : friends.length === 0 ? (
-                  <p className="text-hint text-sm italic">No tienes amigos añadidos aún.</p>
-                ) : (
-                  <div className="space-y-3 mt-4">
-                    {friends.slice(0, showAllFriends ? friends.length : 5).map((friend) => (
-                      <div
-                        key={friend.id}
-                        onClick={() => router.push(`/user/${friend.username}`)}
-                        className="flex items-center justify-between p-3 bg-subtle border border-card-border rounded-xl hover:bg-card hover:border-primary/40 dark:hover:border-primary-dark/40 transition-all cursor-pointer group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <UserAvatar imageURL={friend.imageURL} name={friend.name} size="md" />
-                          <div>
-                            <p className="text-body font-semibold leading-tight group-hover:text-primary transition-colors">{friend.name}</p>
-                            <p className="text-xs text-hint">@{friend.username}</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setFriendToRemove(friend);
-                            setIsRemoveFriendModalOpen(true);
-                          }}
-                          className="p-2 text-hint hover:text-danger hover:bg-danger/10 rounded-full transition-colors"
-                          title="Eliminar amigo"
-                        >
-                          <UserMinus size={18} />
-                        </button>
-                      </div>
-                    ))}
-                    {!showAllFriends && friends.length > 5 && (
-                      <button
-                        onClick={() => setShowAllFriends(true)}
-                        className="w-full mt-2 py-2.5 text-sm font-semibold text-primary hover:text-primary-dark dark:text-primary-light hover:underline transition-all"
-                      >
-                        Ver todos mis amigos ({friends.length})
-                      </button>
-                    )}
-                    {showAllFriends && friends.length > 5 && (
-                      <button
-                        onClick={() => setShowAllFriends(false)}
-                        className="w-full mt-2 py-2.5 text-sm font-semibold text-hint hover:text-caption hover:underline transition-all"
-                      >
-                        Mostrar menos
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+          {/* ── Tabs ─────────────────────────────────────────── */}
+          <div className="border-t border-card-border px-4 sm:px-6">
+            <div className="flex gap-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold border-b-2 transition-all ${
+                    activeTab === tab.key
+                      ? "border-primary text-primary dark:text-primary-light"
+                      : "border-transparent text-hint hover:text-body"
+                  }`}
+                >
+                  {tab.icon}
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  {tab.count !== undefined && (
+                    <span
+                      className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                        activeTab === tab.key
+                          ? "bg-primary/10 text-primary dark:bg-primary-dark/20 dark:text-primary-light"
+                          : "bg-soft text-hint"
+                      }`}
+                    >
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Right Column - Published Books */}
-        <div className="bg-card rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 overflow-y-auto custom-scrollbar flex flex-col">
-          <h2 className="text-2xl font-bold text-heading mb-4">
-            {isOwner ? "Mis libros publicados" : "Libros publicados"}
-          </h2>
+        {/* ── Tab Content ─────────────────────────────────────── */}
+        <div className="mt-4">
 
-          {/* Book Search Bar */}
-          {books.length > 0 && (
-            <div className="relative mb-6">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-hint">
-                <Search size={18} />
-              </span>
-              <input
-                type="text"
-                value={bookSearch}
-                onChange={(e) => {
-                  setBookSearch(e.target.value);
-                  setBooksToShow(10); // Reset pagination when searching
-                }}
-                placeholder="Buscar por título, autor o género..."
-                className="w-full pl-10 pr-10 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading transition-all font-medium"
-              />
-              {bookSearch && (
+          {/* ── BOOKS TAB ── */}
+          {activeTab === "books" && (
+            <div className="bg-card rounded-2xl shadow-md p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-heading flex items-center gap-2">
+                  <BookMarked size={18} className="text-primary" />
+                  Mis libros publicados
+                </h2>
                 <button
-                  type="button"
-                  onClick={() => {
-                    setBookSearch("");
-                    setBooksToShow(10);
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption transition-colors"
+                  onClick={() => router.push("/publish")}
+                  className="text-xs px-3 py-1.5 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all"
                 >
-                  <X size={16} />
+                  + Publicar
                 </button>
+              </div>
+
+              {/* Search */}
+              {books.length > 0 && (
+                <div className="relative mb-5">
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-hint" />
+                  <input
+                    type="text"
+                    value={bookSearch}
+                    onChange={(e) => { setBookSearch(e.target.value); setBooksToShow(10); }}
+                    placeholder="Buscar por título, autor o género..."
+                    className="w-full pl-9 pr-9 py-2.5 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-heading text-sm transition-all"
+                  />
+                  {bookSearch && (
+                    <button
+                      onClick={() => { setBookSearch(""); setBooksToShow(10); }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {loadingBooks ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex gap-4 p-3 bg-subtle rounded-2xl border border-card-border/30 animate-pulse">
+                      <div className="w-14 h-20 rounded-xl bg-dim flex-shrink-0" />
+                      <div className="flex-1 space-y-2 py-1">
+                        <div className="h-4 bg-dim rounded-full w-3/4" />
+                        <div className="h-3 bg-dim rounded-full w-1/2" />
+                        <div className="flex gap-1 mt-3">
+                          <div className="h-5 bg-dim rounded-full w-16" />
+                          <div className="h-5 bg-dim rounded-full w-14" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : books.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <BookOpen size={48} className="text-dim mb-3" />
+                  <p className="text-body font-medium mb-1">Aún no has publicado libros</p>
+                  <p className="text-hint text-sm mb-4">Comparte tus libros con la comunidad</p>
+                  <button
+                    onClick={() => router.push("/publish")}
+                    className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-all text-sm"
+                  >
+                    Publicar mi primer libro
+                  </button>
+                </div>
+              ) : filteredBooks.length === 0 ? (
+                <div className="text-center py-10">
+                  <p className="text-hint">No se encontraron libros con esa búsqueda.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {visibleBooks.map((book) => (
+                    <div key={book.id} onClick={() => handleBookClick(book)} className="cursor-pointer hover:scale-[1.01] transition-transform">
+                      <ProfileBookCard
+                        title={book.title}
+                        author={book.author}
+                        publisher={book.publisher}
+                        year={book.year}
+                        imageUrl={book.imageUrl}
+                        description={book.description}
+                        genres={book.genres}
+                        status={book.status}
+                      />
+                    </div>
+                  ))}
+                  {hasMoreBooks && (
+                    <div className="pt-2 text-center">
+                      <button
+                        onClick={() => setBooksToShow((prev) => prev + 10)}
+                        className="px-5 py-2 bg-soft hover:bg-dim text-body font-semibold rounded-xl transition-all text-sm"
+                      >
+                        Cargar 10 más
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
 
-          {loadingBooks ? (
-            <div className="text-center py-8">
-              <Loader2 size={32} className="animate-spin text-primary dark:text-primary-light mx-auto mb-2" />
-              <p className="text-hint">Cargando libros...</p>
-            </div>
-          ) : books.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-hint text-lg">
-                {isOwner ? "No has publicado ningún libro aún" : "Este usuario no ha publicado libros"}
-              </p>
-              {isOwner && (
-                <button
-                  onClick={() => router.push("/publish")}
-                  className="mt-4 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-all"
-                >
-                  Publicar un libro
-                </button>
+          {/* ── FRIENDS TAB ── */}
+          {activeTab === "friends" && (
+            <div className="bg-card rounded-2xl shadow-md p-4 sm:p-6">
+              <h2 className="text-lg font-bold text-heading flex items-center gap-2 mb-4">
+                <Users size={18} className="text-primary" />
+                Mis amigos
+                <span className="text-sm font-normal text-hint ml-1">({friends.length})</span>
+              </h2>
+
+              {loadingFriends ? (
+                <div className="flex justify-center py-10">
+                  <Loader2 className="animate-spin text-primary" size={28} />
+                </div>
+              ) : friends.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <Users size={48} className="text-dim mb-3" />
+                  <p className="text-body font-medium mb-1">Aún no tienes amigos</p>
+                  <p className="text-hint text-sm">Explora perfiles y añade amigos para intercambiar libros</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {friends.slice(0, showAllFriends ? friends.length : 6).map((friend) => (
+                    <div
+                      key={friend.id}
+                      onClick={() => router.push(`/user/${friend.username}`)}
+                      className="flex items-center justify-between p-3 bg-subtle border border-card-border rounded-xl hover:bg-card hover:border-primary/40 dark:hover:border-primary-dark/40 transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <UserAvatar imageURL={friend.imageURL} name={friend.name} size="md" />
+                        <div className="min-w-0">
+                          <p className="text-body font-semibold leading-tight group-hover:text-primary transition-colors truncate">{friend.name}</p>
+                          <p className="text-xs text-hint truncate">@{friend.username}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFriendToRemove(friend);
+                          setIsRemoveFriendModalOpen(true);
+                        }}
+                        className="p-2 text-hint hover:text-danger hover:bg-danger/10 rounded-full transition-colors flex-shrink-0"
+                        title="Eliminar amigo"
+                      >
+                        <UserMinus size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {friends.length > 6 && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => setShowAllFriends(!showAllFriends)}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-dark dark:text-primary-light transition-all"
+                  >
+                    {showAllFriends ? (
+                      <><ChevronUp size={16} /> Mostrar menos</>
+                    ) : (
+                      <><ChevronDown size={16} /> Ver todos ({friends.length})</>
+                    )}
+                  </button>
+                </div>
               )}
             </div>
-          ) : (
-            <div className="space-y-4 flex-1">
-              {(() => {
-                const filteredBooks = books.filter((book) => {
-                  const searchStr = bookSearch.toLowerCase();
-                  return (
-                    book.title.toLowerCase().includes(searchStr) ||
-                    book.author.toLowerCase().includes(searchStr) ||
-                    book.genres.some((g) => g.toLowerCase().includes(searchStr))
-                  );
-                });
+          )}
 
-                if (filteredBooks.length === 0) {
-                  return (
-                    <div className="text-center py-8">
-                      <p className="text-hint text-lg">
-                        No se encontraron libros que coincidan con tu búsqueda.
-                      </p>
-                    </div>
-                  );
-                }
+          {/* ── PREFERENCES TAB ── */}
+          {activeTab === "preferences" && (
+            <div className="bg-card rounded-2xl shadow-md p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-lg font-bold text-heading flex items-center gap-2">
+                  <Heart size={18} className="text-primary" />
+                  Preferencias de lectura
+                </h2>
+                <span className="text-xs text-hint bg-subtle border border-card-border px-2.5 py-1 rounded-full">
+                  {formData.preferences.length} géneros
+                </span>
+              </div>
+              <p className="text-caption text-sm mb-5">
+                {isEditing
+                  ? "Selecciona tus géneros literarios favoritos"
+                  : "Géneros literarios que más te gustan"}
+              </p>
 
-                const visibleBooks = filteredBooks.slice(0, booksToShow);
-                const hasMore = filteredBooks.length > booksToShow;
+              {isEditing ? (
+                <div className="space-y-4">
+                  {/* Search genres */}
+                  <div className="relative">
+                    <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-hint" />
+                    <input
+                      type="text"
+                      value={genreSearch}
+                      onChange={(e) => setGenreSearch(e.target.value)}
+                      placeholder="Buscar género..."
+                      className="w-full pl-9 pr-8 py-2.5 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-heading text-sm"
+                    />
+                    {genreSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setGenreSearch("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-hint hover:text-caption"
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
 
-                return (
-                  <>
-                    <div className="space-y-4">
-                      {visibleBooks.map((book) => (
-                        <div key={book.id} onClick={() => handleBookClick(book)} className="cursor-pointer">
-                          <ProfileBookCard
-                            title={book.title}
-                            author={book.author}
-                            publisher={book.publisher}
-                            year={book.year}
-                            imageUrl={book.imageUrl}
-                            description={book.description}
-                            genres={book.genres}
-                            status={book.status}
-                          />
-                        </div>
+                  {/* Selected tags */}
+                  {formData.preferences.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {formData.preferences.map((genre) => (
+                        <button
+                          key={`sel-${genre}`}
+                          type="button"
+                          onClick={() => togglePreference(genre)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm hover:bg-primary-dark transition-all group cursor-pointer"
+                        >
+                          {genre}
+                          <X size={11} className="opacity-70 group-hover:opacity-100" />
+                        </button>
                       ))}
                     </div>
-                    {hasMore && (
-                      <div className="pt-6 pb-2 text-center">
-                        <button
-                          onClick={() => setBooksToShow((prev) => prev + 10)}
-                          className="px-6 py-2.5 bg-soft hover:bg-dim text-body font-semibold rounded-xl transition-all"
-                        >
-                          Cargar 10 más
-                        </button>
-                      </div>
+                  )}
+
+                  {/* All genres scrollable */}
+                  <div className="flex flex-wrap gap-2 max-h-52 overflow-y-auto custom-scrollbar p-3 bg-subtle rounded-xl border border-card-border/50">
+                    {filteredGenres.length === 0 ? (
+                      <p className="text-sm text-hint py-4 w-full text-center">No se encontraron géneros</p>
+                    ) : (
+                      filteredGenres.map((genre) => {
+                        const isSelected = formData.preferences.includes(genre);
+                        return (
+                          <button
+                            key={genre}
+                            type="button"
+                            onClick={() => togglePreference(genre)}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer border ${
+                              isSelected
+                                ? "bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light border-primary/30 dark:border-primary-dark/30 ring-1 ring-primary/20 shadow-sm"
+                                : "bg-soft text-caption border-card-border hover:border-primary/40 dark:hover:border-primary-dark/40 hover:text-primary dark:hover:text-primary-light"
+                            }`}
+                          >
+                            {isSelected && <span className="mr-1">✓</span>}
+                            {genre}
+                          </button>
+                        );
+                      })
                     )}
-                  </>
-                );
-              })()}
+                  </div>
+
+                  {formData.preferences.length === 0 && (
+                    <p className="text-yellow-600 dark:text-yellow-400 text-xs font-medium flex gap-1.5 items-center">
+                      <span>⚠️</span> Selecciona al menos un género para recibir recomendaciones personalizadas.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  {formData.preferences.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.preferences.map((genre) => (
+                        <span
+                          key={genre}
+                          className="px-3 py-1.5 rounded-full text-sm font-medium bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light ring-1 ring-primary/20 shadow-sm"
+                        >
+                          {genre}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Heart size={48} className="text-dim mb-3" />
+                      <p className="text-body font-medium mb-1">Sin preferencias seleccionadas</p>
+                      <p className="text-hint text-sm mb-4">Añade géneros para personalizar tus recomendaciones</p>
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl text-sm transition-all"
+                      >
+                        Seleccionar géneros
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -812,39 +874,36 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
       {/* Remove Friend Confirmation Modal */}
       {isRemoveFriendModalOpen && friendToRemove && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-card w-full max-w-md rounded-2xl shadow-xl p-6 border border-card-border overflow-hidden relative">
-            <div className="absolute top-4 right-4">
-              <button
-                onClick={() => {
-                  setIsRemoveFriendModalOpen(false);
-                  setFriendToRemove(null);
-                }}
-                className="text-hint hover:text-danger transition-colors bg-subtle hover:bg-card-border rounded-full p-1"
-              >
-                <X size={20} />
-              </button>
+          <div className="bg-card w-full max-w-sm rounded-2xl shadow-xl p-6 border border-card-border relative">
+            <button
+              onClick={() => { setIsRemoveFriendModalOpen(false); setFriendToRemove(null); }}
+              className="absolute top-4 right-4 text-hint hover:text-danger transition-colors bg-subtle hover:bg-card-border rounded-full p-1"
+            >
+              <X size={18} />
+            </button>
+            <div className="flex flex-col items-center text-center gap-3 mb-5">
+              <div className="w-12 h-12 rounded-full bg-danger/10 flex items-center justify-center">
+                <UserMinus size={22} className="text-danger" />
+              </div>
+              <h2 className="text-xl font-bold text-heading">Eliminar amigo</h2>
+              <p className="text-body text-sm">
+                ¿Estás seguro de que deseas eliminar a <b>{friendToRemove.name}</b> de tu lista de amigos?
+              </p>
             </div>
-            <h2 className="text-2xl font-bold text-heading mb-4 text-center">Eliminar amigo</h2>
-            <p className="text-body text-center mb-8">
-              ¿Estás seguro de que deseas eliminar a <b>{friendToRemove.name}</b> de tu lista de amigos?
-            </p>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <button
-                onClick={() => {
-                  setIsRemoveFriendModalOpen(false);
-                  setFriendToRemove(null);
-                }}
+                onClick={() => { setIsRemoveFriendModalOpen(false); setFriendToRemove(null); }}
                 disabled={loadingFriends}
-                className="flex-1 bg-soft hover:bg-dim text-body font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-soft hover:bg-dim text-body font-bold py-2.5 rounded-xl transition-colors text-sm"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleRemoveFriend}
                 disabled={loadingFriends}
-                className="flex-1 bg-danger text-white hover:bg-danger-dark font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-danger text-white hover:bg-danger-dark font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
               >
-                <UserMinus size={20} />
+                {loadingFriends ? <Loader2 size={16} className="animate-spin" /> : <UserMinus size={16} />}
                 Eliminar
               </button>
             </div>
