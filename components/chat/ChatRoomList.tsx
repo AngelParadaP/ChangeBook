@@ -158,7 +158,6 @@ export function ChatRoomList() {
                 {/* Header */}
                 <div className="p-5">
                     <h1 className="text-2xl font-bold text-heading">Mensajes</h1>
-                    <p className="text-hint text-sm mt-1">Tus conversaciones</p>
                 </div>
                 <div className="flex-1 flex items-center justify-center p-6">
                     <div className="text-center">
@@ -182,7 +181,6 @@ export function ChatRoomList() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-heading">Mensajes</h1>
-                        <p className="text-hint text-sm mt-0.5">Tus conversaciones</p>
                     </div>
                     <button
                         onClick={handleToggleSearch}

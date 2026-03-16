@@ -130,6 +130,11 @@
   /* ── Chat scrollbar ── */
   --chat-scrollbar-thumb: var(--color-primary-muted);
   --chat-scrollbar-track: #E8EFF5;
+
+  /* ── Chat Background Pattern ── */
+  --chat-pattern-url: url('/chat-bg.svg');
+  --chat-pattern-opacity: 0.06;
+  --chat-pattern-filter: none;
 }
 
 .dark {
@@ -192,6 +197,10 @@
   /* ── Chat scrollbar (dark) ── */
   --chat-scrollbar-thumb: var(--color-primary-muted);
   --chat-scrollbar-track: #162A3C;
+
+  /* ── Chat Background Pattern (dark) ── */
+  --chat-pattern-opacity: 0.05;
+  --chat-pattern-filter: invert(1);
 }
 
 /* Variante de Dark Mode para Tailwind 4 */

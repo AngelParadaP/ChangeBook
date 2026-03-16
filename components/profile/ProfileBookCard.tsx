@@ -19,8 +19,6 @@ interface ProfileBookCardProps {
 const isValidImageUrl = (url: string): boolean => {
   try {
     const parsedUrl = new URL(url);
-
-    // List of invalid/placeholder domains to exclude
     const invalidDomains = [
       'ejemplo.jpg',
       'placeholder.example.com',
@@ -28,14 +26,10 @@ const isValidImageUrl = (url: string): boolean => {
       'example.jpg',
       'localhost',
     ];
-
-    // Check if hostname is in the invalid list or ends with invalid extensions
     const isInvalidDomain = invalidDomains.some(domain =>
       parsedUrl.hostname === domain ||
       parsedUrl.hostname.endsWith(`.${domain}`)
     );
-
-    // Check if it's a proper http/https URL with a valid domain
     return (
       (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") &&
       parsedUrl.hostname.includes(".") &&
@@ -61,9 +55,9 @@ export function ProfileBookCard({
   const shouldShowImage = isValidImageUrl(imageUrl) && !imageError;
 
   return (
-    <div className="bg-card rounded-2xl border-2 border-light-purple dark:border-dark-purple p-4 flex gap-4">
+    <div className="bg-subtle rounded-2xl border border-card-border hover:border-primary/40 dark:hover:border-primary-dark/40 p-3 sm:p-4 flex gap-3 sm:gap-4 transition-all hover:shadow-sm">
       {/* Book Cover */}
-      <div className="w-24 h-36 flex-shrink-0 bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 rounded-xl overflow-hidden relative">
+      <div className="w-16 h-24 sm:w-20 sm:h-28 flex-shrink-0 bg-gradient-to-br from-primary-light/30 to-primary-muted/30 dark:from-primary-dark/40 dark:to-primary/30 rounded-xl overflow-hidden relative">
         {shouldShowImage ? (
           <Image
             src={imageUrl}
@@ -75,54 +69,58 @@ export function ProfileBookCard({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <BookOpen size={40} className="text-purple-300 dark:text-purple-600" />
+            <BookOpen size={28} className="text-primary/40 dark:text-primary-light/40" />
           </div>
         )}
       </div>
 
       {/* Book Info */}
-      <div className="flex-1 flex flex-col">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-bold text-heading text-lg line-clamp-2">
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <h3 className="font-bold text-heading text-base leading-snug line-clamp-2">
             {title}
           </h3>
           {status && (
             <span
-              className={`text-xs px-3 py-1 rounded-full flex-shrink-0 ${status === "disponible"
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+              className={`text-xs px-2.5 py-0.5 rounded-full flex-shrink-0 font-medium ${
+                status === "disponible"
+                  ? "bg-success/15 dark:bg-success/20 text-success"
                   : "bg-soft text-body"
-                }`}
+              }`}
             >
               {status === "disponible" ? "Disponible" : "Intercambiado"}
             </span>
           )}
         </div>
 
-        <p className="text-sm text-caption mb-2">
+        <p className="text-xs text-caption mb-1.5">
           {author}
-          {publisher && ` • ${publisher}`}
-          {year && ` • ${year}`}
+          {publisher && ` · ${publisher}`}
+          {year && ` · ${year}`}
         </p>
 
-        <p className="text-sm text-body line-clamp-2 mb-3">
+        <p className="text-xs text-body line-clamp-2 mb-2 flex-1">
           {description}
         </p>
 
         {genres.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-auto">
-            {genres.map((genre, idx) => (
+            {genres.slice(0, 3).map((genre, idx) => (
               <span
                 key={idx}
-                className="text-xs px-2 py-1 bg-light-purple/20 dark:bg-dark-purple/20 text-light-purple dark:text-light-pink rounded-full"
+                className="text-xs px-2 py-0.5 bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light rounded-full"
               >
                 {genre}
               </span>
             ))}
+            {genres.length > 3 && (
+              <span className="text-xs px-2 py-0.5 bg-soft text-hint rounded-full">
+                +{genres.length - 3}
+              </span>
+            )}
           </div>
         )}
       </div>
     </div>
   );
 }
-
-
