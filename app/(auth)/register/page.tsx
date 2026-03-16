@@ -231,13 +231,24 @@ export default function RegisterPage() {
             <input
               type="text"
               placeholder="Nombre de usuario"
+              value={form.username}
               className="w-full pl-12 pr-4 py-3.5 rounded-xl
                 bg-white/10 dark:bg-white/5
                 border border-white/15 dark:border-white/10
                 text-white placeholder-white/40
                 outline-none focus:border-light-pink focus:ring-1 focus:ring-light-pink/50
                 transition-all duration-300 text-sm"
-              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val.includes(" ")) {
+                  setStatus({ type: "error", msg: "El nombre de usuario no puede contener espacios" });
+                } else {
+                  if (status.msg === "El nombre de usuario no puede contener espacios") {
+                    setStatus({ type: "idle", msg: "" });
+                  }
+                  setForm({ ...form, username: val });
+                }
+              }}
               required
             />
           </div>

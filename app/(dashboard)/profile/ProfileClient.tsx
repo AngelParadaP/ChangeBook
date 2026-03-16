@@ -388,7 +388,14 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                       <input
                         type="text"
                         value={formData.username}
-                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val.includes(" ")) {
+                            setToast({ message: "El nombre de usuario no puede contener espacios", type: "error" });
+                          } else {
+                            setFormData({ ...formData, username: val });
+                          }
+                        }}
                         className="px-3 py-1.5 bg-soft border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-heading text-sm w-40 sm:w-52"
                         placeholder="Nombre de usuario"
                       />
