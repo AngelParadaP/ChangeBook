@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+
 import { getPost } from "@/server/actions/communities/getPost";
 import { getComments } from "@/server/actions/communities/comments";
 import { getUserRole } from "@/server/actions/communities/getUserRole";
@@ -12,7 +12,16 @@ export default async function InterceptedPostPage(props: { params: Promise<{ id:
   const result = await getPost(postId);
   
   if (!result.success || !result.post || result.post.communityId !== communityId) {
-    notFound();
+    return (
+      <Modal>
+        <div className="bg-card min-h-full flex items-center justify-center p-12 text-center">
+            <div>
+                <h2 className="text-2xl font-bold text-heading mb-2">Publicación no encontrada</h2>
+                <p className="text-hint">Parece que esta publicación ha sido eliminada o ya no está disponible.</p>
+            </div>
+        </div>
+      </Modal>
+    );
   }
 
   const commentsResult = await getComments(postId);
@@ -23,7 +32,7 @@ export default async function InterceptedPostPage(props: { params: Promise<{ id:
   return (
     <Modal>
       <div className="bg-card min-h-full">
-         <PostDetailClient post={result.post} initialComments={initialComments} currentUserRole={roleResult.role} />
+         <PostDetailClient post={result.post} initialComments={initialComments} currentUserRole={roleResult.role} isModal />
       </div>
     </Modal>
   );

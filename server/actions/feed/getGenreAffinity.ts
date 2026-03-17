@@ -8,7 +8,8 @@ import { sql, eq } from "drizzle-orm";
 interface GenreAffinity {
   genre: string;
   score: number;
-  sources: string[]; // what contributed: "preferencias", "favoritos", "intercambios", "comunidades"
+  sources: string[];
+  breakdown: Record<string, { weight: number; count: number }>;
 }
 
 export async function getGenreAffinity(): Promise<{
@@ -75,10 +76,14 @@ export async function getGenreAffinity(): Promise<{
       )
       SELECT
         genre,
-        SUM(weight) AS total_score,
-        array_agg(DISTINCT source) AS sources
-      FROM genre_scores
-      WHERE genre IS NOT NULL
+        SUM(source_weight) AS total_score,
+        json_object_agg(source, json_build_object('weight', source_weight, 'count', source_count)) AS breakdown
+      FROM (
+        SELECT genre, source, SUM(weight) as source_weight, COUNT(*) as source_count
+        FROM genre_scores
+        WHERE genre IS NOT NULL
+        GROUP BY genre, source
+      ) sub
       GROUP BY genre
       ORDER BY total_score DESC
       LIMIT 12
@@ -87,7 +92,8 @@ export async function getGenreAffinity(): Promise<{
     const bookAffinities: GenreAffinity[] = (bookAffinityResult.rows as any[]).map(r => ({
       genre: r.genre,
       score: Number(r.total_score),
-      sources: r.sources || [],
+      sources: Object.keys(r.breakdown || {}),
+      breakdown: r.breakdown || {},
     }));
 
     // ═══════════════════════════════════════════════════════════════════
@@ -126,10 +132,14 @@ export async function getGenreAffinity(): Promise<{
       )
       SELECT
         genre,
-        SUM(weight) AS total_score,
-        array_agg(DISTINCT source) AS sources
-      FROM comm_genre_scores
-      WHERE genre IS NOT NULL
+        SUM(source_weight) AS total_score,
+        json_object_agg(source, json_build_object('weight', source_weight, 'count', source_count)) AS breakdown
+      FROM (
+        SELECT genre, source, SUM(weight) as source_weight, COUNT(*) as source_count
+        FROM comm_genre_scores
+        WHERE genre IS NOT NULL
+        GROUP BY genre, source
+      ) sub
       GROUP BY genre
       ORDER BY total_score DESC
       LIMIT 12
@@ -138,7 +148,8 @@ export async function getGenreAffinity(): Promise<{
     const communityAffinities: GenreAffinity[] = (commAffinityResult.rows as any[]).map(r => ({
       genre: r.genre,
       score: Number(r.total_score),
-      sources: r.sources || [],
+      sources: Object.keys(r.breakdown || {}),
+      breakdown: r.breakdown || {},
     }));
 
     return { success: true, bookAffinities, communityAffinities };
