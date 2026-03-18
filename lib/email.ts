@@ -2,22 +2,22 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = "Kyboo <onboarding@resend.dev>"; // Usar dominio personalizado en producción
+const FROM_EMAIL = "Kyboo <noreply@kyboo.lat>";
 
 /**
  * Envía un correo de recuperación de contraseña con un link para resetear.
  */
 export async function sendPasswordResetEmail(
-    to: string,
-    resetUrl: string,
-    userName: string
+  to: string,
+  resetUrl: string,
+  userName: string
 ) {
-    try {
-        const { error } = await resend.emails.send({
-            from: FROM_EMAIL,
-            to,
-            subject: "🔑 Recupera tu contraseña de Kyboo",
-            html: `
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: "🔑 Recupera tu contraseña de Kyboo",
+      html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 520px; margin: 0 auto; background: #1a1a2e; border-radius: 16px; overflow: hidden;">
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #2d1b69, #1a1a2e); padding: 32px 24px; text-align: center;">
@@ -56,16 +56,16 @@ export async function sendPasswordResetEmail(
           </div>
         </div>
       `,
-        });
+    });
 
-        if (error) {
-            console.error("[Email] Error sending password reset:", error);
-            return { success: false, error: error.message };
-        }
-
-        return { success: true };
-    } catch (err) {
-        console.error("[Email] Unexpected error:", err);
-        return { success: false, error: "Error al enviar el correo" };
+    if (error) {
+      console.error("[Email] Error sending password reset:", error);
+      return { success: false, error: error.message };
     }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[Email] Unexpected error:", err);
+    return { success: false, error: "Error al enviar el correo" };
+  }
 }
