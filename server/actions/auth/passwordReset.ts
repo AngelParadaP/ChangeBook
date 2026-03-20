@@ -15,56 +15,61 @@ export async function forgotPasswordAction(studentCode: string) {
         return { error: "Ingresa tu código de alumno" };
     }
 
-    // 1. Buscar al usuario por código de alumno
-    const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.studentCode, studentCode))
-        .limit(1);
+    try {
+        // 1. Buscar al usuario por código de alumno
+        const [user] = await db
+            .select()
+            .from(users)
+            .where(eq(users.studentCode, studentCode))
+            .limit(1);
 
-    if (!user) {
-        // No revelar si el usuario existe o no (seguridad)
-        return { success: true, message: "Si tu código está registrado, recibirás un correo." };
-    }
+        if (!user) {
+            // No revelar si el usuario existe o no (seguridad)
+            return { success: true, message: "Si tu código está registrado, recibirás un correo." };
+        }
 
-    if (!user.email) {
+        if (!user.email) {
+            return {
+                error: "Tu cuenta no tiene un correo asociado. Contacta a soporte.",
+            };
+        }
+
+        // 2. Generar token único
+        const token = randomUUID();
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+        // 3. Guardar token en la BD
+        await db.insert(passwordResetTokens).values({
+            userId: user.id,
+            token,
+            expiresAt,
+        });
+
+        // 4. Construir URL de reset
+        const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+        const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+
+        // 5. Enviar correo
+        const emailResult = await sendPasswordResetEmail(
+            user.email,
+            resetUrl,
+            user.name
+        );
+
+        if (!emailResult.success) {
+            return { error: "Error al enviar el correo. Intenta de nuevo." };
+        }
+
+        // Enmascarar el email para mostrarlo al usuario
+        const maskedEmail = maskEmail(user.email);
         return {
-            error: "Tu cuenta no tiene un correo asociado. Contacta a soporte.",
+            success: true,
+            message: `Se envió un enlace de recuperación a ${maskedEmail}`,
         };
+    } catch (e: any) {
+        console.error("[forgotPasswordAction] Error:", e);
+        return { error: "Ocurrió un error inesperado al procesar la solicitud: " + e.message };
     }
-
-    // 2. Generar token único
-    const token = randomUUID();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
-
-    // 3. Guardar token en la BD
-    await db.insert(passwordResetTokens).values({
-        userId: user.id,
-        token,
-        expiresAt,
-    });
-
-    // 4. Construir URL de reset
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-    const resetUrl = `${baseUrl}/reset-password?token=${token}`;
-
-    // 5. Enviar correo
-    const emailResult = await sendPasswordResetEmail(
-        user.email,
-        resetUrl,
-        user.name
-    );
-
-    if (!emailResult.success) {
-        return { error: "Error al enviar el correo. Intenta de nuevo." };
-    }
-
-    // Enmascarar el email para mostrarlo al usuario
-    const maskedEmail = maskEmail(user.email);
-    return {
-        success: true,
-        message: `Se envió un enlace de recuperación a ${maskedEmail}`,
-    };
 }
 
 /**
