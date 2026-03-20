@@ -46,20 +46,7 @@ export default function RegisterPage() {
     // Validacion del input y de la conexion a SIIAU
     const result = await registerAction(form);
     if (result.success) {
-      setStatus({ type: "success", msg: "Cuenta creada. Entrando..." });
-
-      // Iniciamos sesión con las credenciales recién creadas
-      const loginResult = await signIn("credentials", {
-        redirect: false,
-        codigo: form.code,
-        nip: form.password, // La contraseña que el usuario eligió para Kyboo
-      });
-
-      if (loginResult?.ok) {
-        router.push("/home");
-      } else {
-        setStatus({ type: "error", msg: "Error al iniciar sesión automática" });
-      }
+      setStatus({ type: "success", msg: "Cuenta creada. Por favor revisa tu correo institucional para verificarla y poder acceder." });
     } else {
       setStatus({ type: "error", msg: result.error || "Error al registrarse" });
     }

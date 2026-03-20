@@ -28,6 +28,10 @@ export const authOptions: NextAuthOptions = {
         // 2. Si no existe el usuario, rechazamos
         if (!user) return null;
 
+        if (!user.verified) {
+          throw new Error("Cuenta no verificada. Revisa tu correo electrónico.");
+        }
+
         // 3. Comparamos el NIP ingresado con la contraseña hasheada en la BD
         const isPasswordValid = await bcrypt.compare(
           credentials.nip,

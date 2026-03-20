@@ -1,9 +1,11 @@
 "use server";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, accountVerificationTokens } from "@/db/schema";
 import { validateWithSIIAU } from "@/lib/validations/siiau";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
+import { randomUUID } from "crypto";
+import { sendVerificationEmail } from "@/lib/email";
 import { registerSchema, RegisterInput } from "@/lib/validations/user";
 
 export async function registerAction(data: RegisterInput) {
@@ -67,13 +69,34 @@ export async function registerAction(data: RegisterInput) {
   // 6. Hashear y Guardar
   const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
-  await db.insert(users).values({
+  const [newUser] = await db.insert(users).values({
     studentCode: validatedData.code,
     username: validatedData.username,
     email: validatedData.email,
     password: hashedPassword,
     name: userName,
+    verified: false,
+  }).returning({ id: users.id });
+
+  // 7. Generar token de verificación de cuenta
+  const token = randomUUID();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
+  await db.insert(accountVerificationTokens).values({
+    userId: newUser.id,
+    token,
+    expiresAt,
   });
+
+  // 8. Construir URL de verificación y enviar correo
+  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const verifyUrl = `${baseUrl}/verify-email?token=${token}`;
+
+  const emailResult = await sendVerificationEmail(validatedData.email, verifyUrl, userName);
+
+  if (!emailResult.success) {
+    return { error: "Cuenta creada, pero hubo un error al enviar el correo de verificación. Por favor contacta a soporte." };
+  }
 
   return { success: true };
 }
