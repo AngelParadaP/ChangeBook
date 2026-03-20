@@ -27,7 +27,7 @@ export default function LoginPage() {
     setIsResending(true);
     const result = await resendVerificationEmailAction(form.codigo);
     setIsResending(false);
-    
+
     if (result.error) {
       setStatus({ type: "error", msg: result.error });
     } else if (result.success) {
@@ -228,7 +228,7 @@ export default function LoginPage() {
               }`}
           >
             <div>{status.msg}</div>
-            
+
             {status.msg.includes("Cuenta no verificada") && (
               <div className="mt-3">
                 <button

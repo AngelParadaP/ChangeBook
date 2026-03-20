@@ -15,6 +15,8 @@ export async function getUserProfileByUsername(username: string) {
                 imageURL: users.imageURL,
                 preferences: users.preferences,
                 createdAt: users.createdAt,
+                suspendedUntil: users.suspendedUntil,
+                banned: users.banned,
             })
             .from(users)
             .where(eq(users.username, username))
