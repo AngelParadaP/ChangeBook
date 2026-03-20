@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { resendVerificationEmailAction } from "@/server/actions/auth/resendVerificationEmailAction";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,6 +17,23 @@ export default function LoginPage() {
     type: "idle",
     msg: "",
   });
+  const [isResending, setIsResending] = useState(false);
+
+  const handleResend = async () => {
+    if (!form.codigo) {
+      setStatus({ type: "error", msg: "Primero ingresa tu código de alumno arriba para reenviar el correo." });
+      return;
+    }
+    setIsResending(true);
+    const result = await resendVerificationEmailAction(form.codigo);
+    setIsResending(false);
+    
+    if (result.error) {
+      setStatus({ type: "error", msg: result.error });
+    } else if (result.success) {
+      setStatus({ type: "success", msg: result.message ?? "Correo reenviado exitosamente." });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +46,11 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      setStatus({ type: "error", msg: "Código o contraseña incorrectos" });
+      if (result.error === "CredentialsSignin") {
+        setStatus({ type: "error", msg: "Código o contraseña incorrectos" });
+      } else {
+        setStatus({ type: "error", msg: result.error });
+      }
     } else if (result?.ok) {
       setStatus({ type: "success", msg: "Acceso concedido." });
       setTimeout(() => router.push("/home"), 1000);
@@ -205,7 +227,20 @@ export default function LoginPage() {
                 : "bg-yellow-500/10 border-yellow-400/30 text-yellow-200"
               }`}
           >
-            {status.msg}
+            <div>{status.msg}</div>
+            
+            {status.msg.includes("Cuenta no verificada") && (
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={isResending}
+                  className="font-bold underline text-xs disabled:opacity-50 hover:opacity-80 transition-opacity"
+                >
+                  {isResending ? "Reenviando correo..." : "¿No recibiste tu correo? Reenviar enlace"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
