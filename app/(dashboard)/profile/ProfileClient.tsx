@@ -32,6 +32,9 @@ export interface UserProfile {
   imageURL: string | null;
   preferences: string[];
   createdAt: Date | null;
+  strikes?: number;
+  suspendedUntil?: Date | null;
+  banned?: boolean;
 }
 
 export interface Book {
@@ -525,6 +528,11 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                 <Users size={12} className="text-hint" />
                 {friends.length} {friends.length === 1 ? "amigo" : "amigos"}
               </span>
+              {(profile.strikes && profile.strikes > 0) ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-500 bg-red-500/10 border border-red-500/30 rounded-full px-3 py-1 ml-auto">
+                  ⚠ {profile.strikes} {profile.strikes === 1 ? "Strike" : "Strikes"}
+                </span>
+              ) : null}
             </div>
           </div>
 

@@ -23,9 +23,11 @@ import {
 import {
   Search, X, MessageSquare, UserPlus, UserCheck, Clock,
   UserMinus, Check, XCircle, BookMarked, Heart, Users,
-  BookOpen, Calendar, Hash, ChevronDown, ChevronUp,
+  BookOpen, Calendar, Hash, ChevronDown, ChevronUp, Flag, AlertTriangle
 } from "lucide-react";
 import { ProfileSkeleton } from "@/components/ui/skeletons";
+import { reportUserAction } from "@/server/actions/user/reportUserAction";
+import { UploadButton } from "@/lib/uploadthing";
 
 interface UserProfile {
   id: string;
@@ -35,6 +37,8 @@ interface UserProfile {
   imageURL: string | null;
   preferences: string[];
   createdAt: Date | null;
+  banned?: boolean;
+  suspendedUntil?: Date | null;
 }
 
 interface Book {
@@ -74,6 +78,12 @@ export default function UserProfilePage() {
   const [loadingFriend, setLoadingFriend] = useState(false);
   const [isFriendModalOpen, setIsFriendModalOpen] = useState(false);
   const [isRemoveFriendModalOpen, setIsRemoveFriendModalOpen] = useState(false);
+
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportImageUrl, setReportImageUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [submittingReport, setSubmittingReport] = useState(false);
 
   const [bookSearch, setBookSearch] = useState("");
   const [booksToShow, setBooksToShow] = useState(10);
@@ -237,6 +247,30 @@ export default function UserProfilePage() {
     }
   };
 
+  const handleReportUser = async () => {
+    if (!profile?.id) return;
+    if (reportReason.trim().length === 0) {
+      setToast({ message: "Por favor escribe un motivo claro.", type: "error" });
+      return;
+    }
+    setSubmittingReport(true);
+    try {
+      const result = await reportUserAction(profile.id, reportReason, reportImageUrl);
+      if (result.success) {
+        setToast({ message: result.message || "Reporte emitido.", type: "success" });
+        setIsReportModalOpen(false);
+        setReportReason("");
+        setReportImageUrl(null);
+      } else {
+        setToast({ message: result.error || "Algo salió mal.", type: "error" });
+      }
+    } catch {
+      setToast({ message: "Ocurrió un error.", type: "error" });
+    } finally {
+      setSubmittingReport(false);
+    }
+  };
+
   if (loading) return <ProfileSkeleton />;
   if (!profile || isOwner) return null;
 
@@ -256,6 +290,21 @@ export default function UserProfilePage() {
     { key: "books", label: "Libros", icon: <BookMarked size={16} />, count: books.length },
     { key: "preferences", label: "Preferencias", icon: <Heart size={16} />, count: profile.preferences.length },
   ];
+
+  const isSuspended = profile.suspendedUntil && new Date(profile.suspendedUntil) > new Date();
+  const isBanned = profile.banned;
+
+  if (isBanned) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center p-6 text-center">
+        <XCircle size={64} className="text-danger mb-4 mx-auto" />
+        <h1 className="text-2xl font-bold text-heading mb-2">Cuenta Baneada Permanentemente</h1>
+        <p className="text-body text-sm max-w-md mx-auto bg-subtle border border-card-border p-4 rounded-xl">
+          El usuario <strong>@{profile.username}</strong> ha infringido las reglas de la comunidad y su cuenta fue deshabilitada indefinidamente. Sus libros y perfil ya no están disponibles.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -310,9 +359,78 @@ export default function UserProfilePage() {
                 </div>
               </div>
 
-              {/* Action buttons — desktop only in this position */}
-              <div className="hidden sm:flex flex-wrap items-center gap-2 sm:pb-2">
-                {/* Friend button */}
+              {isSuspended ? (
+                <div className="mt-4 sm:mt-0 w-full sm:w-auto bg-orange-500/10 border border-orange-500/30 text-orange-400 px-4 py-2 rounded-xl text-xs font-bold text-center">
+                  ⚠ Cuenta suspendida temporalmente
+                </div>
+              ) : (
+                <>
+                  {/* Action buttons — desktop only in this position */}
+                  <div className="hidden sm:flex flex-wrap items-center gap-2 sm:pb-2">
+                    {/* Friend button */}
+                    {friendStatus === "none" && (
+                      <button
+                        onClick={handleSendFriendRequest}
+                        disabled={loadingFriend}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl text-sm transition-all disabled:opacity-60"
+                      >
+                        {loadingFriend ? <Loader2 size={15} className="animate-spin" /> : <UserPlus size={15} />}
+                        {loadingFriend ? "Enviando..." : "Añadir amigo"}
+                      </button>
+                    )}
+                    {friendStatus === "request_sent" && (
+                      <span className="flex items-center gap-1.5 px-4 py-2 bg-hint/10 text-hint font-semibold rounded-xl text-sm cursor-not-allowed border border-hint/20">
+                        <Clock size={15} />
+                        Solicitud enviada
+                      </span>
+                    )}
+                    {friendStatus === "request_received" && (
+                      <button
+                        onClick={() => setIsFriendModalOpen(true)}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-success/20 text-success hover:bg-success/30 font-semibold rounded-xl text-sm transition-all"
+                      >
+                        <UserCheck size={15} />
+                        Responder solicitud
+                      </button>
+                    )}
+                    {friendStatus === "friends" && (
+                      <button
+                        onClick={() => setIsRemoveFriendModalOpen(true)}
+                        disabled={loadingFriend}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-soft hover:bg-danger/10 hover:text-danger text-body font-semibold rounded-xl text-sm transition-all border border-card-border hover:border-danger/30 disabled:opacity-60"
+                      >
+                        <UserMinus size={15} />
+                        Amigos
+                      </button>
+                    )}
+
+                    {/* Chat button */}
+                    <button
+                      onClick={handleStartChat}
+                      disabled={startingChat}
+                      className="flex items-center gap-1.5 px-4 py-2 font-semibold rounded-xl text-sm transition-all bg-gradient-to-r from-primary to-primary-dark text-white hover:opacity-90 shadow-md shadow-primary/20"
+                      title="Enviar un mensaje"
+                    >
+                      {startingChat ? <Loader2 size={15} className="animate-spin" /> : <MessageSquare size={15} />}
+                      {startingChat ? "Abriendo..." : "Mensaje"}
+                    </button>
+                    
+                    {/* Report button */}
+                    <button
+                      onClick={() => setIsReportModalOpen(true)}
+                      className="flex items-center justify-center p-2 text-hint hover:text-danger hover:bg-danger/10 rounded-xl transition-all border border-transparent hover:border-danger/30 ml-2"
+                      title="Reportar usuario"
+                    >
+                      <Flag size={18} />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Mobile-only action buttons — centered below avatar */}
+            {!isSuspended && (
+              <div className="sm:hidden flex flex-wrap justify-center gap-2 mt-1">
                 {friendStatus === "none" && (
                   <button
                     onClick={handleSendFriendRequest}
@@ -348,8 +466,6 @@ export default function UserProfilePage() {
                     Amigos
                   </button>
                 )}
-
-                {/* Chat button */}
                 <button
                   onClick={handleStartChat}
                   disabled={startingChat}
@@ -357,58 +473,17 @@ export default function UserProfilePage() {
                   title="Enviar un mensaje"
                 >
                   {startingChat ? <Loader2 size={15} className="animate-spin" /> : <MessageSquare size={15} />}
-                  {startingChat ? "Abriendo..." : "Mensaje"}
+                    {startingChat ? "Abriendo..." : "Mensaje"}
+                </button>
+                <button
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="flex items-center justify-center p-2 text-hint hover:text-danger hover:bg-danger/10 rounded-xl transition-all border border-transparent hover:border-danger/30"
+                  title="Reportar usuario"
+                >
+                  <Flag size={20} />
                 </button>
               </div>
-            </div>
-
-            {/* Mobile-only action buttons — centered below avatar */}
-            <div className="sm:hidden flex flex-wrap justify-center gap-2 mt-1">
-              {friendStatus === "none" && (
-                <button
-                  onClick={handleSendFriendRequest}
-                  disabled={loadingFriend}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl text-sm transition-all disabled:opacity-60"
-                >
-                  {loadingFriend ? <Loader2 size={15} className="animate-spin" /> : <UserPlus size={15} />}
-                  {loadingFriend ? "Enviando..." : "Añadir amigo"}
-                </button>
-              )}
-              {friendStatus === "request_sent" && (
-                <span className="flex items-center gap-1.5 px-4 py-2 bg-hint/10 text-hint font-semibold rounded-xl text-sm cursor-not-allowed border border-hint/20">
-                  <Clock size={15} />
-                  Solicitud enviada
-                </span>
-              )}
-              {friendStatus === "request_received" && (
-                <button
-                  onClick={() => setIsFriendModalOpen(true)}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-success/20 text-success hover:bg-success/30 font-semibold rounded-xl text-sm transition-all"
-                >
-                  <UserCheck size={15} />
-                  Responder solicitud
-                </button>
-              )}
-              {friendStatus === "friends" && (
-                <button
-                  onClick={() => setIsRemoveFriendModalOpen(true)}
-                  disabled={loadingFriend}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-soft hover:bg-danger/10 hover:text-danger text-body font-semibold rounded-xl text-sm transition-all border border-card-border hover:border-danger/30 disabled:opacity-60"
-                >
-                  <UserMinus size={15} />
-                  Amigos
-                </button>
-              )}
-              <button
-                onClick={handleStartChat}
-                disabled={startingChat}
-                className="flex items-center gap-1.5 px-4 py-2 font-semibold rounded-xl text-sm transition-all bg-gradient-to-r from-primary to-primary-dark text-white hover:opacity-90 shadow-md shadow-primary/20"
-                title="Enviar un mensaje"
-              >
-                {startingChat ? <Loader2 size={15} className="animate-spin" /> : <MessageSquare size={15} />}
-                {startingChat ? "Abriendo..." : "Mensaje"}
-              </button>
-            </div>
+            )}
 
             {/* Info chips — centered on mobile, left on sm+ */}
             <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
@@ -674,6 +749,98 @@ export default function UserProfilePage() {
               >
                 {loadingFriend ? <Loader2 size={16} className="animate-spin" /> : <UserMinus size={16} />}
                 Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report User Modal */}
+      {isReportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-card w-full max-w-sm rounded-2xl shadow-xl p-6 border border-card-border relative">
+            <button
+              onClick={() => {
+                setIsReportModalOpen(false);
+                setReportReason("");
+                setReportImageUrl(null);
+              }}
+              className="absolute top-4 right-4 text-hint hover:text-danger transition-colors bg-subtle hover:bg-card-border rounded-full p-1"
+            >
+              <X size={18} />
+            </button>
+            <div className="flex flex-col text-center gap-3 mb-4">
+              <div className="mx-auto w-12 h-12 rounded-full bg-danger/10 flex items-center justify-center">
+                <AlertTriangle size={22} className="text-danger" />
+              </div>
+              <h2 className="text-xl font-bold text-heading">Reportar usuario</h2>
+              <p className="text-body text-sm font-normal text-left">
+                Ayúdanos a mantener Kyboo como un lugar seguro. Tu reporte será enviado directamente a la administración.
+              </p>
+            </div>
+            
+            <textarea
+              className="w-full bg-subtle border border-card-border focus:border-danger focus:ring-1 focus:ring-danger rounded-xl p-3 text-sm text-heading mb-4 outline-none resize-none"
+              rows={3}
+              placeholder="Ej: Este usuario tiene libros falsos, spam, acoso, etc..."
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              disabled={submittingReport}
+            ></textarea>
+
+            {reportImageUrl ? (
+              <div className="relative w-full h-32 bg-subtle rounded-xl flex items-center justify-center overflow-hidden border border-card-border mb-5">
+                <Image src={reportImageUrl} alt="Evidencia" fill className="object-cover" />
+                <button 
+                  onClick={() => setReportImageUrl(null)} 
+                  className="absolute top-2 right-2 bg-danger/90 hover:bg-danger text-white rounded-full p-1 shadow transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <div className="mb-5">
+                <p className="text-xs text-hint mb-2">Adjuntar evidencia (Opcional):</p>
+                <UploadButton
+                  endpoint="imageUploader"
+                  onUploadBegin={() => setIsUploadingImage(true)}
+                  onClientUploadComplete={(res) => {
+                    if (res?.[0]) setReportImageUrl(res[0].url);
+                    setIsUploadingImage(false);
+                    setToast({ message: "Evidencia subida", type: "success" });
+                  }}
+                  onUploadError={(error: Error) => {
+                    setIsUploadingImage(false);
+                    setToast({ message: "Error al subir imagen", type: "error" });
+                  }}
+                  appearance={{
+                    button: "bg-subtle hover:bg-card-border !text-body text-xs font-semibold rounded-xl w-full flex items-center justify-center p-3 border border-card-border transition-colors",
+                    allowedContent: "hidden"
+                  }}
+                  content={{ button: "📸 Subir captura/foto" }}
+                />
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setIsReportModalOpen(false);
+                  setReportReason("");
+                  setReportImageUrl(null);
+                }}
+                disabled={submittingReport || isUploadingImage}
+                className="flex-1 bg-soft hover:bg-dim text-body font-bold py-2.5 rounded-xl transition-colors text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleReportUser}
+                disabled={submittingReport || isUploadingImage}
+                className="flex-1 bg-danger text-white hover:bg-danger-dark font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm disabled:opacity-60"
+              >
+                {submittingReport ? <Loader2 size={16} className="animate-spin" /> : <Flag size={16} />}
+                Enviar Reporte
               </button>
             </div>
           </div>

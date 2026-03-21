@@ -14,6 +14,10 @@ export const users = pgTable("users", {
   preferences: text("preferences").array().notNull().default([]),
   verified: boolean("verified").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+  role: text("role", { enum: ["user", "admin"] }).default("user").notNull(),
+  strikes: integer("strikes").default(0).notNull(),
+  suspendedUntil: timestamp("suspended_until"),
+  banned: boolean("banned").default(false).notNull(),
 });
 
 export const books = pgTable("books", {
@@ -196,7 +200,8 @@ export const notifications = pgTable("notifications", {
     enum: [
       "exchange_requested", "exchange_accepted", "exchange_rejected", "exchange_auto_rejected", "exchange_started", "exchange_completed", "exchange_cancelled",
       "exchange_reminder_tomorrow", "exchange_reminder_today",
-      "friend_request", "friend_accepted", "friend_declined"
+      "friend_request", "friend_accepted", "friend_declined",
+      "strike_received"
     ],
   }).notNull(),
   // Mensaje descriptivo
@@ -320,6 +325,72 @@ export const accountVerificationTokens = pgTable("account_verification_tokens", 
   return {
     tokenIdx: index("avt_token_idx").on(table.token),
     userIdx: index("avt_user_idx").on(table.userId),
+  };
+});
+
+// ─── Tabla para reportes de usuarios ─────────────────────────────────────────
+export const userReports = pgTable("user_reports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  reporterId: uuid("reporter_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  reportedId: uuid("reported_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  reason: text("reason").notNull(),
+  imageUrl: text("image_url"),
+  status: text("status", { enum: ["pending", "reviewed", "dismissed"] })
+    .default("pending")
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    reporterIdx: index("ur_reporter_idx").on(table.reporterId),
+    reportedIdx: index("ur_reported_idx").on(table.reportedId),
+    statusIdx: index("ur_status_idx").on(table.status),
+  };
+});
+
+// ─── Tablas para Sistema de Soporte y Apelaciones ────────────────────────────
+export const supportTickets = pgTable("support_tickets", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  adminId: uuid("admin_id")
+    .references(() => users.id),
+  type: text("type", { enum: ["appeal", "issue", "other"] }).notNull(),
+  status: text("status", { enum: ["open", "in_progress", "resolved", "closed"] })
+    .default("open")
+    .notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    userIdx: index("st_user_idx").on(table.userId),
+    adminIdx: index("st_admin_idx").on(table.adminId),
+    statusIdx: index("st_status_idx").on(table.status),
+  };
+});
+
+export const ticketMessages = pgTable("ticket_messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ticketId: uuid("ticket_id")
+    .references(() => supportTickets.id, { onDelete: "cascade" })
+    .notNull(),
+  senderId: uuid("sender_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  content: text("content").notNull(),
+  imageUrl: text("image_url"),
+  isRead: integer("is_read").default(0).notNull(), // 0 = no leído, 1 = leído
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    ticketIdx: index("tm_ticket_idx").on(table.ticketId),
+    createdAtIdx: index("tm_created_at_idx").on(table.createdAt),
   };
 });
 

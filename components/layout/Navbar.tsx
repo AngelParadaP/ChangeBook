@@ -111,6 +111,7 @@ const notificationConfig: Record<string, { icon: React.ReactNode; color: string 
   friend_request: { icon: <UserPlus size={14} />, color: "bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400" },
   friend_accepted: { icon: <UserCheck size={14} />, color: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" },
   friend_declined: { icon: <UserMinus size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
+  strike_received: { icon: <Ban size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
 };
 
 function formatTimeAgo(date: Date): string {
@@ -239,6 +240,9 @@ export function Navbar() {
         } else {
           targetPath = `/notifications`;
         }
+        break;
+      case "strike_received":
+        targetPath = `/support?openModal=true&type=appeal&title=Apelaci%C3%B3n%20de%20penalizaci%C3%B3n`;
         break;
       default:
         targetPath = `/exchanges?tab=activos`;
