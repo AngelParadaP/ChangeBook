@@ -121,6 +121,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
     // Edit/Delete state
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
     const [editName, setEditName] = useState(community.name);
     const [editDescription, setEditDescription] = useState(community.description || "");
     const [editImageFile, setEditImageFile] = useState<File | null>(null);
@@ -207,7 +208,11 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
             toast("No puedes abandonar una comunidad que creaste", "error");
             return;
         }
-        if (!confirm("¿Estás seguro de que quieres abandonar esta comunidad?")) return;
+        setShowLeaveConfirm(true);
+    };
+
+    const confirmLeave = async () => {
+        setShowLeaveConfirm(false);
         setLeaving(true);
         const result = await leaveCommunity(community.id);
         setLeaving(false);
@@ -509,12 +514,12 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             )}
                         </div>
                         <h2 className="font-bold text-heading text-sm truncate flex-1">{community.name}</h2>
-                        <div className="flex items-center gap-1.5">
+                        <div className="hidden sm:flex items-center gap-1.5 overflow-x-auto custom-scrollbar">
                             {DETAIL_TABS.map((tab) => (
                                 <button
                                     key={tab.key}
                                     onClick={() => handleTabChange(tab.key)}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${activeTab === tab.key
+                                    className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${activeTab === tab.key
                                         ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-sm"
                                         : "text-hint hover:bg-soft"
                                         }`}
@@ -573,9 +578,9 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                 </div>
 
                 {/* Actions Bar */}
-                <div className="p-4 border-b border-card-border flex justify-between items-start bg-subtle">
-                    <div className="flex-1 min-w-0">
-                        <p className="text-caption max-w-2xl text-sm">
+                <div className="p-4 border-b border-card-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-subtle">
+                    <div className="flex-1 min-w-0 w-full">
+                        <p className="text-caption max-w-2xl text-sm w-full break-words">
                             {community.description || "Sin descripción"}
                         </p>
                         {community.genres && community.genres.length > 0 && (
@@ -588,11 +593,11 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             </div>
                         )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                         {joined && (
                             <button
                                 onClick={() => setShowPostModal(true)}
-                                className="px-4 py-2 bg-dim hover:bg-dim rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                                className="flex-1 sm:flex-none justify-center px-4 py-2 bg-dim hover:bg-dim rounded-lg text-sm font-medium transition-colors cursor-pointer"
                             >
                                 + Crear Publicación
                             </button>
@@ -600,7 +605,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                         {!joined && (
                             <button
                                 onClick={handleJoin}
-                                className="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                                className="flex-1 sm:flex-none justify-center px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors cursor-pointer"
                             >
                                 Unirse
                             </button>
@@ -618,28 +623,28 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                             <button
                                 onClick={handleLeave}
                                 disabled={leaving}
-                                className="group px-6 py-2 bg-green-500/10 text-green-600 border border-green-200 dark:border-green-800 hover:bg-red-500/10 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
+                                className="group flex-1 sm:flex-none justify-center px-6 py-2 bg-green-500/10 text-green-600 border border-green-200 dark:border-green-800 hover:bg-red-500/10 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
                             >
-                                <span className="group-hover:hidden flex items-center gap-1">{leaving ? "Saliendo..." : <><Check size={14} /> Miembro</>}</span>
-                                <span className="hidden group-hover:inline-flex items-center gap-1.5"><LogOut size={14} /> Abandonar</span>
+                                <span className="group-hover:hidden flex items-center justify-center gap-1">{leaving ? "Saliendo..." : <><Check size={14} /> Miembro</>}</span>
+                                <span className="hidden group-hover:inline-flex items-center justify-center gap-1.5"><LogOut size={14} /> Abandonar</span>
                             </button>
                         )}
                     </div>
                 </div>
 
                 {/* Detail Tabs */}
-                <div className="flex items-center gap-2 px-6 pt-4 pb-3 border-b border-card-border bg-card">
+                <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-card-border bg-card overflow-x-auto custom-scrollbar">
                     {DETAIL_TABS.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => handleTabChange(tab.key)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${activeTab === tab.key
+                            className={`flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${activeTab === tab.key
                                 ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg shadow-primary-glow"
                                 : "text-hint hover:bg-soft hover:text-heading"
                                 }`}
                         >
                             {tab.icon}
-                            {tab.label}
+                            <span className="whitespace-nowrap">{tab.label}</span>
                         </button>
                     ))}
                 </div>
@@ -1087,6 +1092,42 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                     className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-colors disabled:opacity-50"
                                 >
                                     {deleting ? "Eliminando..." : "Sí, Eliminar"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Leave Confirmation Modal */}
+                {showLeaveConfirm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                        <div className="bg-card rounded-2xl w-full max-w-sm p-6 shadow-xl border border-card-border animate-in fade-in zoom-in-95 duration-200">
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
+                                    <LogOut size={28} className="text-red-500 ml-1" />
+                                </div>
+                                <h2 className="text-xl font-bold text-heading mb-2">
+                                    ¿Abandonar comunidad?
+                                </h2>
+                                <p className="text-hint text-sm max-w-sm mx-auto">
+                                    ¿Estás seguro de que quieres salir de <strong className="text-body">&quot;{community.name}&quot;</strong>?
+                                    Dejarás de recibir notificaciones y tus recomendaciones de libros personalizadas ya no incluirán esta comunidad.
+                                </p>
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowLeaveConfirm(false)}
+                                    disabled={leaving}
+                                    className="flex-1 px-4 py-2.5 bg-soft hover:bg-dim rounded-xl font-medium transition-colors text-body"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={confirmLeave}
+                                    disabled={leaving}
+                                    className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-colors disabled:opacity-50"
+                                >
+                                    {leaving ? "Saliendo..." : "Sí, Salir"}
                                 </button>
                             </div>
                         </div>

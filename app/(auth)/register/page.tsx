@@ -11,6 +11,8 @@ export default function RegisterPage() {
   const router = useRouter();
   const [showNip, setShowNip] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const [form, setForm] = useState({
     code: "",
     nip: "",
@@ -26,6 +28,11 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!termsAccepted) {
+      setStatus({ type: "error", msg: "Debes aceptar los Términos y Condiciones para continuar." });
+      return;
+    }
 
     // Validacion del input en el cliente para respuesta rapida
     const validation = registerSchema.safeParse(form);
@@ -284,6 +291,27 @@ export default function RegisterPage() {
             </button>
           </div>
 
+          {/* Checkbox Términos */}
+          <div className="flex items-start gap-3 pt-2">
+            <input
+              type="checkbox"
+              id="terms"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-1 w-4 h-4 rounded border-white/15 bg-white/10 text-light-pink focus:ring-light-pink cursor-pointer"
+            />
+            <label htmlFor="terms" className="text-sm text-white/50 leading-snug select-none">
+              He leído y acepto los{" "}
+              <button
+                type="button"
+                onClick={() => setShowTerms(true)}
+                className="text-light-pink hover:text-white underline transition-colors"
+              >
+                Términos y Condiciones
+              </button>
+            </label>
+          </div>
+
           <button
             type="submit"
             className="w-full py-3.5 mt-2
@@ -319,6 +347,80 @@ export default function RegisterPage() {
           </div>
         )}
       </div>
+
+      {/* Terms and Conditions Modal */}
+      {showTerms && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#1E1E2E] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-white/5">
+              <h3 className="text-xl font-bold text-white">Términos y Condiciones</h3>
+              <button onClick={() => setShowTerms(false)} className="text-white/50 hover:text-white transition-colors">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto text-sm text-white/70 space-y-5 font-normal custom-scrollbar">
+              <p>
+                Al registrarte y utilizar Kyboo, aceptas los siguientes términos y condiciones. Te pedimos leerlos cuidadosamente.
+              </p>
+              
+              <div>
+                <h4 className="text-white font-semibold text-base mb-1">1. Uso de la Aplicación</h4>
+                <p>
+                  Kyboo es una plataforma diseñada para facilitar el intercambio de libros. Te comprometes a usar la aplicación de forma respetuosa, manteniendo un ambiente cordial y sin infringir las normativas de la comunidad.
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="text-white font-semibold text-base mb-2">2. Responsabilidad sobre los Materiales</h4>
+                <div className="p-4 bg-red-950/40 border border-red-500/30 rounded-xl">
+                  <p className="text-red-300 font-medium">
+                    <strong>Aviso Legal:</strong> La aplicación Kyboo, sus desarrolladores, organizadores y administradores <strong>no se hacen responsables bajo ninguna circunstancia</strong> en caso de que un usuario no devuelva un libro prestado, lo devuelva maltratado, roto, rayado o en cualquier estado distinto al original.
+                    <br/><br/>
+                    Al utilizar la plataforma, comprendes y aceptas que todos los préstamos o intercambios se realizan estrictamente bajo el propio riesgo y responsabilidad de los usuarios involucrados.
+                  </p>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-white font-semibold text-base mb-1">3. Privacidad y Datos</h4>
+                <p>
+                  Los datos proporcionados, incluyendo tu código estudiantil, NIP (el cual se verifica pero no se almacena) y correo, serán utilizados exclusivamente para verificar tu identidad y gestionar tu cuenta dentro de Kyboo. No venderemos tu información a terceros.
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="text-white font-semibold text-base mb-1">4. Comportamiento en la Comunidad</h4>
+                <p>
+                  Nos reservamos el derecho de suspender o eliminar sin previo aviso aquellas cuentas que presenten un comportamiento inapropiado, realicen reportes falsos, apliquen acoso o lleven a cabo actos de mala fe dentro de los préstamos organizados.
+                </p>
+              </div>
+            </div>
+            
+            <div className="p-5 border-t border-white/10 flex justify-end gap-3 bg-white/5">
+              <button
+                type="button"
+                onClick={() => setShowTerms(false)}
+                className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-semibold border border-white/10"
+              >
+                Cerrar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTermsAccepted(true);
+                  setShowTerms(false);
+                }}
+                className="px-5 py-2.5 bg-light-pink text-dark-purple rounded-xl hover:opacity-90 transition-colors font-bold shadow-lg shadow-light-pink/20"
+              >
+                He leído y acepto
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
