@@ -160,7 +160,8 @@ export async function removeBookRecommendation(recommendationId: string) {
 export async function getCommunityBookRecommendations(
   communityId: string,
   offset: number = 0,
-  limit: number = 5
+  limit: number = 5,
+  filterUserId?: string
 ) {
   try {
     const user = await getCurrentUser();
@@ -193,8 +194,11 @@ export async function getCommunityBookRecommendations(
       .offset(offset)
       .limit(limit + 1); // +1 to check if there are more
 
-    // Exclude current user's recommendations if logged in
-    if (user?.id) {
+    if (filterUserId) {
+      query.where(
+        and(whereConditions, eq(communityBookRecommendations.userId, filterUserId))
+      );
+    } else if (user?.id) {
       query.where(
         and(whereConditions, ne(communityBookRecommendations.userId, user.id))
       );

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useChatRooms } from "@/contexts/ChatContext";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { MessageSquare, Loader2, Search, Inbox, Mail, X, Users } from "lucide-react";
-import { getFriends, FriendProfile } from "@/server/actions/friends/getFriends";
 
 type FilterTab = "all" | "unread" | "friends";
 
@@ -13,27 +12,13 @@ export function ChatRoomList() {
     const router = useRouter();
     const params = useParams();
     const activeRoomId = params?.roomId as string | undefined;
-    const { rooms, loading } = useChatRooms();
-    const [filterTab, setFilterTab] = useState<FilterTab>("all");
+    const { rooms, loading, friends, friendsLoading } = useChatRooms();
+    const searchParams = useSearchParams();
+    const tabFromUrl = searchParams.get("tab") as FilterTab | null;
+    const [filterTab, setFilterTab] = useState<FilterTab>(tabFromUrl && ["all", "unread", "friends"].includes(tabFromUrl) ? tabFromUrl : "all");
     const [searchQuery, setSearchQuery] = useState("");
     const [searchOpen, setSearchOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
-
-    const [friends, setFriends] = useState<FriendProfile[]>([]);
-
-    useEffect(() => {
-        const loadFriends = async () => {
-            try {
-                const res = await getFriends();
-                if (res.success && res.friends) {
-                    setFriends(res.friends);
-                }
-            } catch (error) {
-                console.error("Error loading friends in chat", error);
-            }
-        };
-        loadFriends();
-    }, []);
 
     // Focus input when search opens
     useEffect(() => {
@@ -115,7 +100,7 @@ export function ChatRoomList() {
     };
 
     // Loading state
-    if (loading && rooms.length === 0) {
+    if ((loading || friendsLoading) && rooms.length === 0) {
         return (
             <div className="flex flex-col h-full">
                 {/* Header skeleton */}
@@ -224,7 +209,10 @@ export function ChatRoomList() {
             {/* Filter tabs */}
             <div className="flex gap-1 px-4 pb-3">
                 <button
-                    onClick={() => setFilterTab("all")}
+                    onClick={() => {
+                        setFilterTab("all");
+                        router.replace(activeRoomId ? `/chat/${activeRoomId}?tab=all` : `/chat?tab=all`, { scroll: false });
+                    }}
                     className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterTab === "all"
                         ? "bg-primary text-white shadow-sm"
                         : "text-hint hover:bg-soft hover:text-heading"
@@ -240,7 +228,10 @@ export function ChatRoomList() {
                     </span>
                 </button>
                 <button
-                    onClick={() => setFilterTab("unread")}
+                    onClick={() => {
+                        setFilterTab("unread");
+                        router.replace(activeRoomId ? `/chat/${activeRoomId}?tab=unread` : `/chat?tab=unread`, { scroll: false });
+                    }}
                     className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterTab === "unread"
                         ? "bg-primary text-white shadow-sm"
                         : "text-hint hover:bg-soft hover:text-heading"
@@ -258,7 +249,10 @@ export function ChatRoomList() {
                     )}
                 </button>
                 <button
-                    onClick={() => setFilterTab("friends")}
+                    onClick={() => {
+                        setFilterTab("friends");
+                        router.replace(activeRoomId ? `/chat/${activeRoomId}?tab=friends` : `/chat?tab=friends`, { scroll: false });
+                    }}
                     className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterTab === "friends"
                         ? "bg-primary text-white shadow-sm"
                         : "text-hint hover:bg-soft hover:text-heading"
@@ -311,7 +305,7 @@ export function ChatRoomList() {
                             return (
                                 <div key={room.id}>
                                     <button
-                                        onClick={() => router.push(`/chat/${room.id}`)}
+                                        onClick={() => router.push(`/chat/${room.id}?tab=${filterTab}`)}
                                         className={`w-full flex items-center gap-3 px-4 py-3.5 transition-all duration-200 text-left cursor-pointer relative group ${isActive
                                             ? "bg-primary/8 dark:bg-primary-dark/15 border-l-[3px] border-primary"
                                             : "hover:bg-soft border-l-[3px] border-transparent"

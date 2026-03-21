@@ -82,6 +82,8 @@ function ExchangesPageContent() {
     const [searchLoading, setSearchLoading] = useState(false);
     const [contactBooks, setContactBooks] = useState<AvailableBook[]>([]);
     const [selectedContact, setSelectedContact] = useState<ChatContact | null>(null);
+    const [friendBooks, setFriendBooks] = useState<AvailableBook[]>([]);
+    const [selectedFriend, setSelectedFriend] = useState<FriendProfile | null>(null);
 
     // Modal state
     const [modalOpen, setModalOpen] = useState(false);
@@ -193,13 +195,24 @@ function ExchangesPageContent() {
         return () => clearTimeout(timer);
     }, [searchQuery, activeTab, searchMode]);
 
-    const loadContactBooks = async (contact: ChatContact | FriendProfile) => {
+    const loadContactBooks = async (contact: ChatContact) => {
         setSelectedContact({ id: contact.id, name: contact.name, username: contact.username, imageURL: contact.imageURL });
         setSearchLoading(true);
         const { getUserAvailableBooks } = await import("@/server/actions/exchanges/searchExchange");
         const result = await getUserAvailableBooks(contact.id);
         if (result.success && result.books) {
             setContactBooks(result.books as AvailableBook[]);
+        }
+        setSearchLoading(false);
+    };
+
+    const loadFriendBooks = async (friend: FriendProfile) => {
+        setSelectedFriend(friend);
+        setSearchLoading(true);
+        const { getUserAvailableBooks } = await import("@/server/actions/exchanges/searchExchange");
+        const result = await getUserAvailableBooks(friend.id);
+        if (result.success && result.books) {
+            setFriendBooks(result.books as AvailableBook[]);
         }
         setSearchLoading(false);
     };
@@ -351,7 +364,7 @@ function ExchangesPageContent() {
                         {/* Search Mode Toggle */}
                         <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                             <button
-                                onClick={() => { setSearchMode("books"); setSelectedContact(null); }}
+                                onClick={() => { setSearchMode("books"); setSelectedContact(null); setSelectedFriend(null); }}
                                 className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all ${searchMode === "books"
                                     ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
                                     : "bg-soft text-caption hover:bg-dim"
@@ -360,7 +373,7 @@ function ExchangesPageContent() {
                                 <BookMarked size={16} className="inline mr-1" /> <span className="hidden sm:inline">Buscar por </span>libro
                             </button>
                             <button
-                                onClick={() => { setSearchMode("friends"); setSelectedContact(null); }}
+                                onClick={() => { setSearchMode("friends"); setSelectedContact(null); setSelectedFriend(null); }}
                                 className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all ${searchMode === "friends"
                                     ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
                                     : "bg-soft text-caption hover:bg-dim"
@@ -369,7 +382,7 @@ function ExchangesPageContent() {
                                 <Users size={16} className="inline mr-1" /> Mis amigos
                             </button>
                             <button
-                                onClick={() => { setSearchMode("contacts"); setSelectedContact(null); }}
+                                onClick={() => { setSearchMode("contacts"); setSelectedContact(null); setSelectedFriend(null); }}
                                 className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all ${searchMode === "contacts"
                                     ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
                                     : "bg-soft text-caption hover:bg-dim"
@@ -428,7 +441,7 @@ function ExchangesPageContent() {
                                     )}
                                 </div>
                             </>
-                        ) : (
+                        ) : searchMode === "contacts" ? (
                             <>
                                 {/* Contact list or contact books */}
                                 {selectedContact ? (
@@ -463,9 +476,9 @@ function ExchangesPageContent() {
                                             </div>
                                         ) : (
                                             <div className="space-y-2">
-                                                {contactBooks.map((book) => (
+                                                {contactBooks.map((book, index) => (
                                                     <BookSearchResult
-                                                        key={book.id}
+                                                        key={`${book.id}-${index}`}
                                                         book={{ ...book, ownerName: selectedContact.name, ownerUsername: selectedContact.username, ownerImageURL: selectedContact.imageURL }}
                                                         onExchange={() =>
                                                             openExchangeModal({
@@ -488,21 +501,106 @@ function ExchangesPageContent() {
                                     </div>
                                 ) : (
                                     <div className="space-y-2">
-                                        {(searchMode === "contacts" ? chatContacts : friends).length === 0 ? (
+                                        {chatContacts.length === 0 ? (
                                             <div className="text-center py-8">
                                                 <div className="mb-2"><MessageSquare size={40} className="mx-auto text-hint" /></div>
-                                                <p className="text-hint text-sm">
-                                                    {searchMode === "contacts" ? "No tienes chats activos" : "No tienes amigos añadidos"}
-                                                </p>
-                                                <p className="text-hint text-xs mt-1">
-                                                    {searchMode === "contacts" ? "Inicia una conversación para ver contactos aquí" : "Añade amigos para buscarlos aquí"}
-                                                </p>
+                                                <p className="text-hint text-sm">No tienes chats activos</p>
+                                                <p className="text-hint text-xs mt-1">Inicia una conversación para ver contactos aquí</p>
                                             </div>
                                         ) : (
-                                            (searchMode === "contacts" ? chatContacts : friends).map((person) => (
+                                            chatContacts.map((person, index) => (
                                                 <button
-                                                    key={person.id}
+                                                    key={`${person.id}-${index}`}
                                                     onClick={() => loadContactBooks(person)}
+                                                    className="w-full flex items-center gap-3 p-3 bg-subtle rounded-xl hover:bg-soft/50 transition-colors text-left"
+                                                >
+                                                    <UserAvatar
+                                                        imageURL={person.imageURL}
+                                                        name={person.name}
+                                                        size="sm"
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-semibold text-sm text-body truncate">{person.name}</p>
+                                                        <p className="text-xs text-light-purple dark:text-light-pink">@{person.username}</p>
+                                                    </div>
+                                                    <ChevronRight size={16} className="text-hint" />
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
+                            </>
+                        ) : searchMode === "friends" && (
+                            <>
+                                {/* Friend list or friend books */}
+                                {selectedFriend ? (
+                                    <div>
+                                        <button
+                                            onClick={() => { setSelectedFriend(null); setFriendBooks([]); }}
+                                            className="flex items-center gap-2 text-sm text-hint hover:text-heading mb-4 transition-colors"
+                                        >
+                                            <ArrowLeft size={14} /> Volver a amigos
+                                        </button>
+                                        <div className="flex items-center gap-3 mb-4 p-3 bg-subtle rounded-xl">
+                                            <div className="w-10 h-10">
+                                                <UserAvatar
+                                                    imageURL={selectedFriend.imageURL}
+                                                    name={selectedFriend.name}
+                                                    size="sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-sm text-body">{selectedFriend.name}</p>
+                                                <p className="text-xs text-light-purple dark:text-light-pink">@{selectedFriend.username}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Friend's books */}
+                                        {searchLoading ? (
+                                            <div className="text-center py-8 text-hint">Cargando libros...</div>
+                                        ) : friendBooks.length === 0 ? (
+                                            <div className="text-center py-8">
+                                                <div className="mb-2"><Mailbox size={40} className="mx-auto text-hint" /></div>
+                                                <p className="text-hint text-sm">Este usuario no tiene libros publicados</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {friendBooks.map((book, index) => (
+                                                    <BookSearchResult
+                                                        key={`${book.id}-${index}`}
+                                                        book={{ ...book, ownerName: selectedFriend.name, ownerUsername: selectedFriend.username, ownerImageURL: selectedFriend.imageURL }}
+                                                        onExchange={() =>
+                                                            openExchangeModal({
+                                                                ...book,
+                                                                ownerName: selectedFriend.name,
+                                                                ownerUsername: selectedFriend.username,
+                                                                ownerImageURL: selectedFriend.imageURL,
+                                                            })
+                                                        }
+                                                        onMessage={() => handleMessageOwner({
+                                                            ...book,
+                                                            ownerName: selectedFriend.name,
+                                                            ownerUsername: selectedFriend.username,
+                                                            ownerImageURL: selectedFriend.imageURL,
+                                                        })}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {friends.length === 0 ? (
+                                            <div className="text-center py-8">
+                                                <div className="mb-2"><Users size={40} className="mx-auto text-hint" /></div>
+                                                <p className="text-hint text-sm">No tienes amigos añadidos</p>
+                                                <p className="text-hint text-xs mt-1">Añade amigos para buscarlos aquí</p>
+                                            </div>
+                                        ) : (
+                                            friends.map((person, index) => (
+                                                <button
+                                                    key={`${person.id}-${index}`}
+                                                    onClick={() => loadFriendBooks(person)}
                                                     className="w-full flex items-center gap-3 p-3 bg-subtle rounded-xl hover:bg-soft/50 transition-colors text-left"
                                                 >
                                                     <UserAvatar

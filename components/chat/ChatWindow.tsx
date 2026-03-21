@@ -9,7 +9,7 @@ import { ChatSkeleton } from "@/components/ui/skeletons";
 import { getMessages, sendMessage, markAsRead, getChatRooms } from "@/server/actions/chat";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import Link from "next/link";
-import { User, ExternalLink } from "lucide-react";
+import { User, ExternalLink, MessageSquare } from "lucide-react";
 
 interface Message {
     id: string;
@@ -235,7 +235,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
                 {messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
                         <div className="w-14 h-14 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
-                            <span className="text-2xl">💬</span>
+                            <MessageSquare size={28} className="text-primary/80" />
                         </div>
                         <p className="text-sm text-hint bg-card/70 backdrop-blur-sm px-4 py-2 rounded-full">
                             No hay mensajes aún. ¡Envía el primero!

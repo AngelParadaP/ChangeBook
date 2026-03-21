@@ -53,20 +53,7 @@ export default function RegisterPage() {
     // Validacion del input y de la conexion a SIIAU
     const result = await registerAction(form);
     if (result.success) {
-      setStatus({ type: "success", msg: "Cuenta creada. Entrando..." });
-
-      // Iniciamos sesión con las credenciales recién creadas
-      const loginResult = await signIn("credentials", {
-        redirect: false,
-        codigo: form.code,
-        nip: form.password, // La contraseña que el usuario eligió para Kyboo
-      });
-
-      if (loginResult?.ok) {
-        router.push("/home");
-      } else {
-        setStatus({ type: "error", msg: "Error al iniciar sesión automática" });
-      }
+      setStatus({ type: "success", msg: "Cuenta creada. Por favor revisa tu correo institucional para verificarla y poder acceder." });
     } else {
       setStatus({ type: "error", msg: result.error || "Error al registrarse" });
     }
@@ -238,13 +225,24 @@ export default function RegisterPage() {
             <input
               type="text"
               placeholder="Nombre de usuario"
+              value={form.username}
               className="w-full pl-12 pr-4 py-3.5 rounded-xl
                 bg-white/10 dark:bg-white/5
                 border border-white/15 dark:border-white/10
                 text-white placeholder-white/40
                 outline-none focus:border-light-pink focus:ring-1 focus:ring-light-pink/50
                 transition-all duration-300 text-sm"
-              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val.includes(" ")) {
+                  setStatus({ type: "error", msg: "El nombre de usuario no puede contener espacios" });
+                } else {
+                  if (status.msg === "El nombre de usuario no puede contener espacios") {
+                    setStatus({ type: "idle", msg: "" });
+                  }
+                  setForm({ ...form, username: val });
+                }
+              }}
               required
             />
           </div>

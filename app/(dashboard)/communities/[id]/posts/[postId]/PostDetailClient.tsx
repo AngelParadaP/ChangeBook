@@ -12,6 +12,7 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { createComment } from "@/server/actions/communities/comments";
 import { deletePost, deleteComment, banUser } from "@/server/actions/communities/moderation";
 import { togglePostLike } from "@/server/actions/communities/togglePostLike";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { CornerDownRight, MessageSquare, Trash2, Shield, ShieldCheck, Slash, Heart, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -55,13 +56,23 @@ interface CommentItemProps {
     currentUserId?: string | null;
     onDelete: (id: string) => void;
     onBan: (userId: string) => void;
+    isModal?: boolean;
 }
 
-const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyContent, setReplyContent, onSubmit, submitting, currentUserRole, currentUserId, onDelete, onBan }: CommentItemProps) => {
+const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyContent, setReplyContent, onSubmit, submitting, currentUserRole, currentUserId, onDelete, onBan, isModal }: CommentItemProps) => {
     const isReplying = replyingTo === comment.id;
     const canModerate = currentUserRole === "admin" || currentUserRole === "moderator";
     const isCommentOwner = currentUserId === comment.userId;
     const isDeleted = comment.content === "[comentario eliminado]";
+    const router = useRouter();
+
+    const handleUserClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        if (isModal) {
+            e.preventDefault();
+            router.back();
+            setTimeout(() => router.push(`/user/${comment.username}`), 100);
+        }
+    };
 
     return (
         <div className={`mt-4 ${depth > 0 ? "ml-4 pl-4 border-l-2 border-card-border" : ""}`}>
@@ -79,7 +90,7 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                             <span className="font-semibold text-sm text-hint italic">[eliminado]</span>
                         ) : (
                             <>
-                                <Link href={`/user/${comment.username}`} className="font-semibold text-sm text-heading hover:underline">{comment.username}</Link>
+                                <Link onClick={handleUserClick} href={`/user/${comment.username}`} className="font-semibold text-sm text-heading hover:underline">{comment.username}</Link>
                                 {comment.role === 'admin' && <ShieldCheck size={14} className="text-blue-500" />}
                                 {comment.role === 'moderator' && <Shield size={14} className="text-green-500" />}
                             </>
@@ -112,9 +123,7 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                             {/* Owner delete button */}
                             {isCommentOwner && !canModerate && (
                                 <button
-                                    onClick={() => {
-                                        if (confirm("¿Eliminar tu comentario?")) onDelete(comment.id);
-                                    }}
+                                    onClick={() => onDelete(comment.id)}
                                     className="flex items-center gap-1 text-xs font-medium text-hint hover:text-red-500 transition-colors"
                                     title="Eliminar tu comentario"
                                 >
@@ -127,9 +136,7 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                             {canModerate && (
                                 <div className="flex items-center gap-2">
                                     <button
-                                        onClick={() => {
-                                            if (confirm("¿Eliminar comentario?")) onDelete(comment.id);
-                                        }}
+                                        onClick={() => onDelete(comment.id)}
                                         className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 rounded"
                                         title="Eliminar comentario"
                                     >
@@ -196,6 +203,7 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                             currentUserRole={currentUserRole}
                             onDelete={onDelete}
                             onBan={onBan}
+                            isModal={isModal}
                         />
                     ))}
                 </div>
@@ -208,9 +216,10 @@ interface PostDetailClientProps {
     post: Post;
     initialComments: Comment[];
     currentUserRole?: string | null;
+    isModal?: boolean;
 }
 
-export default function PostDetailClient({ post, initialComments, currentUserRole }: PostDetailClientProps) {
+export default function PostDetailClient({ post, initialComments, currentUserRole, isModal }: PostDetailClientProps) {
     const { data: session } = useSession();
     const router = useRouter();
     const [comments, setComments] = useState<Comment[]>(initialComments);
@@ -232,6 +241,9 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
     const serverLikesRef = useRef(post.likes);
 
     const [showCommentBox, setShowCommentBox] = useState(false);
+    const [showDeletePostConfirm, setShowDeletePostConfirm] = useState(false);
+    const [isDeletingPost, setIsDeletingPost] = useState(false);
+    const [showDeleteCommentConfirm, setShowDeleteCommentConfirm] = useState<string | null>(null);
 
     const handleSubmitComment = async (parentId?: string) => {
         if (!replyContent.trim()) return;
@@ -256,13 +268,35 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
     };
 
     const handleDeletePost = async () => {
-        if (!confirm("¿Estás seguro de eliminar esta publicación permanently?")) return;
-        const result = await deletePost(post.id);
-        if (result.success) {
-            toast("Publicación eliminada", "success");
-            router.push(`/communities/${post.communityId}`);
+        if (isModal) {
+            // Optimistic approach: close the modal and remove the post from the feed first,
+            // then delete on the server in the background. This prevents the server action's
+            // automatic re-render from trying to fetch the deleted post on the intercepted route.
+            setShowDeletePostConfirm(false);
+            window.dispatchEvent(new CustomEvent("post-deleted", { detail: { postId: post.id } }));
+            router.back();
+
+            // Now delete on the server in the background
+            const result = await deletePost(post.id);
+            if (result.success) {
+                toast("Publicación eliminada", "success");
+            } else {
+                toast(result.error || "Error al eliminar", "error");
+                // If deletion failed, refresh to restore the post
+                router.refresh();
+            }
         } else {
-            toast(result.error || "Error al eliminar", "error");
+            // Non-modal: standard flow
+            setIsDeletingPost(true);
+            const result = await deletePost(post.id);
+            if (result.success) {
+                toast("Publicación eliminada", "success");
+                router.push(`/communities/${post.communityId}`);
+            } else {
+                toast(result.error || "Error al eliminar", "error");
+            }
+            setIsDeletingPost(false);
+            setShowDeletePostConfirm(false);
         }
     };
 
@@ -281,6 +315,7 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
         } else {
             toast(result.error || "Error al eliminar", "error");
         }
+        setShowDeleteCommentConfirm(null);
     };
 
     const handleBanUser = async (userId: string) => {
@@ -326,7 +361,8 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
     const canModerate = currentUserRole === "admin" || currentUserRole === "moderator";
 
     return (
-        <div className="max-w-4xl mx-auto py-8 px-4">
+        <>
+        <div className={`max-w-4xl mx-auto py-8 px-4 ${!isModal ? "h-full overflow-y-auto custom-scrollbar" : ""}`}>
             <div className="bg-card rounded-2xl shadow-sm overflow-hidden mb-6">
                 {/* Post Header */}
                 <div className="p-6 border-b border-card-border">
@@ -342,7 +378,13 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                             <div>
                                 <h2 className="font-bold text-heading">c/{post.communityName}</h2>
                                 <div className="flex items-center gap-2 text-xs text-hint">
-                                    <span>Publicado por <Link href={`/user/${post.username}`} className="hover:underline">u/{post.username}</Link></span>
+                                    <span>Publicado por <Link onClick={(e) => {
+                                        if (isModal) {
+                                            e.preventDefault();
+                                            router.back();
+                                            setTimeout(() => router.push(`/user/${post.username}`), 100);
+                                        }
+                                    }} href={`/user/${post.username}`} className="hover:underline">u/{post.username}</Link></span>
                                     <span>•</span>
                                     <span suppressHydrationWarning>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: es })}</span>
                                 </div>
@@ -353,7 +395,7 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                             {/* Post owner delete */}
                             {post.userId === session?.user?.id && !canModerate && (
                                 <button
-                                    onClick={handleDeletePost}
+                                    onClick={() => setShowDeletePostConfirm(true)}
                                     className="p-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-500 rounded-lg transition-colors"
                                     title="Eliminar tu publicación"
                                 >
@@ -363,7 +405,7 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                             {canModerate && (
                                 <div className="flex items-center gap-2 mr-2 border-r border-card-border pr-2">
                                     <button
-                                        onClick={handleDeletePost}
+                                        onClick={() => setShowDeletePostConfirm(true)}
                                         className="p-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-500 rounded-lg transition-colors"
                                         title="Eliminar publicación permanentemente"
                                     >
@@ -468,13 +510,41 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                                 submitting={submitting}
                                 currentUserRole={currentUserRole}
                                 currentUserId={session?.user?.id}
-                                onDelete={handleDeleteComment}
+                                onDelete={(id) => setShowDeleteCommentConfirm(id)}
                                 onBan={handleBanUser}
+                                isModal={isModal}
                             />
                         ))}
                     </div>
                 )}
             </div>
         </div>
+            {/* Delete Post Confirm Dialog */}
+            <ConfirmDialog
+                isOpen={showDeletePostConfirm}
+                onClose={() => setShowDeletePostConfirm(false)}
+                onConfirm={handleDeletePost}
+                title="Eliminar Publicación"
+                message={
+                    <p>¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer.</p>
+                }
+                confirmLabel="Eliminar"
+                isLoading={isDeletingPost}
+            />
+
+            {/* Delete Comment Confirm Dialog */}
+            <ConfirmDialog
+                isOpen={showDeleteCommentConfirm !== null}
+                onClose={() => setShowDeleteCommentConfirm(null)}
+                onConfirm={() => {
+                    if (showDeleteCommentConfirm) handleDeleteComment(showDeleteCommentConfirm);
+                }}
+                title="Eliminar Comentario"
+                message={
+                    <p>¿Estás seguro de que deseas eliminar este comentario?</p>
+                }
+                confirmLabel="Eliminar"
+            />
+        </>
     );
 }

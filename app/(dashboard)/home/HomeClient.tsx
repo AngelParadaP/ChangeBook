@@ -45,7 +45,8 @@ export interface Post {
   communityId: string;
   communityName: string;
   communityImage: string | null;
-  hasLiked?: boolean; // Add hasLiked here for typing safely if passed
+  hasLiked?: boolean;
+  commentsCount?: number;
 }
 
 interface HomeClientProps {

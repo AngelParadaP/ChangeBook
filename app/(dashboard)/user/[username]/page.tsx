@@ -352,13 +352,9 @@ export default function UserProfilePage() {
                 {/* Chat button */}
                 <button
                   onClick={handleStartChat}
-                  disabled={startingChat || friendStatus !== "friends"}
-                  className={`flex items-center gap-1.5 px-4 py-2 font-semibold rounded-xl text-sm transition-all ${
-                    friendStatus === "friends"
-                      ? "bg-gradient-to-r from-primary to-primary-dark text-white hover:opacity-90 shadow-md shadow-primary/20"
-                      : "bg-soft text-hint cursor-not-allowed border border-card-border"
-                  }`}
-                  title={friendStatus !== "friends" ? "Debes ser amigo para enviar mensajes" : ""}
+                  disabled={startingChat}
+                  className="flex items-center gap-1.5 px-4 py-2 font-semibold rounded-xl text-sm transition-all bg-gradient-to-r from-primary to-primary-dark text-white hover:opacity-90 shadow-md shadow-primary/20"
+                  title="Enviar un mensaje"
                 >
                   {startingChat ? <Loader2 size={15} className="animate-spin" /> : <MessageSquare size={15} />}
                   {startingChat ? "Abriendo..." : "Mensaje"}
@@ -405,13 +401,9 @@ export default function UserProfilePage() {
               )}
               <button
                 onClick={handleStartChat}
-                disabled={startingChat || friendStatus !== "friends"}
-                className={`flex items-center gap-1.5 px-4 py-2 font-semibold rounded-xl text-sm transition-all ${
-                  friendStatus === "friends"
-                    ? "bg-gradient-to-r from-primary to-primary-dark text-white hover:opacity-90 shadow-md shadow-primary/20"
-                    : "bg-soft text-hint cursor-not-allowed border border-card-border"
-                }`}
-                title={friendStatus !== "friends" ? "Debes ser amigo para enviar mensajes" : ""}
+                disabled={startingChat}
+                className="flex items-center gap-1.5 px-4 py-2 font-semibold rounded-xl text-sm transition-all bg-gradient-to-r from-primary to-primary-dark text-white hover:opacity-90 shadow-md shadow-primary/20"
+                title="Enviar un mensaje"
               >
                 {startingChat ? <Loader2 size={15} className="animate-spin" /> : <MessageSquare size={15} />}
                 {startingChat ? "Abriendo..." : "Mensaje"}

@@ -48,7 +48,8 @@ export async function deletePost(postId: string) {
     await db.delete(postLikes).where(eq(postLikes.postId, postId));
     await db.delete(posts).where(eq(posts.id, postId));
 
-    revalidatePath(`/communities/${post.communityId}`);
+    // No revalidatePath here — the client handles removing the post from local state
+    // via the "post-deleted" custom event, avoiding a full page reload.
     return { success: true };
   } catch (error) {
     console.error("Error deleting post:", error);

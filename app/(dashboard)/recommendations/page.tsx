@@ -8,7 +8,7 @@ import { getCommunityRecommendationLog } from "@/server/actions/feed/getCommunit
 import { getGenreAffinity } from "@/server/actions/feed/getGenreAffinity";
 import {
   BarChart3, Brain, BookOpen, Clock, ArrowLeft, RefreshCw, Sparkles,
-  TrendingUp, Users, Heart, ArrowLeftRight, MessageSquare, Star,
+  TrendingUp, Users, Heart, ArrowLeftRight, MessageSquare, Star, ChevronDown
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -54,6 +54,7 @@ interface GenreAffinity {
   genre: string;
   score: number;
   sources: string[];
+  breakdown: Record<string, { weight: number; count: number }>;
 }
 
 // ─── Source label / icons ────────────────────────────────────────────────────
@@ -68,8 +69,14 @@ const SOURCE_META: Record<string, { label: string; color: string }> = {
 
 // ─── Affinity Chart Component ────────────────────────────────────────────────
 function AffinityChart({ affinities, label }: { affinities: GenreAffinity[]; label: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [expandedGenre, setExpandedGenre] = useState<string | null>(null);
+
   if (!affinities || affinities.length === 0) return null;
-  const maxScore = Math.max(...affinities.map(a => a.score), 1);
+
+  const totalPossibleScore = affinities.reduce((sum, a) => sum + a.score, 0);
+  // Show top 5 or all if expanded
+  const displayAffinities = expanded ? affinities : affinities.slice(0, 5);
 
   return (
     <div className="mb-6 bg-soft/50 rounded-xl border border-card-border/50 p-4">
@@ -81,18 +88,20 @@ function AffinityChart({ affinities, label }: { affinities: GenreAffinity[]; lab
         Géneros con los que más interactúas, según tus favoritos, intercambios, comunidades y preferencias.
       </p>
       <div className="space-y-2">
-        {affinities.map((a) => {
-          const pct = (a.score / maxScore) * 100;
+        {displayAffinities.map((a) => {
+          const pct = Math.round((a.score / totalPossibleScore) * 100);
+          const isGenreExpanded = expandedGenre === a.genre;
+
           return (
-            <div key={a.genre}>
+            <div key={a.genre} className="group rounded-lg transition-colors p-1 -mx-1 hover:bg-soft/70 cursor-pointer" onClick={() => setExpandedGenre(isGenreExpanded ? null : a.genre)}>
               <div className="flex items-center gap-3">
                 <span className="text-xs font-medium text-caption w-36 truncate">{a.genre}</span>
                 <div className="flex-1 bg-card rounded-full h-5 overflow-hidden border border-card-border/30">
                   <div
                     className="h-full bg-gradient-to-r from-primary/70 to-primary rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                    style={{ width: `${Math.max(pct, 10)}%` }}
+                    style={{ width: `${Math.max(pct, 8)}%` }}
                   >
-                    <span className="text-[10px] font-bold text-white">{a.score}</span>
+                    <span className="text-[10px] font-bold text-white">{pct}%</span>
                   </div>
                 </div>
               </div>
@@ -107,10 +116,39 @@ function AffinityChart({ affinities, label }: { affinities: GenreAffinity[]; lab
                   );
                 })}
               </div>
+
+              {/* Breakdown Details */}
+              {isGenreExpanded && (
+                <div className="mt-2 ml-[156px] text-[11px] text-hint bg-card rounded-lg border border-card-border/50 p-2 space-y-1">
+                  <p className="font-semibold text-caption mb-1">Desglose de interacciones:</p>
+                  {Object.entries(a.breakdown).map(([source, data]) => {
+                    const meta = SOURCE_META[source];
+                    return (
+                      <div key={source} className="flex justify-between items-center">
+                        <span className="flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full inline-block ${meta?.color.split(' ')[0] || 'bg-gray-400'}`}></span>
+                          {meta?.label || source}
+                          {data.count > 0 && <span className="text-hint opacity-70 ml-0.5">({data.count})</span>}
+                        </span>
+                        <span className="font-medium text-caption">{data.weight} pts</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
+      
+      {affinities.length > 5 && (
+        <button 
+          onClick={() => setExpanded(!expanded)}
+          className="mt-3 text-xs w-full py-1.5 flex items-center justify-center text-primary/80 hover:text-primary transition-colors font-semibold"
+        >
+          {expanded ? "Ver menos" : `Ver todos (${affinities.length - 5} más)`}
+        </button>
+      )}
     </div>
   );
 }
@@ -149,7 +187,9 @@ function barBg(strategy: string) {
 function StrategyExplanation({ entry, userPrefs }: { entry: CommunityEntry; userPrefs: string[] }) {
   const matchingGenres = entry.genres.filter(g => userPrefs.includes(g));
 
-  if (entry.strategy === "vector" && entry.similarityScore !== null) {
+  const isVectorHigh = entry.strategy === "vector" && entry.similarityScore !== null && entry.similarityScore >= 0.5;
+
+  if (isVectorHigh) {
     return (
       <p className="text-[11px] text-purple-600 dark:text-purple-400 mt-1 flex items-center gap-1">
         <Brain size={10} />
@@ -160,7 +200,7 @@ function StrategyExplanation({ entry, userPrefs }: { entry: CommunityEntry; user
       </p>
     );
   }
-  if (entry.strategy === "genre" && matchingGenres.length > 0) {
+  if (matchingGenres.length > 0) {
     return (
       <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
         <BookOpen size={10} />
@@ -179,6 +219,42 @@ function StrategyExplanation({ entry, userPrefs }: { entry: CommunityEntry; user
   return null;
 }
 
+// ─── Strategy explanation for book entries ───────────────────────────────────
+function BookStrategyExplanation({ entry, userPrefs }: { entry: BookEntry; userPrefs: string[] }) {
+  const matchingGenres = entry.genres.filter(g => userPrefs.includes(g));
+
+  const isVectorHigh = entry.strategy === "vector" && entry.similarityScore !== null && entry.similarityScore >= 0.5;
+
+  if (isVectorHigh) {
+    return (
+      <p className="text-[11px] text-purple-600 dark:text-purple-400 mt-1 flex items-center gap-1">
+        <Brain size={10} />
+        Usuarios con gustos similares leen este libro
+        {matchingGenres.length > 0 && (
+          <span className="text-hint"> · Coincide: {matchingGenres.join(", ")}</span>
+        )}
+      </p>
+    );
+  }
+  if (matchingGenres.length > 0) {
+    return (
+      <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
+        <BookOpen size={10} />
+        Coincide con tus preferencias: {matchingGenres.join(", ")}
+      </p>
+    );
+  }
+  if (entry.strategy === "recent") {
+    return (
+      <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+        <Clock size={10} />
+        Añadido recientemente al catálogo
+      </p>
+    );
+  }
+  return null;
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 export default function RecommendationLogPage() {
   const { status } = useSession();
@@ -190,6 +266,7 @@ export default function RecommendationLogPage() {
   const [communityAffinities, setCommunityAffinities] = useState<GenreAffinity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [booksLimit, setBooksLimit] = useState(10);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
@@ -330,13 +407,35 @@ export default function RecommendationLogPage() {
       {activeTab === "books" && bookData && (
         <>
           <AffinityChart affinities={bookAffinities} label="Tu afinidad por géneros (libros)" />
+          
+          {/* Explanation box for books */}
+          <div className="mb-6 bg-purple-50 dark:bg-purple-900/10 rounded-xl border border-purple-200 dark:border-purple-800/30 p-4">
+            <h4 className="text-sm font-semibold text-purple-700 dark:text-purple-400 mb-2 flex items-center gap-2">
+              <Sparkles size={14} /> Criterios de Recomendación
+            </h4>
+            <ul className="text-xs text-purple-600 dark:text-purple-300 space-y-2 leading-relaxed list-none">
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-purple-700 dark:text-purple-400 min-w-[70px]">1. Similitud:</span> 
+                Se usa SVD (vectores) basándose en qué libros leen o intercambian usuarios con tus mismos gustos. A mayor porcentaje, mayor probabilidad te guste.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-blue-600 dark:text-blue-400 min-w-[70px]">2. Géneros:</span> 
+                Suma +1 punto por cada etiqueta del libro que coincide con tus "preferencias de género" agregadas a tu perfil. 
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-gray-500 dark:text-gray-400 min-w-[70px]">3. Recencia:</span> 
+                Si apenas vas entrando o un usuario acaba de añadir libros pero no tenemos datos de él, te mostramos lo más novedoso orgánicamente.
+              </li>
+            </ul>
+          </div>
+
           <div className="mb-4">
             <h3 className="text-sm font-semibold text-heading mb-3">
               Ranking de libros recomendados ({bookData.entries.length})
             </h3>
           </div>
           <div className="space-y-2">
-            {bookData.entries.map((entry, idx) => {
+            {bookData.entries.slice(0, booksLimit).map((entry, idx) => {
               const maxScore = bookData.strategy === "vector"
                 ? Math.max(...bookData.entries.filter(e => e.similarityScore !== null).map(e => Math.abs(e.similarityScore!)), 0.001)
                 : Math.max(...bookData.entries.map(e => e.matchScore), 1);
@@ -357,6 +456,7 @@ export default function RecommendationLogPage() {
                         ))}
                         {entry.genres.length > 3 && <span className="text-[10px] text-hint">+{entry.genres.length - 3}</span>}
                       </div>
+                      <BookStrategyExplanation entry={entry} userPrefs={bookData.preferences || []} />
                     </div>
                     <div className="text-right shrink-0"><ScoreBadge entry={entry} /></div>
                   </div>
@@ -364,6 +464,18 @@ export default function RecommendationLogPage() {
               );
             })}
           </div>
+
+          {/* Load More Button for Books */}
+          {bookData.entries.length > booksLimit && (
+            <button
+               onClick={() => setBooksLimit((prev) => prev + 10)}
+               className="w-full mt-4 flex items-center justify-center gap-2 py-2 text-xs font-medium text-primary dark:text-primary-light hover:bg-primary-soft dark:hover:bg-primary-dark/10 rounded-xl transition-colors"
+            >
+               <ChevronDown size={16} />
+               Cargar más libros ({bookData.entries.length - booksLimit} restantes)
+            </button>
+          )}
+
           {bookData.entries.length === 0 && (
             <div className="text-center py-12">
               <BookOpen size={48} className="mx-auto text-hint mb-4" />

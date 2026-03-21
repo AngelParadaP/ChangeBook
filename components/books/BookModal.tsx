@@ -12,6 +12,7 @@ import { getOrCreateRoom } from "@/server/actions/chat/getOrCreateRoom";
 import { sendMessage } from "@/server/actions/chat/sendMessage";
 import { encodeBookCardMessage } from "@/lib/utils/bookCardMessage";
 import { deleteBook } from "@/server/actions/books/deleteBook";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Search, X, Trash2, Edit2, MessageSquare, ExternalLink, BookOpen, CircleCheck, CirclePause, CircleX, CheckCircle2 } from "lucide-react";
 
 interface Book {
@@ -647,33 +648,20 @@ export function BookModal({
         />
       )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card rounded-2xl shadow-xl max-w-sm w-full p-6 border border-card-border pointer-events-auto animate-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-heading mb-2">Eliminar Libro</h3>
-            <p className="text-caption mb-6">
-              ¿Estás seguro de que deseas eliminar "<strong>{book.title}</strong>"? Esta acción no se puede deshacer.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={isDeleting}
-                className="px-4 py-2 bg-soft hover:bg-dim text-heading font-semibold rounded-xl transition-all cursor-pointer disabled:cursor-not-allowed"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-all focus:ring-2 focus:ring-red-500 flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
-              >
-                {isDeleting ? "Eliminando..." : "Eliminar"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar Libro"
+        message={
+          <p>
+            ¿Estás seguro de que deseas eliminar “<strong>{book.title}</strong>”? Esta acción no se puede deshacer.
+          </p>
+        }
+        confirmLabel="Eliminar"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
