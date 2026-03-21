@@ -49,6 +49,7 @@ interface BookRecommendationSidebarProps {
   currentUserId?: string;
   isMember?: boolean;
   communityGenres?: string[];
+  userOnly?: boolean;
 }
 
 
@@ -271,6 +272,7 @@ export default function BookRecommendationSidebar({
   currentUserId,
   isMember = false,
   communityGenres = [],
+  userOnly = false,
 }: BookRecommendationSidebarProps) {
   const [recommendations, setRecommendations] = useState<BookRecommendation[]>(
     []
@@ -312,7 +314,8 @@ export default function BookRecommendationSidebar({
         const result = await getCommunityBookRecommendations(
           communityId,
           currentOffset,
-          PAGE_SIZE
+          PAGE_SIZE,
+          userOnly ? currentUserId : undefined
         );
         if (result.success) {
           const newRecs = result.recommendations as BookRecommendation[];
@@ -366,7 +369,7 @@ export default function BookRecommendationSidebar({
       <div className="p-4 bg-gradient-to-r from-primary to-primary-dark flex-shrink-0">
         <h3 className="font-bold text-white flex items-center gap-2">
           <BookOpen size={18} />
-          {aggregated ? "Libros recomendados" : "Libros para prestar"}
+          {aggregated ? "Libros recomendados" : userOnly ? "Libros que has recomendado" : "Libros recomendados"}
         </h3>
         {aggregated && (
           <p className="text-primary-light text-xs mt-1">De tus comunidades</p>
@@ -390,9 +393,11 @@ export default function BookRecommendationSidebar({
             <p className="text-sm text-hint">
               {aggregated
                 ? "Aún no hay recomendaciones"
-                : "Nadie ha recomendado libros aún"}
+                : userOnly 
+                  ? "Aún no has recomendado libros aquí"
+                  : "Nadie ha recomendado libros aún"}
             </p>
-            {!aggregated && isMember && (
+            {!aggregated && !userOnly && isMember && (
               <p className="text-xs text-hint mt-1">
                 ¡Sé el primero en compartir un libro!
               </p>

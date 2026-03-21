@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { getChatRooms } from "@/server/actions/chat";
+import { getFriends, FriendProfile } from "@/server/actions/friends/getFriends";
 
 export interface ChatRoom {
     id: string;
@@ -19,6 +20,8 @@ export interface ChatRoom {
 interface ChatContextType {
     rooms: ChatRoom[];
     loading: boolean;
+    friends: FriendProfile[];
+    friendsLoading: boolean;
     refreshRooms: () => Promise<void>;
 }
 
@@ -26,11 +29,14 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
     const [rooms, setRooms] = useState<ChatRoom[]>([]);
+    const [friends, setFriends] = useState<FriendProfile[]>([]);
     const [loading, setLoading] = useState(true);
+    const [friendsLoading, setFriendsLoading] = useState(true);
 
     // Cargar chats inicialmente
     useEffect(() => {
         loadRooms();
+        loadFriends();
     }, []);
 
     // Polling optimizado con Page Visibility API
@@ -72,8 +78,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         if (!silent) setLoading(false);
     };
 
+    const loadFriends = async () => {
+        setFriendsLoading(true);
+        const res = await getFriends();
+        if (res.success && res.friends) {
+            setFriends(res.friends);
+        }
+        setFriendsLoading(false);
+    };
+
     return (
-        <ChatContext.Provider value={{ rooms, loading, refreshRooms: () => loadRooms(true) }}>
+        <ChatContext.Provider value={{ rooms, loading, friends, friendsLoading, refreshRooms: () => loadRooms(true) }}>
             {children}
         </ChatContext.Provider>
     );

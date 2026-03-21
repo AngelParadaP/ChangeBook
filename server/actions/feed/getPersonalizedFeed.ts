@@ -70,7 +70,11 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
             SELECT COUNT(*)
             FROM unnest(b.genres) AS g
             WHERE g = ANY(${sql.raw(prefsArray)})
-          ) AS genre_match
+          ) AS genre_match,
+          CASE WHEN EXISTS(
+            SELECT 1 FROM exchanges e 
+            WHERE e.book_id = b.id AND e.requester_id = ${user.id}
+          ) THEN 1 ELSE 0 END AS has_requested
         FROM books b
         JOIN users u ON u.id = b.owner_id
         LEFT JOIN book_vectors bv ON bv.book_id = b.id
@@ -79,6 +83,7 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
           AND b.owner_id != ${user.id}
           AND b.status IN ('disponible', 'ocupado')
         ORDER BY
+          has_requested ASC,
           CASE WHEN bv.embedding IS NOT NULL
             THEN 0 ELSE 1
           END ASC,
@@ -142,6 +147,7 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
             FROM unnest(${books.genres}) AS genre
             WHERE genre = ANY(${sql.raw(preferencesArraySQL)})
           )`.as('match_score'),
+          hasRequested: sql<number>`CASE WHEN EXISTS(SELECT 1 FROM exchanges e WHERE e.book_id = ${books.id} AND e.requester_id = ${user.id}) THEN 1 ELSE 0 END`.as('has_requested'),
         })
         .from(books)
         .innerJoin(users, eq(books.ownerId, users.id))
@@ -149,6 +155,7 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
           sql`${books.ownerId} != ${user.id} AND ${books.status} IN ('disponible', 'ocupado')`
         )
         .orderBy(
+          sql`has_requested ASC`,
           desc(sql`match_score`),
           desc(books.createdAt)
         )
@@ -177,11 +184,12 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
         createdAt: books.createdAt,
         ownerId: books.ownerId,
         ownerUsername: users.username,
+        hasRequested: sql<number>`CASE WHEN EXISTS(SELECT 1 FROM exchanges e WHERE e.book_id = ${books.id} AND e.requester_id = ${user.id}) THEN 1 ELSE 0 END`.as('has_requested'),
       })
       .from(books)
       .innerJoin(users, eq(books.ownerId, users.id))
       .where(sql`${books.ownerId} != ${user.id} AND ${books.status} IN ('disponible', 'ocupado')`)
-      .orderBy(desc(books.createdAt))
+      .orderBy(sql`has_requested ASC`, desc(books.createdAt))
       .limit(limit)
       .offset(offset);
 

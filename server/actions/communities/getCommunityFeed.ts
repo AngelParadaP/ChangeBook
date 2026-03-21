@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { communities, communityMembers, posts, users, postLikes } from "@/db/schema";
+import { communities, communityMembers, posts, users, postLikes, comments } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { desc, eq, inArray, sql, and } from "drizzle-orm";
 
@@ -62,7 +62,12 @@ export async function getCommunityFeed({ page = 0, limit = 10 }: FeedParams = {}
         const [like] = await db.select().from(postLikes)
             .where(and(eq(postLikes.userId, user.id), eq(postLikes.postId, post.id)));
         hasLiked = !!like;
-        return { ...post, hasLiked };
+
+        const [{ count }] = await db.select({ count: sql<number>`count(*)` })
+          .from(comments)
+          .where(eq(comments.postId, post.id));
+
+        return { ...post, hasLiked, commentsCount: Number(count) };
     }));
 
     return { success: true, posts: postsWithLikes, hasMore: results.length === limit };

@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { communities, posts, users, postLikes } from "@/db/schema";
-import { desc, eq, and } from "drizzle-orm";
+import { communities, posts, users, postLikes, comments } from "@/db/schema";
+import { desc, eq, and, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
 interface GetPostsParams {
@@ -45,7 +45,12 @@ export async function getCommunityPosts({ communityId, page = 0, limit = 10 }: G
               .where(and(eq(postLikes.userId, user.id), eq(postLikes.postId, post.id)));
             hasLiked = !!like;
         }
-        return { ...post, hasLiked };
+
+        const [{ count }] = await db.select({ count: sql<number>`count(*)` })
+          .from(comments)
+          .where(eq(comments.postId, post.id));
+
+        return { ...post, hasLiked, commentsCount: Number(count) };
     }));
 
     return { success: true, posts: postsWithLikes, hasMore: results.length === limit };

@@ -1,5 +1,5 @@
 
-import { pgTable, text, integer, timestamp, uuid, index, primaryKey, customType } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, timestamp, uuid, index, primaryKey, customType, boolean } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 // CamelCase en TS, snake_case en DB
@@ -12,6 +12,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(), // Hash de la contraseña
   imageURL: text("image_url"),
   preferences: text("preferences").array().notNull().default([]),
+  verified: boolean("verified").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -298,6 +299,27 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
   return {
     tokenIdx: index("prt_token_idx").on(table.token),
     userIdx: index("prt_user_idx").on(table.userId),
+  };
+});
+
+// ─── Tabla para tokens de verificación de cuenta ────────────────────────
+export const accountVerificationTokens = pgTable("account_verification_tokens", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // Usuario que se está verificando
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  // Token único para la verificación
+  token: text("token").notNull().unique(),
+  // Fecha de expiración
+  expiresAt: timestamp("expires_at").notNull(),
+  // Si ya fue usado
+  used: integer("used").default(0).notNull(), // 0 = no usado, 1 = usado
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    tokenIdx: index("avt_token_idx").on(table.token),
+    userIdx: index("avt_user_idx").on(table.userId),
   };
 });
 

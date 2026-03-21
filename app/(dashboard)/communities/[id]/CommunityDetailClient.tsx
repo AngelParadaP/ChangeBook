@@ -3,13 +3,16 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
 import { PostCard } from "@/components/community/PostCard";
 import { getCommunityPosts } from "@/server/actions/communities/getCommunityPosts";
 import { getCommunityMembers } from "@/server/actions/communities/getCommunityMembers";
 import { joinCommunity, leaveCommunity } from "@/server/actions/communities/actions";
 import { createPostAction } from "@/server/actions/communities/createPostAction";
 import { updateCommunity, deleteCommunity } from "@/server/actions/communities/manageCommunity";
-import { banUser } from "@/server/actions/communities/moderation";
+import { banUser, deletePost } from "@/server/actions/communities/moderation";
+import { getUserComments } from "@/server/actions/communities/getUserComments";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/GlobalToast";
@@ -70,7 +73,17 @@ interface Member {
     joinedAt: Date;
 }
 
-type DetailTab = "posts" | "members";
+interface UserComment {
+    id: string;
+    content: string;
+    createdAt: Date;
+    postId: string;
+    postContent: string;
+    communityId: string;
+    communityName: string;
+}
+
+type DetailTab = "posts" | "members" | "my_posts";
 
 interface CommunityDetailClientProps {
     community: Community;
@@ -99,6 +112,11 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
     const [memberSearch, setMemberSearch] = useState("");
     const [membersLoading, setMembersLoading] = useState(false);
     const [membersLoaded, setMembersLoaded] = useState(false);
+
+    // My Comments state
+    const [myComments, setMyComments] = useState<UserComment[]>([]);
+    const [myCommentsLoaded, setMyCommentsLoaded] = useState(false);
+    const [myCommentsLoading, setMyCommentsLoading] = useState(false);
 
     // Edit/Delete state
     const [showEditModal, setShowEditModal] = useState(false);
@@ -140,6 +158,16 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
         return () => el.removeEventListener("scroll", handleScroll);
     }, [handleScroll]);
 
+    // Listen for post-deleted events dispatched from the post detail modal
+    useEffect(() => {
+        const handlePostDeleted = (e: Event) => {
+            const customEvent = e as CustomEvent<{ postId: string }>;
+            setPosts(prev => prev.filter(p => p.id !== customEvent.detail.postId));
+        };
+        window.addEventListener("post-deleted", handlePostDeleted);
+        return () => window.removeEventListener("post-deleted", handlePostDeleted);
+    }, []);
+
     const scrollToTop = () => {
         scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -147,6 +175,21 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
     const loaderRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const editImageInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (activeTab === "my_posts" && !myCommentsLoaded && !myCommentsLoading) {
+            const loadMyComments = async () => {
+                setMyCommentsLoading(true);
+                const result = await getUserComments(community.id);
+                if (result.success && result.comments) {
+                    setMyComments(result.comments);
+                }
+                setMyCommentsLoaded(true);
+                setMyCommentsLoading(false);
+            };
+            loadMyComments();
+        }
+    }, [activeTab, community.id, myCommentsLoaded, myCommentsLoading]);
 
     const handleJoin = async () => {
         const result = await joinCommunity(community.id);
@@ -422,6 +465,19 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
         }
     };
 
+    const handleDeletePost = async (postId: string) => {
+        // Optimistically remove from state
+        setPosts(prev => prev.filter(p => p.id !== postId));
+        
+        const result = await deletePost(postId);
+        if (result.success) {
+            toast("Publicación eliminada", "success");
+        } else {
+            toast(result.error || "Error al eliminar", "error");
+            window.location.reload(); 
+        }
+    };
+
     const getRoleBadge = (role: string) => {
         switch (role) {
             case "admin":
@@ -435,12 +491,13 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
 
     const DETAIL_TABS: { key: DetailTab; label: string; icon: React.ReactNode }[] = [
         { key: "posts", label: "Publicaciones", icon: <MessageSquare size={16} /> },
+        ...(joined ? [{ key: "my_posts" as DetailTab, label: "Mis Publicaciones", icon: <MessageSquare size={16} /> }] : []),
         { key: "members", label: "Miembros", icon: <Users size={16} /> },
     ];
 
     return (
         <>
-            <div ref={scrollContainerRef} className="bg-card rounded-2xl shadow-sm h-full overflow-y-auto custom-scrollbar relative">
+            <div ref={scrollContainerRef} className="bg-subtle rounded-2xl shadow-sm h-full overflow-y-auto custom-scrollbar relative">
                 {/* Compact Sticky Header (appears on scroll) */}
                 <div className={`sticky top-0 z-30 transition-all duration-300 overflow-hidden ${headerCollapsed ? "max-h-16 opacity-100" : "max-h-0 opacity-0"}`}>
                     <div className="flex items-center gap-3 px-4 py-2.5 bg-card/95 backdrop-blur-md border-b border-card-border shadow-sm">
@@ -571,7 +628,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                 </div>
 
                 {/* Detail Tabs */}
-                <div className="flex items-center gap-2 px-6 pt-4 pb-3 border-b border-card-border">
+                <div className="flex items-center gap-2 px-6 pt-4 pb-3 border-b border-card-border bg-card">
                     {DETAIL_TABS.map((tab) => (
                         <button
                             key={tab.key}
@@ -588,7 +645,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 bg-subtle">
+                <div className="bg-subtle">
                     {/* Posts Tab */}
                     {activeTab === "posts" && (
                         <div className="p-6">
@@ -602,7 +659,12 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                     ) : (
                                         <div className="space-y-4">
                                             {posts.map(post => (
-                                                <PostCard key={post.id} post={post} />
+                                                <PostCard 
+                                                    key={post.id} 
+                                                    post={post}
+                                                    currentUserId={session?.user?.id}
+                                                    onDelete={handleDeletePost} 
+                                                />
                                             ))}
                                         </div>
                                     )}
@@ -620,12 +682,97 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
 
                                 {/* Book Recommendations Sidebar */}
                                 <div className="hidden xl:block w-80 flex-shrink-0">
-                                    <div className="sticky top-6">
+                                    <div className="sticky top-[100px] h-fit">
                                         <BookRecommendationSidebar
                                             communityId={community.id}
                                             currentUserId={session?.user?.id}
                                             isMember={joined}
                                             communityGenres={community.genres || []}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* My Posts Tab */}
+                    {activeTab === "my_posts" && (
+                        <div className="p-6">
+                            <div className="flex justify-center gap-6">
+                                {/* Main Posts Column */}
+                                <div className="w-full max-w-2xl">
+                                    {(() => {
+                                        const myPostsList = posts.filter(p => p.userId === session?.user?.id).map(p => ({ ...p, type: 'post' as const }));
+                                        const myCommentsList = myComments.map(c => ({ ...c, type: 'comment' as const }));
+                                        const combined = [...myPostsList, ...myCommentsList].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+                                        if (combined.length === 0 && myCommentsLoaded) {
+                                            return (
+                                                <div className="text-center py-12 text-hint">
+                                                    Aún no has hecho publicaciones ni comentarios en esta comunidad.
+                                                </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <div className="space-y-4">
+                                                {combined.map(item => {
+                                                    if (item.type === 'post') {
+                                                        const post = item as unknown as Post;
+                                                        return (
+                                                            <PostCard 
+                                                                key={`post-${post.id}`} 
+                                                                post={post}
+                                                                currentUserId={session?.user?.id}
+                                                                onDelete={handleDeletePost}
+                                                            />
+                                                        );
+                                                    } else {
+                                                        const comment = item as unknown as UserComment;
+                                                        return (
+                                                            <Link href={`/communities/${comment.communityId}/posts/${comment.postId}`} key={`comment-${comment.id}`} className="block bg-subtle border border-card-border rounded-xl p-4 hover:border-light-purple transition-colors shadow-sm mb-4 cursor-pointer group">
+                                                                <div className="flex items-center gap-2 mb-2 text-hint text-xs">
+                                                                    <MessageSquare size={14} className="text-primary" />
+                                                                    <span className="font-medium text-heading">Comentaste en c/{comment.communityName}</span>
+                                                                    <span>•</span>
+                                                                    <span suppressHydrationWarning>{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: es })}</span>
+                                                                </div>
+                                                                
+                                                                <div 
+                                                                    className="text-body text-sm line-clamp-2 prose dark:prose-invert max-w-none group-hover:text-caption transition-colors italic bg-card p-3 rounded-lg border border-card-border border-l-4 border-l-primary mb-3"
+                                                                    suppressHydrationWarning
+                                                                    dangerouslySetInnerHTML={{ __html: comment.content }}
+                                                                />
+                                                                
+                                                                {comment.postContent && (
+                                                                    <div className="mt-2 text-xs text-hint flex flex-col gap-1 border-t border-card-border/50 pt-2">
+                                                                        <span className="font-medium">En la publicación:</span>
+                                                                        <div className="line-clamp-1 opacity-70" dangerouslySetInnerHTML={{ __html: comment.postContent }} />
+                                                                    </div>
+                                                                )}
+                                                            </Link>
+                                                        );
+                                                    }
+                                                })}
+                                                {myCommentsLoading && (
+                                                    <div className="flex justify-center py-4">
+                                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+
+                                {/* Book Recommendations Sidebar */}
+                                <div className="hidden xl:block w-80 flex-shrink-0">
+                                    <div className="sticky top-[100px] h-fit">
+                                        <BookRecommendationSidebar
+                                            communityId={community.id}
+                                            currentUserId={session?.user?.id}
+                                            isMember={joined}
+                                            communityGenres={community.genres || []}
+                                            userOnly={true}
                                         />
                                     </div>
                                 </div>
