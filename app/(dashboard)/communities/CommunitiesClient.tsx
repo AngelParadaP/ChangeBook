@@ -159,9 +159,9 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
   ];
 
   return (
-    <div className="bg-card rounded-2xl shadow-sm p-6 h-full overflow-y-auto custom-scrollbar">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-heading flex items-center gap-3">
+    <div className="bg-card rounded-2xl shadow-sm p-4 sm:p-6 h-full overflow-y-auto custom-scrollbar">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-heading flex items-center gap-3">
           <div className="p-2 sm:p-2.5 bg-primary-soft rounded-xl">
             <Users size={24} className="text-primary" />
           </div>
@@ -177,21 +177,21 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 mb-6 border-b border-card-border pb-4">
+      <div className="flex items-center gap-2 mb-6 border-b border-card-border pb-2 sm:pb-4 overflow-x-auto custom-scrollbar">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => handleTabChange(tab.key)}
-            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 font-semibold transition-all duration-300 relative rounded-xl sm:rounded-none sm:rounded-t-xl cursor-pointer ${activeTab === tab.key
-              ? "text-primary dark:text-primary-light bg-primary/5 dark:bg-primary-dark/20 sm:bg-transparent sm:dark:bg-transparent"
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold transition-all duration-300 relative rounded-xl sm:rounded-none sm:rounded-t-xl cursor-pointer whitespace-nowrap ${activeTab === tab.key
+              ? "text-primary dark:text-primary-light bg-primary/10 dark:bg-primary-dark/30 sm:bg-transparent sm:dark:bg-transparent"
               : "text-hint hover:text-heading hover:bg-subtle"
               }`}
           >
             {tab.icon}
             {tab.label}
             {tab.key === "mine" && myCommunities.length > 0 && (
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ml-1 ${activeTab === "mine"
-                ? "bg-white/20 text-white"
+              <span className={`text-[10px] sm:text-xs px-1.5 py-0.5 rounded-full ml-1 ${activeTab === "mine"
+                ? "bg-primary/20 text-primary dark:bg-primary/30 sm:bg-white/20 sm:text-white"
                 : "bg-dim text-caption"
                 }`}>
                 {myCommunities.length}
@@ -202,19 +202,19 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
       </div>
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="mb-8">
+      <form onSubmit={handleSearch} className="mb-6 sm:mb-8">
         <div className="relative max-w-2xl">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-hint">
+          <span className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-hint">
             <Search size={18} />
           </span>
           <input
             type="text"
-            placeholder={activeTab === "discover" ? "Buscar comunidades para descubrir..." : "Buscar en mis comunidades..."}
+            placeholder={activeTab === "discover" ? "Buscar comunidades..." : "Buscar en tus comunidades..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-soft border-2 border-card-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted focus:border-primary dark:focus:border-primary-muted focus:bg-card transition-all text-heading"
+            className="w-full pl-10 sm:pl-12 pr-20 py-3 sm:py-3.5 bg-soft border-2 border-card-border rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted focus:border-primary dark:focus:border-primary-muted focus:bg-card transition-all text-heading text-sm sm:text-base placeholder:text-sm sm:placeholder:text-base"
           />
-          <button disabled={searching} type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-dim rounded-xl hover:bg-dim transition-colors text-sm font-medium text-body">
+          <button disabled={searching} type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 px-3 sm:px-4 py-1.5 bg-dim rounded-lg sm:rounded-xl hover:bg-dim transition-colors text-xs sm:text-sm font-medium text-body cursor-pointer">
             {searching ? "..." : "Buscar"}
           </button>
         </div>
@@ -241,33 +241,33 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
           {currentCommunities.map((community) => (
             <div key={community.id} className="border border-card-border rounded-xl p-4 hover:shadow-md hover:border-primary/50 dark:hover:border-primary-muted/50 transition-all duration-200 flex flex-col justify-between group">
               <div>
-                <div className="flex items-start gap-4 mb-3">
-                  <div className="w-16 h-16 rounded-lg bg-dim overflow-hidden relative flex-shrink-0 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
+                <div className="flex items-start gap-3 sm:gap-4 mb-3">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg bg-dim overflow-hidden relative flex-shrink-0 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
                     {community.imageUrl ? (
                       <Image src={community.imageUrl} alt={community.name} fill className="object-cover" />
                     ) : (
                       <span className="flex items-center justify-center h-full"><Users size={20} className="text-hint" /></span>
                     )}
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-heading line-clamp-1">{community.name}</h3>
-                    <p className="text-sm text-hint mb-1">{community.memberCount} miembros</p>
-                    <div className="flex items-center gap-1.5">
-                      {community.isMember && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">Miembro</span>}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-base sm:text-lg text-heading line-clamp-1">{community.name}</h3>
+                    <p className="text-xs sm:text-sm text-hint mb-1">{community.memberCount} miembro{community.memberCount !== 1 ? 's' : ''}</p>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                      {community.isMember && <span className="text-[10px] sm:text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">Miembro</span>}
                       {activeTab === "mine" && community.role === "admin" && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
+                        <span className="text-[10px] sm:text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
                           <Crown size={10} /> Creador
                         </span>
                       )}
                       {activeTab === "discover" && !community.isMember && community.similarityScore != null && community.similarityScore > 0.1 && (
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full dark:bg-purple-900/30 dark:text-purple-400 flex items-center gap-1">
+                        <span className="text-[10px] sm:text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full dark:bg-purple-900/30 dark:text-purple-400 flex items-center gap-1">
                           <Sparkles size={10} /> Para ti
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
-                <p className="text-caption text-sm mb-4 line-clamp-2 h-10">
+                <p className="text-caption text-xs sm:text-sm mb-4 line-clamp-2 h-8 sm:h-10">
                   {community.description || "Sin descripción"}
                 </p>
               </div>
