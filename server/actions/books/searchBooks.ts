@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { books, users } from "@/db/schema";
-import { ilike, or, desc, eq, and, arrayOverlaps } from "drizzle-orm";
+import { ilike, or, desc, eq, and, arrayOverlaps, isNull, lt } from "drizzle-orm";
 
 export async function searchBooks(query: string, limit = 5, genres?: string[]) {
   if (!query || query.length < 2) {
@@ -24,9 +24,16 @@ export async function searchBooks(query: string, limit = 5, genres?: string[]) {
         ? arrayOverlaps(books.genres, genres)
         : undefined;
 
-    const whereClause = genreFilter
+    const activeUserFilter = and(
+      eq(users.banned, false),
+      or(isNull(users.suspendedUntil), lt(users.suspendedUntil, new Date()))
+    );
+
+    const baseFilter = genreFilter
       ? and(textFilter, genreFilter)
       : textFilter;
+
+    const whereClause = and(baseFilter, activeUserFilter);
 
     const results = await db
       .select({

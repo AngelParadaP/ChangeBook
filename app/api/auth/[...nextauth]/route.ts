@@ -32,6 +32,15 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Cuenta no verificada. Revisa tu correo electrónico.");
         }
 
+        if (user.banned) {
+          throw new Error("Esta cuenta ha sido baneada permanentemente.");
+        }
+
+        if (user.suspendedUntil && new Date(user.suspendedUntil) > new Date()) {
+          const formattedDate = new Date(user.suspendedUntil).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
+          throw new Error(`Cuenta suspendida por strikes hasta el ${formattedDate}.`);
+        }
+
         // 3. Comparamos el NIP ingresado con la contraseña hasheada en la BD
         const isPasswordValid = await bcrypt.compare(
           credentials.nip,
@@ -58,7 +67,7 @@ export const authOptions: NextAuthOptions = {
         token.username = user.username;
         token.picture = user.image;
       }
-      
+
       // Refetch user data when session is updated
       if (trigger === "update" && token.id) {
         const [updatedUser] = await db
@@ -66,14 +75,14 @@ export const authOptions: NextAuthOptions = {
           .from(users)
           .where(eq(users.id, token.id as string))
           .limit(1);
-        
+
         if (updatedUser) {
           token.name = updatedUser.name;
           token.username = updatedUser.username;
           token.picture = updatedUser.imageURL;
         }
       }
-      
+
       return token;
     },
     async session({ session, token }) {

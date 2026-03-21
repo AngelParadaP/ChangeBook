@@ -82,6 +82,8 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
         WHERE uv.user_id = ${user.id}
           AND b.owner_id != ${user.id}
           AND b.status IN ('disponible', 'ocupado')
+          AND u.banned = false
+          AND (u.suspended_until IS NULL OR u.suspended_until < NOW())
         ORDER BY
           has_requested ASC,
           CASE WHEN bv.embedding IS NOT NULL
@@ -152,7 +154,7 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
         .from(books)
         .innerJoin(users, eq(books.ownerId, users.id))
         .where(
-          sql`${books.ownerId} != ${user.id} AND ${books.status} IN ('disponible', 'ocupado')`
+          sql`${books.ownerId} != ${user.id} AND ${books.status} IN ('disponible', 'ocupado') AND ${users.banned} = false AND (${users.suspendedUntil} IS NULL OR ${users.suspendedUntil} < NOW())`
         )
         .orderBy(
           sql`has_requested ASC`,
@@ -188,7 +190,7 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
       })
       .from(books)
       .innerJoin(users, eq(books.ownerId, users.id))
-      .where(sql`${books.ownerId} != ${user.id} AND ${books.status} IN ('disponible', 'ocupado')`)
+      .where(sql`${books.ownerId} != ${user.id} AND ${books.status} IN ('disponible', 'ocupado') AND ${users.banned} = false AND (${users.suspendedUntil} IS NULL OR ${users.suspendedUntil} < NOW())`)
       .orderBy(sql`has_requested ASC`, desc(books.createdAt))
       .limit(limit)
       .offset(offset);

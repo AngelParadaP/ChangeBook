@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { chatRooms, messages } from "@/db/schema";
+import { chatRooms, messages, users } from "@/db/schema";
 import { eq, or, and, ne, sql, inArray } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -20,6 +20,16 @@ export async function getUnreadCount(): Promise<UnreadCountResult> {
         }
 
         const currentUserId = currentUser.id;
+
+        // Verify if user is banned or suspended right now
+        const [dbUser] = await db.select({ banned: users.banned, suspendedUntil: users.suspendedUntil })
+            .from(users)
+            .where(eq(users.id, currentUserId))
+            .limit(1);
+
+        if (dbUser?.banned || (dbUser?.suspendedUntil && new Date(dbUser.suspendedUntil) > new Date())) {
+            return { success: false, error: "banned" };
+        }
 
         // Obtener todas las salas donde el usuario es participante
         const userRooms = await db

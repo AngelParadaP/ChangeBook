@@ -15,6 +15,9 @@ export async function getUserProfile(userId: string) {
         imageURL: users.imageURL,
         preferences: users.preferences,
         createdAt: users.createdAt,
+        strikes: users.strikes,
+        suspendedUntil: users.suspendedUntil,
+        banned: users.banned,
       })
       .from(users)
       .where(eq(users.id, userId))

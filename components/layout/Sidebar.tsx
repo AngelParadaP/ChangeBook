@@ -83,6 +83,10 @@ export function Sidebar() {
 
   const loadUnreadCount = async () => {
     const result = await getUnreadCount();
+    if (!result.success && result.error === "banned") {
+      signOut({ callbackUrl: "/login" });
+      return;
+    }
     if (result.success && result.count !== undefined) {
       setUnreadCount(result.count);
     }
@@ -104,6 +108,7 @@ export function Sidebar() {
     { name: "Comunidades", href: "/communities", icon: "/icons/comunities.svg" },
     { name: "Mi Perfil", href: "/profile", icon: "/icons/user.svg" },
     { name: "Buscar", href: "/search", icon: "/icons/search.svg" },
+    { name: "Soporte", href: "/support", icon: "/icons/chat.svg" },
   ];
   return (
     <>

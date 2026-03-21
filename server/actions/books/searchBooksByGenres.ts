@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { books, users } from "@/db/schema";
-import { eq, arrayOverlaps, sql } from "drizzle-orm";
+import { eq, arrayOverlaps, and, isNull, lt, or } from "drizzle-orm";
 
 /**
  * Search books by genres with relevance-based ordering.
@@ -34,7 +34,13 @@ export async function searchBooksByGenres(genres: string[], limit = 40) {
             })
             .from(books)
             .leftJoin(users, eq(books.ownerId, users.id))
-            .where(arrayOverlaps(books.genres, genres))
+            .where(
+                and(
+                    arrayOverlaps(books.genres, genres),
+                    eq(users.banned, false),
+                    or(isNull(users.suspendedUntil), lt(users.suspendedUntil, new Date()))
+                )
+            )
             .limit(limit);
 
         // Calculate match score for each book and shuffle within same score
