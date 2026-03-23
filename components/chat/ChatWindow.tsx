@@ -95,28 +95,55 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
     }, [roomId, initialOtherUser, router]);
 
     useEffect(() => {
-        if (otherUser) loadMessages();
-    }, [roomId, otherUser]);
-
-    useEffect(() => {
         if (!otherUser) return;
-        let interval: NodeJS.Timeout;
+
+        // Carga inicial
+        loadMessages(false);
+
+        // Suscribirse al canal específico del cuarto con Pusher
+        const channelName = `room-${roomId}`;
+
+        let pusherClient: any;
+
+        // Lo importamos dinámicamente para evitar problemas de SSR si fuera el caso
+        import("@/lib/pusher").then((mod) => {
+            pusherClient = mod.pusherClient;
+
+            const channel = pusherClient.subscribe(channelName);
+            channel.bind("new-message", (newMessage: Message) => {
+                // Al recibir mensaje en tiempo real, lo agregamos al arreglo
+                setMessages((prev) => {
+                    // Evitar duplicados por si el poll o el insert ocurrieron al mismo tiempo
+                    const exists = prev.some((msg) => msg.id === newMessage.id);
+                    if (exists) return prev;
+                    return [...prev, {
+                        ...newMessage,
+                        // Pusher transfiere fechas como Strings ISO, parsearlo
+                        createdAt: new Date(newMessage.createdAt)
+                    }];
+                });
+
+                // Si la ventana está visible y el mensaje NO es tuyo, marcamos todo como leído
+                if (!document.hidden && newMessage.senderId !== session?.user?.id) {
+                    markAsRead(roomId);
+                }
+            });
+        });
 
         const handleVisibilityChange = () => {
-            if (document.hidden) {
-                if (interval) clearInterval(interval);
-            } else {
+            if (!document.hidden) {
                 loadMessages(true);
-                interval = setInterval(() => loadMessages(true), 10000);
+                markAsRead(roomId);
             }
         };
 
-        interval = setInterval(() => loadMessages(true), 10000);
         document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
-            clearInterval(interval);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
+            if (pusherClient) {
+                pusherClient.unsubscribe(channelName);
+            }
         };
     }, [roomId, otherUser]);
 
@@ -213,7 +240,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
             {/* ── Messages Container — with patterned background ──── */}
             <div className="relative flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: "var(--color-chat-bg, var(--color-subtle))" }}>
                 {/* ── Subtle WhatsApp-style doodle background ── */}
-                <div 
+                <div
                     className="absolute inset-0 pointer-events-none z-0"
                     style={{
                         backgroundImage: "var(--chat-pattern-url)",
@@ -223,7 +250,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
                         filter: "var(--chat-pattern-filter)",
                     }}
                 />
-                
+
                 <div
                     ref={chatContainerRef}
                     className="relative z-10 flex-1 overflow-y-auto px-4 py-4 space-y-0.5"
@@ -232,39 +259,39 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
                         scrollbarColor: "var(--color-dim) transparent",
                     }}
                 >
-                {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
-                        <div className="w-14 h-14 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
-                            <MessageSquare size={28} className="text-primary/80" />
+                    {messages.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
+                            <div className="w-14 h-14 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
+                                <MessageSquare size={28} className="text-primary/80" />
+                            </div>
+                            <p className="text-sm text-hint bg-card/70 backdrop-blur-sm px-4 py-2 rounded-full">
+                                No hay mensajes aún. ¡Envía el primero!
+                            </p>
                         </div>
-                        <p className="text-sm text-hint bg-card/70 backdrop-blur-sm px-4 py-2 rounded-full">
-                            No hay mensajes aún. ¡Envía el primero!
-                        </p>
-                    </div>
-                ) : (
-                    items.map((item) => {
-                        if (item.type === "separator") {
+                    ) : (
+                        items.map((item) => {
+                            if (item.type === "separator") {
+                                return (
+                                    <div key={item.key} className="flex items-center justify-center py-3">
+                                        <span className="bg-card/80 backdrop-blur-sm text-hint text-[11px] font-medium px-3 py-1 rounded-full shadow-sm border border-card-border/30 select-none">
+                                            {item.label}
+                                        </span>
+                                    </div>
+                                );
+                            }
+                            const msg = item.message;
                             return (
-                                <div key={item.key} className="flex items-center justify-center py-3">
-                                    <span className="bg-card/80 backdrop-blur-sm text-hint text-[11px] font-medium px-3 py-1 rounded-full shadow-sm border border-card-border/30 select-none">
-                                        {item.label}
-                                    </span>
-                                </div>
+                                <ChatBubble
+                                    key={msg.id}
+                                    content={msg.content}
+                                    senderId={msg.senderId}
+                                    currentUserId={session?.user?.id || ""}
+                                    createdAt={new Date(msg.createdAt)}
+                                    isRead={msg.isRead === 1}
+                                />
                             );
-                        }
-                        const msg = item.message;
-                        return (
-                            <ChatBubble
-                                key={msg.id}
-                                content={msg.content}
-                                senderId={msg.senderId}
-                                currentUserId={session?.user?.id || ""}
-                                createdAt={new Date(msg.createdAt)}
-                                isRead={msg.isRead === 1}
-                            />
-                        );
-                    })
-                )}
+                        })
+                    )}
                 </div>
             </div>
 

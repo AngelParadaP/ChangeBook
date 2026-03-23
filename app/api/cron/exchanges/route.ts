@@ -281,6 +281,34 @@ export async function GET(request: Request) {
                 }
             }
         }
+        
+        // ============================================================================
+        // ─── 4. Mantenimiento Real-Time con Pusher ──────────────────────────
+        // Para el autokick y recordatorios, notificar a los websockets activos
+        // ============================================================================
+        const { pusherServer } = await import("@/lib/pusher");
+        
+        // Recoger a todas las victimas del auto-kick
+        for (const exchange of pendingExchangesToCancel) {
+             await pusherServer.trigger(`user-${exchange.requesterId}`, "new-notification", {});
+             await pusherServer.trigger(`user-${exchange.ownerId}`, "new-notification", {});
+        }
+        
+        // A los que sus libros arrancaron/completaron hoy
+        for (const exchange of exchangesToStart) {
+             await pusherServer.trigger(`user-${exchange.requesterId}`, "new-notification", {});
+             await pusherServer.trigger(`user-${exchange.ownerId}`, "new-notification", {});
+        }
+        
+        for (const exchange of exchangesEnCurso) {
+            const endDate = new Date(exchange.endDate);
+            const endOfDay = new Date(endDate);
+            endOfDay.setHours(23, 59, 0, 0);
+            if (now >= endOfDay) {
+                 await pusherServer.trigger(`user-${exchange.requesterId}`, "new-notification", {});
+                 await pusherServer.trigger(`user-${exchange.ownerId}`, "new-notification", {});
+            }
+        }
 
         return NextResponse.json({
             success: true,

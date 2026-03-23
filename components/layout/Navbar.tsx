@@ -178,10 +178,43 @@ export function Navbar() {
 
   // Polling para notificaciones no leídas
   useEffect(() => {
+    // 1. Suscripción a Pusher para Tiempo Real
+    let pusherClient: any;
+    let channel: any;
+
+    if (session?.user?.id) {
+      import("@/lib/pusher").then((mod) => {
+        pusherClient = mod.pusherClient;
+        const channelName = `user-${session.user.id}`;
+        channel = pusherClient.subscribe(channelName);
+        
+        channel.bind("new-notification", () => {
+          loadUnreadCount();
+        });
+
+        channel.bind("user-kicked", () => {
+          signOut({ callbackUrl: "/login" });
+        });
+      });
+    }
+
+    // 2. Solo al cargar
     loadUnreadCount();
-    const interval = setInterval(loadUnreadCount, 15000);
-    return () => clearInterval(interval);
-  }, [loadUnreadCount]);
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadUnreadCount();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (pusherClient && session?.user?.id) {
+        pusherClient.unsubscribe(`user-${session.user.id}`);
+      }
+    };
+  }, [loadUnreadCount, session?.user?.id]);
 
   // Cargar lista de notificaciones al abrir el panel
   const loadNotifications = async () => {

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useSidebar } from "./SidebarContext";
 import { useEffect, useRef, useState } from "react";
 import { getUnreadCount } from "@/server/actions/chat";
@@ -51,35 +51,47 @@ export function Sidebar() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  /* ── Polling de mensajes no leídos (lógica original intacta) ── */
+  const { data: session } = useSession();
+
+  /* ── Polling and Pusher for unread counts ── */
   useEffect(() => {
     loadUnreadCount();
     loadExchangeCount();
   }, []);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    // 1. Pusher subscription for Real-time
+    let pusherClient: any;
+    let channel: any;
+
+    if (session?.user?.id) {
+      import("@/lib/pusher").then((mod) => {
+        pusherClient = mod.pusherClient;
+        const channelName = `user-${session.user.id}`;
+        channel = pusherClient.subscribe(channelName);
+        channel.bind("new-message", () => loadUnreadCount());
+        channel.bind("new-notification", () => loadExchangeCount());
+        channel.bind("messages-read", () => loadUnreadCount());
+        channel.bind("user-kicked", () => signOut({ callbackUrl: "/login" }));
+      });
+    }
 
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        if (interval) clearInterval(interval);
-      } else {
+      if (!document.hidden) {
         loadUnreadCount();
-        interval = setInterval(loadUnreadCount, 20000);
+        loadExchangeCount();
       }
     };
 
-    interval = setInterval(() => {
-      loadUnreadCount();
-      loadExchangeCount();
-    }, 20000);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (pusherClient && session?.user?.id) {
+        pusherClient.unsubscribe(`user-${session.user.id}`);
+      }
     };
-  }, []);
+  }, [session?.user?.id]);
 
   const loadUnreadCount = async () => {
     const result = await getUnreadCount();

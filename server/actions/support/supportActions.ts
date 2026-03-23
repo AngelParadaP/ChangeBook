@@ -146,6 +146,9 @@ export async function sendTicketMessage(ticketId: string, content: string, image
       await db.update(supportTickets).set({ updatedAt: new Date() }).where(eq(supportTickets.id, ticketId));
     }
 
+    const { pusherServer } = await import("@/lib/pusher");
+    await pusherServer.trigger(`ticket-${ticketId}`, "new-ticket-message", {});
+
     return { success: true };
   } catch (error) {
     return { success: false, error: "Error al enviar mensaje" };

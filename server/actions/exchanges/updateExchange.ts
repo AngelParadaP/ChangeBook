@@ -201,6 +201,11 @@ export async function updateExchangeStatus(
                 }));
 
                 await db.insert(notifications).values(notificationValues);
+
+                const { pusherServer } = await import("@/lib/pusher");
+                for (const conflict of pendingConflicts) {
+                    await pusherServer.trigger(`user-${conflict.requesterId}`, "new-notification", {});
+                }
             }
         }
 
@@ -244,6 +249,17 @@ export async function updateExchangeStatus(
                 exchangeId: exchange.id,
             });
         }
+
+        // Trigger pusher event for instant notifications update
+        const { pusherServer } = await import("@/lib/pusher");
+        
+        const notifyTarget = newStatus === "cancelado" ? (isOwner ? exchange.requesterId : exchange.ownerId) : exchange.requesterId;
+        
+        // Notificar a la otra persona y al usuario actual (para que su Sidebar se limpie instantaneamente)
+        const currentUserTarget = isOwner ? exchange.ownerId : exchange.requesterId;
+        
+        await pusherServer.trigger(`user-${notifyTarget}`, "new-notification", {});
+        await pusherServer.trigger(`user-${currentUserTarget}`, "new-notification", {});
 
         // Si se inicia (en_curso), actualizar el estado del libro a "ocupado"
         if (newStatus === "en_curso") {

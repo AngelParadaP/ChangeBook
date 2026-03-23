@@ -23,26 +23,34 @@ export default function TicketChatClient({ ticket, initialMessages, currentUserI
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Polling para simular Tiempo Real
+  // Real-time con Pusher en lugar de Polling
   useEffect(() => {
     if (ticketStatus === "closed") return;
 
-    const intervalId = setInterval(async () => {
-      try {
-        const res = await getTicketMessages(ticket.id);
-        if (res.success && res.messages) {
-          // Solo actualizamos si hay una cantidad distinta de mensajes para no matar el render (naive re-rendering guard)
-          setMessages((prev) => {
-             // Es una verificación muy simple; si agregaron o modificaron, se re-setea
-             if (res.messages.length !== prev.length) return res.messages;
-             // Opt: iterar y comprobar IDs también podría ayudar a evitar re-renders
-             return prev; 
-          });
-        }
-      } catch (err) { }
-    }, 4000);
+    let pusherClient: any;
+    let channel: any;
+    const channelName = `ticket-${ticket.id}`;
 
-    return () => clearInterval(intervalId);
+    import("@/lib/pusher").then((mod) => {
+      pusherClient = mod.pusherClient;
+      channel = pusherClient.subscribe(channelName);
+      
+      channel.bind("new-ticket-message", async () => {
+        // Cuando llegue un nuevo mensaje, recargamos la lista
+        try {
+          const res = await getTicketMessages(ticket.id);
+          if (res.success && res.messages) {
+            setMessages(res.messages);
+          }
+        } catch (err) {}
+      });
+    });
+
+    return () => {
+      if (pusherClient) {
+        pusherClient.unsubscribe(channelName);
+      }
+    };
   }, [ticket.id, ticketStatus]);
 
   const handleSendMessage = async (e?: React.FormEvent) => {
