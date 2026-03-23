@@ -7,14 +7,16 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Star, MessageSquare, ChevronDown, PenLine } from "lucide-react";
 import { BookReviewModal } from "./BookReviewModal";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface BookReviewsSectionProps {
     bookId: string;
     bookTitle: string;
+    isOwner: boolean;
     className?: string;
 }
 
-export function BookReviewsSection({ bookId, bookTitle, className = "" }: BookReviewsSectionProps) {
+export function BookReviewsSection({ bookId, bookTitle, isOwner, className = "" }: BookReviewsSectionProps) {
     const { data: session } = useSession();
     const [data, setData] = useState<BookRatingData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -75,7 +77,7 @@ export function BookReviewsSection({ bookId, bookTitle, className = "" }: BookRe
                     )}
                 </div>
 
-                {session?.user && !hasReviewed && (
+                {session?.user && !hasReviewed && !isOwner && (
                     <button
                         onClick={() => setIsModalOpen(true)}
                         className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2.5 rounded-xl font-bold transition-colors text-sm shrink-0"
@@ -127,22 +129,23 @@ function BookReviewCard({ review }: { review: BookReviewItem }) {
     return (
         <div className="p-4 sm:p-5 bg-subtle/70 border border-card-border/50 rounded-2xl hover:border-card-border transition-colors group">
             <div className="flex items-start gap-4">
-                <UserAvatar
-                    imageURL={review.reviewerImageURL}
-                    name={review.reviewerName}
-                    size="md"
-                    className="shrink-0"
-                />
+                <Link href={`/user/${review.reviewerUsername}`} className="shrink-0 transition-transform hover:scale-105">
+                    <UserAvatar
+                        imageURL={review.reviewerImageURL}
+                        name={review.reviewerName}
+                        size="md"
+                    />
+                </Link>
                 <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4 mb-2">
-                        <div className="min-w-0">
-                            <h4 className="text-sm font-bold text-heading truncate">
+                        <Link href={`/user/${review.reviewerUsername}`} className="min-w-0 group/link inline-block w-fit">
+                            <h4 className="text-sm font-bold text-heading truncate group-hover/link:text-primary transition-colors">
                                 {review.reviewerName}
                             </h4>
-                            <p className="text-xs font-medium text-caption truncate mt-0.5">
+                            <p className="text-xs font-medium text-caption truncate mt-0.5 group-hover/link:text-primary/70 transition-colors">
                                 @{review.reviewerUsername}
                             </p>
-                        </div>
+                        </Link>
                         <div className="flex flex-col sm:items-end gap-1">
                             <StarRating rating={review.rating} size={14} />
                             <span className="text-[11px] font-medium text-hint">

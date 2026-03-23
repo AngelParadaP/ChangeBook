@@ -567,7 +567,7 @@ export default function BookDetailPage() {
                 </div>
 
                 <div className="relative z-10 w-full mt-8">
-                    <BookReviewsSection bookId={book.id} bookTitle={book.title} />
+                    <BookReviewsSection bookId={book.id} bookTitle={book.title} isOwner={isOwner} />
                 </div>
             </div>
 
