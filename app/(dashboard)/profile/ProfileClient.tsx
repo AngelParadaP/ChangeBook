@@ -357,7 +357,7 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                   onClick={() => isEditing && fileInputRef.current?.click()}
                   className={`relative w-24 h-24 sm:w-32 sm:h-32 rounded-full ring-4 ring-card bg-gradient-to-br from-primary-light/80 to-primary-muted dark:from-primary-dark dark:to-primary flex-shrink-0 shadow-xl ${isEditing ? "cursor-pointer" : ""}`}
                 >
-                  <div className="w-full h-full rounded-full overflow-hidden">
+                  <div className="relative w-full h-full rounded-full overflow-hidden">
                     {imagePreview ? (
                       <Image src={imagePreview} alt="Preview" fill className="object-cover" />
                     ) : (
