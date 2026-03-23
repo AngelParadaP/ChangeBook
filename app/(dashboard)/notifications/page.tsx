@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { getNotifications, markAllNotificationsAsRead, deleteNotification, deleteAllNotifications, NotificationItem } from "@/server/actions/notifications";
 import { acceptFriendRequest, declineFriendRequest } from "@/server/actions/friends";
 import { getFriendUsernameFromRequest } from "@/server/actions/friends/getFriendUsernameFromRequest";
+import { getReviewContext } from "@/server/actions/reviews";
+import { ReviewModal } from "@/components/reviews";
 import { Toast } from "@/components/ui/Toast";
 import { useRouter } from "next/navigation";
 import {
     Loader2, BellOff, Check, XCircle, Trash2, Pin,
     UserPlus, UserCheck, UserMinus, Rocket, PartyPopper,
-    Ban, Mailbox, RefreshCw, CheckCircle2, Bell, Calendar, Clock, MessageCircle
+    Ban, Mailbox, RefreshCw, CheckCircle2, Bell, Calendar, Clock, MessageCircle, Star
 } from "lucide-react";
 
 export default function NotificationsPage() {
@@ -18,6 +20,15 @@ export default function NotificationsPage() {
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
     const router = useRouter();
+
+    // Review modal state
+    const [reviewModal, setReviewModal] = useState<{
+        exchangeId: string;
+        reviewedUserId: string;
+        reviewedUserName: string;
+        bookTitle: string;
+        notificationId: string;
+    } | null>(null);
 
     useEffect(() => {
         loadNotifications();
@@ -96,6 +107,24 @@ export default function NotificationsPage() {
     };
 
     const handleNotificationClick = async (notif: NotificationItem) => {
+        // Si es una notificación de review_request, abrir el modal de reseña
+        if (notif.type === "review_request" && notif.exchangeId) {
+            const result = await getReviewContext(notif.exchangeId);
+            if (result.success && result.data) {
+                if (result.data.alreadyReviewed) {
+                    // Ya calificó: eliminar la notificación
+                    await deleteNotification(notif.id);
+                    setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
+                    setToast({ message: "Ya calificaste este intercambio", type: "success" });
+                    return;
+                }
+                setReviewModal({ ...result.data, notificationId: notif.id });
+            } else {
+                setToast({ message: result.error || "Error al cargar datos de la reseña", type: "error" });
+            }
+            return;
+        }
+
         let targetPath = `/exchanges?tab=activos`;
         switch (notif.type) {
             case "exchange_requested":
@@ -183,6 +212,14 @@ export default function NotificationsPage() {
         friend_declined: {
             icon: <UserMinus size={18} />,
             color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+        },
+        strike_received: {
+            icon: <XCircle size={18} />,
+            color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+        },
+        review_request: {
+            icon: <Star size={18} />,
+            color: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
         },
     };
 
@@ -334,6 +371,33 @@ export default function NotificationsPage() {
                                                 </button>
                                             </div>
                                         )}
+
+                                        {/* Review request action */}
+                                        {notif.type === "review_request" && notif.exchangeId && (
+                                            <div className="mt-2.5">
+                                                <button
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        const result = await getReviewContext(notif.exchangeId!);
+                                                        if (result.success && result.data) {
+                                                            if (result.data.alreadyReviewed) {
+                                                                await deleteNotification(notif.id);
+                                                                setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
+                                                                setToast({ message: "Ya calificaste este intercambio", type: "success" });
+                                                                return;
+                                                            }
+                                                            setReviewModal({ ...result.data, notificationId: notif.id });
+                                                        } else {
+                                                            setToast({ message: result.error || "Error al cargar datos", type: "error" });
+                                                        }
+                                                    }}
+                                                    className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm shadow-amber-400/20"
+                                                >
+                                                    <Star size={14} />
+                                                    Calificar experiencia
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Delete button */}
@@ -350,6 +414,24 @@ export default function NotificationsPage() {
                     })
                 )}
             </div>
+
+            {/* Review Modal — opened from review_request notifications */}
+            {reviewModal && (
+                <ReviewModal
+                    isOpen={true}
+                    onClose={() => setReviewModal(null)}
+                    exchangeId={reviewModal.exchangeId}
+                    reviewedUserId={reviewModal.reviewedUserId}
+                    reviewedUserName={reviewModal.reviewedUserName}
+                    bookTitle={reviewModal.bookTitle}
+                    onReviewSubmitted={async () => {
+                        // Auto-eliminar la notificación después de calificar
+                        await deleteNotification(reviewModal.notificationId);
+                        setNotifications((prev) => prev.filter((n) => n.id !== reviewModal.notificationId));
+                        loadNotifications();
+                    }}
+                />
+            )}
         </div>
     );
 }

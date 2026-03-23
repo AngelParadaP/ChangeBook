@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { ProfileSkeleton } from "@/components/ui/skeletons";
 import { reportUserAction } from "@/server/actions/user/reportUserAction";
+import { UserRatingDisplay } from "@/components/reviews";
 import { UploadButton } from "@/lib/uploadthing";
 
 interface UserProfile {
@@ -414,7 +415,7 @@ export default function UserProfilePage() {
                       {startingChat ? <Loader2 size={15} className="animate-spin" /> : <MessageSquare size={15} />}
                       {startingChat ? "Abriendo..." : "Mensaje"}
                     </button>
-                    
+
                     {/* Report button */}
                     <button
                       onClick={() => setIsReportModalOpen(true)}
@@ -473,7 +474,7 @@ export default function UserProfilePage() {
                   title="Enviar un mensaje"
                 >
                   {startingChat ? <Loader2 size={15} className="animate-spin" /> : <MessageSquare size={15} />}
-                    {startingChat ? "Abriendo..." : "Mensaje"}
+                  {startingChat ? "Abriendo..." : "Mensaje"}
                 </button>
                 <button
                   onClick={() => setIsReportModalOpen(true)}
@@ -502,6 +503,11 @@ export default function UserProfilePage() {
                 {books.length} {books.length === 1 ? "libro" : "libros"}
               </span>
             </div>
+
+            {/* Rating */}
+            <div className="mt-3 flex justify-center sm:justify-start">
+              <UserRatingDisplay userId={profile.id} />
+            </div>
           </div>
 
           {/* ── Tabs ─────────────────────────────────────────── */}
@@ -511,21 +517,19 @@ export default function UserProfilePage() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold border-b-2 transition-all ${
-                    activeTab === tab.key
-                      ? "border-primary text-primary dark:text-primary-light"
-                      : "border-transparent text-hint hover:text-body"
-                  }`}
+                  className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold border-b-2 transition-all ${activeTab === tab.key
+                    ? "border-primary text-primary dark:text-primary-light"
+                    : "border-transparent text-hint hover:text-body"
+                    }`}
                 >
                   {tab.icon}
                   <span className="hidden sm:inline">{tab.label}</span>
                   {tab.count !== undefined && (
                     <span
-                      className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
-                        activeTab === tab.key
-                          ? "bg-primary/10 text-primary dark:bg-primary-dark/20 dark:text-primary-light"
-                          : "bg-soft text-hint"
-                      }`}
+                      className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${activeTab === tab.key
+                        ? "bg-primary/10 text-primary dark:bg-primary-dark/20 dark:text-primary-light"
+                        : "bg-soft text-hint"
+                        }`}
                     >
                       {tab.count}
                     </span>
@@ -758,71 +762,84 @@ export default function UserProfilePage() {
       {/* Report User Modal */}
       {isReportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-card w-full max-w-sm rounded-2xl shadow-xl p-6 border border-card-border relative">
+          <div className="bg-card w-full max-w-md rounded-2xl shadow-xl p-6 sm:p-7 border border-card-border/50 relative">
             <button
               onClick={() => {
                 setIsReportModalOpen(false);
                 setReportReason("");
                 setReportImageUrl(null);
               }}
-              className="absolute top-4 right-4 text-hint hover:text-danger transition-colors bg-subtle hover:bg-card-border rounded-full p-1"
+              className="absolute top-5 right-5 text-hint hover:text-body transition-colors rounded-full p-1"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
-            <div className="flex flex-col text-center gap-3 mb-4">
-              <div className="mx-auto w-12 h-12 rounded-full bg-danger/10 flex items-center justify-center">
-                <AlertTriangle size={22} className="text-danger" />
+
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center text-danger border border-danger/20">
+                  <Flag size={20} />
+                </div>
+                <h2 className="text-xl font-bold text-heading">Reportar a @{profile.username}</h2>
               </div>
-              <h2 className="text-xl font-bold text-heading">Reportar usuario</h2>
-              <p className="text-body text-sm font-normal text-left">
-                Ayúdanos a mantener Kyboo como un lugar seguro. Tu reporte será enviado directamente a la administración.
+              <p className="text-body text-sm font-normal">
+                Tu reporte será enviado de forma confidencial a la administración de Kyboo.
               </p>
             </div>
-            
-            <textarea
-              className="w-full bg-subtle border border-card-border focus:border-danger focus:ring-1 focus:ring-danger rounded-xl p-3 text-sm text-heading mb-4 outline-none resize-none"
-              rows={3}
-              placeholder="Ej: Este usuario tiene libros falsos, spam, acoso, etc..."
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-              disabled={submittingReport}
-            ></textarea>
 
-            {reportImageUrl ? (
-              <div className="relative w-full h-32 bg-subtle rounded-xl flex items-center justify-center overflow-hidden border border-card-border mb-5">
-                <Image src={reportImageUrl} alt="Evidencia" fill className="object-cover" />
-                <button 
-                  onClick={() => setReportImageUrl(null)} 
-                  className="absolute top-2 right-2 bg-danger/90 hover:bg-danger text-white rounded-full p-1 shadow transition-colors"
-                >
-                  <X size={14} />
-                </button>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-heading mb-1.5">
+                  Motivo del reporte
+                </label>
+                <textarea
+                  className="w-full bg-soft border border-card-border focus:border-danger/50 focus:ring-2 focus:ring-danger/20 rounded-xl p-3.5 text-sm text-heading outline-none resize-none transition-all placeholder:text-hint"
+                  rows={4}
+                  placeholder="Describe brevemente el comportamiento, contenido inapropiado o problema que has detectado..."
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  disabled={submittingReport}
+                ></textarea>
               </div>
-            ) : (
-              <div className="mb-5">
-                <p className="text-xs text-hint mb-2">Adjuntar evidencia (Opcional):</p>
-                <UploadButton
-                  endpoint="imageUploader"
-                  onUploadBegin={() => setIsUploadingImage(true)}
-                  onClientUploadComplete={(res) => {
-                    if (res?.[0]) setReportImageUrl(res[0].url);
-                    setIsUploadingImage(false);
-                    setToast({ message: "Evidencia subida", type: "success" });
-                  }}
-                  onUploadError={(error: Error) => {
-                    setIsUploadingImage(false);
-                    setToast({ message: "Error al subir imagen", type: "error" });
-                  }}
-                  appearance={{
-                    button: "bg-subtle hover:bg-card-border !text-body text-xs font-semibold rounded-xl w-full flex items-center justify-center p-3 border border-card-border transition-colors",
-                    allowedContent: "hidden"
-                  }}
-                  content={{ button: "📸 Subir captura/foto" }}
-                />
-              </div>
-            )}
 
-            <div className="flex gap-3">
+              <div>
+                <label className="block text-sm font-semibold text-heading mb-1.5 flex justify-between items-center">
+                  <span>Evidencia <span className="text-hint font-normal text-xs">(Opcional)</span></span>
+                </label>
+                {reportImageUrl ? (
+                  <div className="relative w-full h-36 bg-dim rounded-xl flex items-center justify-center overflow-hidden border border-card-border group">
+                    <Image src={reportImageUrl} alt="Evidencia" fill className="object-cover" />
+                    <button
+                      onClick={() => setReportImageUrl(null)}
+                      className="absolute top-2 right-2 bg-black/50 hover:bg-danger text-white rounded-full p-1.5 backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onUploadBegin={() => setIsUploadingImage(true)}
+                    onClientUploadComplete={(res) => {
+                      if (res?.[0]) setReportImageUrl(res[0].url);
+                      setIsUploadingImage(false);
+                      setToast({ message: "Evidencia adjuntada", type: "success" });
+                    }}
+                    onUploadError={(error: Error) => {
+                      setIsUploadingImage(false);
+                      setToast({ message: "Error al subir imagen", type: "error" });
+                    }}
+                    appearance={{
+                      container: "w-full [&_input[type='file']]:sr-only",
+                      button: "bg-subtle hover:bg-soft text-body hover:text-heading border border-dashed border-card-border hover:border-hint text-sm font-semibold rounded-xl w-full flex items-center justify-center p-4 transition-all focus-within:ring-2 focus-within:ring-primary/20 cursor-pointer shadow-sm",
+                      allowedContent: "hidden"
+                    }}
+                    content={{ button: "Subir evidencia" }}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-8">
               <button
                 onClick={() => {
                   setIsReportModalOpen(false);
@@ -830,17 +847,16 @@ export default function UserProfilePage() {
                   setReportImageUrl(null);
                 }}
                 disabled={submittingReport || isUploadingImage}
-                className="flex-1 bg-soft hover:bg-dim text-body font-bold py-2.5 rounded-xl transition-colors text-sm"
+                className="flex-1 bg-soft hover:bg-dim text-body font-semibold py-3 rounded-xl transition-colors text-sm"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleReportUser}
                 disabled={submittingReport || isUploadingImage}
-                className="flex-1 bg-danger text-white hover:bg-danger-dark font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm disabled:opacity-60"
+                className="flex-1 bg-danger hover:bg-danger-dark text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-sm disabled:opacity-60"
               >
-                {submittingReport ? <Loader2 size={16} className="animate-spin" /> : <Flag size={16} />}
-                Enviar Reporte
+                {submittingReport ? <Loader2 size={18} className="animate-spin" /> : "Enviar reporte"}
               </button>
             </div>
           </div>

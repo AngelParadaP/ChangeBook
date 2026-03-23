@@ -239,49 +239,64 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {currentCommunities.map((community) => (
-            <div key={community.id} className="border border-card-border rounded-xl p-4 hover:shadow-md hover:border-primary/50 dark:hover:border-primary-muted/50 transition-all duration-200 flex flex-col justify-between group">
-              <div>
-                <div className="flex items-start gap-3 sm:gap-4 mb-3">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg bg-dim overflow-hidden relative flex-shrink-0 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
-                    {community.imageUrl ? (
-                      <Image src={community.imageUrl} alt={community.name} fill className="object-cover" />
-                    ) : (
-                      <span className="flex items-center justify-center h-full"><Users size={20} className="text-hint" /></span>
+            <div key={community.id} className="border border-card-border rounded-xl p-4 sm:p-5 hover:shadow-md transition-all duration-200 flex flex-col gap-4 bg-card group">
+              <div className="flex items-start gap-3 sm:gap-4 flex-1">
+                {/* Image */}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-dim overflow-hidden relative flex-shrink-0 border border-card-border group-hover:ring-2 group-hover:ring-primary/20 transition-all">
+                  {community.imageUrl ? (
+                    <Image src={community.imageUrl} alt={community.name} fill className="object-cover" />
+                  ) : (
+                    <span className="flex items-center justify-center h-full"><Users size={28} className="text-hint" /></span>
+                  )}
+                </div>
+                {/* Info */}
+                <div className="flex-1 min-w-0 flex flex-col h-full">
+                  <h3 className="font-semibold text-base sm:text-[17px] leading-tight text-heading line-clamp-2 mb-1 cursor-pointer hover:text-primary transition-colors" onClick={() => router.push(`/communities/${community.id}`)}>
+                    {community.name}
+                  </h3>
+                  
+                  <p className="text-xs sm:text-[13px] text-hint mb-0.5">
+                    {community.memberCount} miembro{community.memberCount !== 1 ? 's' : ''}
+                  </p>
+                  
+                  {community.genres && community.genres.length > 0 && (
+                    <p className="text-[11px] sm:text-xs text-primary dark:text-primary-light line-clamp-1 mb-1.5">
+                      {community.genres.join(", ")}
+                    </p>
+                  )}
+
+                  <p className="text-xs text-body line-clamp-2 mb-2">
+                    {community.description || "Sin descripción"}
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-1.5 mt-auto">
+                    {community.isMember && <span className="text-[10px] sm:text-[11px] bg-green-100/60 text-green-700 px-2.5 py-0.5 rounded-[6px] dark:bg-green-900/30 dark:text-green-400 font-medium">Miembro</span>}
+                    {activeTab === "mine" && community.role === "admin" && (
+                      <span className="text-[10px] sm:text-[11px] bg-amber-100/60 text-amber-700 px-2.5 py-0.5 rounded-[6px] dark:bg-amber-900/30 dark:text-amber-400 font-medium flex items-center gap-1">
+                        <Crown size={10} /> Creador
+                      </span>
+                    )}
+                    {activeTab === "discover" && !community.isMember && community.similarityScore != null && community.similarityScore > 0.1 && (
+                      <span className="text-[10px] sm:text-[11px] bg-purple-100/60 text-purple-700 px-2.5 py-0.5 rounded-[6px] dark:bg-purple-900/30 dark:text-purple-400 font-medium flex items-center gap-1">
+                        <Sparkles size={10} /> Para ti
+                      </span>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-base sm:text-lg text-heading line-clamp-1">{community.name}</h3>
-                    <p className="text-xs sm:text-sm text-hint mb-1">{community.memberCount} miembro{community.memberCount !== 1 ? 's' : ''}</p>
-                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                      {community.isMember && <span className="text-[10px] sm:text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">Miembro</span>}
-                      {activeTab === "mine" && community.role === "admin" && (
-                        <span className="text-[10px] sm:text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
-                          <Crown size={10} /> Creador
-                        </span>
-                      )}
-                      {activeTab === "discover" && !community.isMember && community.similarityScore != null && community.similarityScore > 0.1 && (
-                        <span className="text-[10px] sm:text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full dark:bg-purple-900/30 dark:text-purple-400 flex items-center gap-1">
-                          <Sparkles size={10} /> Para ti
-                        </span>
-                      )}
-                    </div>
-                  </div>
                 </div>
-                <p className="text-caption text-xs sm:text-sm mb-4 line-clamp-2 h-8 sm:h-10">
-                  {community.description || "Sin descripción"}
-                </p>
               </div>
-              <div className="flex gap-2 mt-2">
+
+              {/* Actions */}
+              <div className="flex gap-2.5 pt-1 border-t border-transparent">
                 <button
                   onClick={() => router.push(`/communities/${community.id}`)}
-                  className="flex-1 py-2 px-3 bg-soft rounded-lg text-sm font-medium hover:bg-dim transition-colors cursor-pointer"
+                  className="flex-1 py-1.5 px-3 bg-primary/10 text-primary dark:bg-[#2C3E50]/50 dark:text-primary-light rounded-lg text-sm font-semibold hover:bg-primary/20 dark:hover:bg-[#2C3E50]/80 transition-colors cursor-pointer"
                 >
-                  Ver
+                  Ver comunidad
                 </button>
                 {activeTab === "discover" && !community.isMember && (
                   <button
                     onClick={() => handleJoin(community.id)}
-                    className="flex-1 py-2 px-3 bg-primary-soft text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors cursor-pointer"
+                    className="flex-1 py-1.5 px-3 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors cursor-pointer"
                   >
                     Unirse
                   </button>

@@ -18,6 +18,7 @@ import { encodeBookCardMessage } from "@/lib/utils/bookCardMessage";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { BookOpen, CircleCheck, CirclePause, CircleX, ArrowLeft, Pencil, Save, Mailbox, CalendarDays, MessageSquare, Heart } from "lucide-react";
 import { BookDetailSkeleton } from "@/components/ui/skeletons";
+import { BookReviewsSection } from "@/components/reviews/BookReviewsSection";
 
 interface BookDetail {
     id: string;
@@ -563,6 +564,10 @@ export default function BookDetailPage() {
                             )}
                         </div>
                     </div>
+                </div>
+
+                <div className="relative z-10 w-full mt-8">
+                    <BookReviewsSection bookId={book.id} bookTitle={book.title} isOwner={isOwner} />
                 </div>
             </div>
 
