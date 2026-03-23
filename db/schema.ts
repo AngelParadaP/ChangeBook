@@ -252,6 +252,26 @@ export const userReviews = pgTable("user_reviews", {
   };
 });
 
+// ─── Tabla para reseñas de libros ─────────────────────────────────────────
+export const bookReviews = pgTable("book_reviews", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  bookId: uuid("book_id")
+    .references(() => books.id, { onDelete: "cascade" })
+    .notNull(),
+  reviewerId: uuid("reviewer_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  rating: integer("rating").notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    bookIdx: index("br_book_idx").on(table.bookId),
+    reviewerIdx: index("br_reviewer_idx").on(table.reviewerId),
+    uniqueBookReviewIdx: index("br_unique_idx").on(table.bookId, table.reviewerId),
+  };
+});
+
 // ─── Tabla para favoritos de libros ─────────────────────────────────────────
 export const favorites = pgTable("favorites", {
   id: uuid("id").primaryKey().defaultRandom(),
