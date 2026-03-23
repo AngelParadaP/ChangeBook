@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ExchangeWithDetails } from "@/server/actions/exchanges/getExchanges";
 import { updateExchangeStatus } from "@/server/actions/exchanges/updateExchange";
 import { isValidImageUrl } from "@/lib/utils/imageValidation";
+import { ReviewModal } from "@/components/reviews";
 import { Clock, CheckCircle2, XCircle, BookOpen, PartyPopper, Ban, Rocket, MessageSquare, CalendarDays, MapPin, Timer, AlertTriangle } from "lucide-react";
 
 interface ExchangeCardProps {
@@ -114,6 +115,14 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
     const [imgError, setImgError] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
 
+    // Review modal state
+    const [reviewModal, setReviewModal] = useState<{
+        exchangeId: string;
+        reviewedUserId: string;
+        reviewedUserName: string;
+        bookTitle: string;
+    } | null>(null);
+
     // Confirmation modal states
     const [confirmModal, setConfirmModal] = useState<{
         action: "en_curso" | "completado" | "cancelado";
@@ -143,7 +152,14 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
         const result = await updateExchangeStatus(exchange.id, action, ownerNote || undefined);
         if (result.success) {
             setConfirmModal(null);
-            onUpdate();
+
+            // Si se completó y hay datos de review, abrir el modal de reseña
+            // NO llamar onUpdate() todavía — esperar a que cierre el modal
+            if (action === "completado" && result.reviewData) {
+                setReviewModal(result.reviewData);
+            } else {
+                onUpdate();
+            }
         } else {
             setActionError(result.error || "Error al actualizar el intercambio");
             setConfirmModal(null);
@@ -406,6 +422,22 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                 confirmLabel={confirmModal?.confirmLabel || ""}
                 confirmColor={confirmModal?.confirmColor || ""}
             />
+
+            {/* Review Modal — opens after completing an exchange (owner side) */}
+            {reviewModal && (
+                <ReviewModal
+                    isOpen={true}
+                    onClose={() => {
+                        setReviewModal(null);
+                        onUpdate(); // Refrescar lista al cerrar el modal
+                    }}
+                    exchangeId={reviewModal.exchangeId}
+                    reviewedUserId={reviewModal.reviewedUserId}
+                    reviewedUserName={reviewModal.reviewedUserName}
+                    bookTitle={reviewModal.bookTitle}
+                    onReviewSubmitted={() => {}}
+                />
+            )}
         </>
     );
 }

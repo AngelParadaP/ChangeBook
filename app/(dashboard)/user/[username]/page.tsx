@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { ProfileSkeleton } from "@/components/ui/skeletons";
 import { reportUserAction } from "@/server/actions/user/reportUserAction";
+import { UserRatingDisplay } from "@/components/reviews";
 import { UploadButton } from "@/lib/uploadthing";
 
 interface UserProfile {
@@ -501,6 +502,11 @@ export default function UserProfilePage() {
                 <BookOpen size={12} className="text-hint" />
                 {books.length} {books.length === 1 ? "libro" : "libros"}
               </span>
+            </div>
+
+            {/* Rating */}
+            <div className="mt-3 flex justify-center sm:justify-start">
+              <UserRatingDisplay userId={profile.id} />
             </div>
           </div>
 

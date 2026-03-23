@@ -21,7 +21,9 @@ import {
   NotificationItem,
 } from "@/server/actions/notifications";
 import { getFriendUsernameFromRequest } from "@/server/actions/friends/getFriendUsernameFromRequest";
-import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X, UserPlus, UserCheck, UserMinus, Calendar, Clock } from "lucide-react";
+import { getReviewContext } from "@/server/actions/reviews";
+import { ReviewModal } from "@/components/reviews";
+import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X, UserPlus, UserCheck, UserMinus, Calendar, Clock, Star } from "lucide-react";
 
 interface BookResult {
   id: string;
@@ -112,6 +114,7 @@ const notificationConfig: Record<string, { icon: React.ReactNode; color: string 
   friend_accepted: { icon: <UserCheck size={14} />, color: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" },
   friend_declined: { icon: <UserMinus size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
   strike_received: { icon: <Ban size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
+  review_request: { icon: <Star size={14} />, color: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" },
 };
 
 function formatTimeAgo(date: Date): string {
@@ -140,6 +143,15 @@ export function Navbar() {
   const [notificationsList, setNotificationsList] = useState<NotificationItem[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  // Review modal state
+  const [reviewModal, setReviewModal] = useState<{
+    exchangeId: string;
+    reviewedUserId: string;
+    reviewedUserName: string;
+    bookTitle: string;
+    notificationId: string;
+  } | null>(null);
 
   const { toggle } = useSidebar();
   const { data: session } = useSession();
@@ -207,6 +219,23 @@ export function Navbar() {
   const handleNotificationClick = async (notif: NotificationItem) => {
     if (notif.isRead === 0) {
       await handleMarkAsRead(notif.id);
+    }
+
+    // Si es review_request, abrir modal de reseña
+    if (notif.type === "review_request" && notif.exchangeId) {
+      const result = await getReviewContext(notif.exchangeId);
+      if (result.success && result.data) {
+        if (result.data.alreadyReviewed) {
+          // Ya calificó: eliminar la notificación automáticamente
+          await deleteNotification(notif.id);
+          setNotificationsList((prev) => prev.filter((n) => n.id !== notif.id));
+          setIsNotificationsOpen(false);
+          return;
+        }
+        setReviewModal({ ...result.data, notificationId: notif.id });
+        setIsNotificationsOpen(false);
+      }
+      return;
     }
 
     // Determinar a qué ruta navegar
@@ -352,6 +381,7 @@ export function Navbar() {
   const hasAnyResults = hasBooks || hasUsers || hasCommunities;
 
   return (
+    <>
     <nav className="bg-card border border-card-border rounded-2xl shadow-sm relative z-40">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between gap-4">
@@ -767,5 +797,24 @@ export function Navbar() {
         </div>
       </div>
     </nav>
+
+    {/* Review Modal — opened from review_request notifications in navbar */}
+    {reviewModal && (
+      <ReviewModal
+        isOpen={true}
+        onClose={() => setReviewModal(null)}
+        exchangeId={reviewModal.exchangeId}
+        reviewedUserId={reviewModal.reviewedUserId}
+        reviewedUserName={reviewModal.reviewedUserName}
+        bookTitle={reviewModal.bookTitle}
+        onReviewSubmitted={async () => {
+          // Auto-eliminar la notificación después de calificar
+          await deleteNotification(reviewModal.notificationId);
+          setNotificationsList((prev) => prev.filter((n) => n.id !== reviewModal.notificationId));
+          loadUnreadCount();
+        }}
+      />
+    )}
+  </>
   );
 }

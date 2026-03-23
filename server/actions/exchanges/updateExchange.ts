@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { exchanges, books, notifications } from "@/db/schema";
+import { exchanges, books, notifications, users } from "@/db/schema";
 import { eq, and, inArray, lte, gte, ne } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -227,10 +227,11 @@ export async function updateExchangeStatus(
                 exchangeId: exchange.id,
             });
         } else if (newStatus === "completado") {
+            // Notificación de review para el requester (abrirá modal de review en vez de redirigir)
             await db.insert(notifications).values({
                 userId: exchange.requesterId,
-                type: "exchange_completed",
-                message: `El intercambio de "${bookTitle}" fue marcado como completado. ¡Gracias!`,
+                type: "review_request",
+                message: `¡El intercambio de "${bookTitle}" se completó! ¿Deseas calificar tu experiencia con el dueño?`,
                 exchangeId: exchange.id,
             });
         } else if (newStatus === "cancelado") {
@@ -281,6 +282,26 @@ export async function updateExchangeStatus(
             completado: "Intercambio completado exitosamente",
             cancelado: "Intercambio cancelado",
         };
+
+        // Si se completó, retornar datos para abrir el modal de reseña al owner
+        if (newStatus === "completado") {
+            // Obtener nombre del requester para el modal de review
+            const requesterUser = await db.query.users.findFirst({
+                where: eq(users.id, exchange.requesterId),
+                columns: { name: true },
+            });
+
+            return {
+                success: true,
+                message: statusMessages[newStatus],
+                reviewData: {
+                    exchangeId: exchange.id,
+                    reviewedUserId: exchange.requesterId,
+                    reviewedUserName: requesterUser?.name || "Usuario",
+                    bookTitle,
+                },
+            };
+        }
 
         return {
             success: true,
