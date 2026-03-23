@@ -18,39 +18,39 @@ export async function sendPasswordResetEmail(
       to,
       subject: "🔑 Recupera tu contraseña de Kyboo",
       html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 520px; margin: 0 auto; background: #1a1a2e; border-radius: 16px; overflow: hidden;">
+        <div style="font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 520px; margin: 0 auto; background: #142536; border-radius: 16px; overflow: hidden; border: 1px solid #1E3A50;">
           <!-- Header -->
-          <div style="background: linear-gradient(135deg, #2d1b69, #1a1a2e); padding: 32px 24px; text-align: center;">
-            <h1 style="color: #ffffff; font-size: 28px; margin: 0 0 8px 0; letter-spacing: -0.5px;">Kyboo</h1>
-            <p style="color: rgba(255,255,255,0.5); font-size: 14px; margin: 0;">Recuperación de contraseña</p>
+          <div style="background: linear-gradient(135deg, #011C40, #023859); padding: 32px 24px; text-align: center; border-bottom: 2px solid #26658C;">
+            <h1 style="color: #A7EBF2; font-size: 28px; margin: 0 0 8px 0; letter-spacing: -0.5px; font-weight: 800;">Kyboo</h1>
+            <p style="color: #B8CCDB; font-size: 14px; margin: 0;">Recuperación de contraseña</p>
           </div>
 
           <!-- Content -->
           <div style="padding: 32px 24px;">
-            <p style="color: rgba(255,255,255,0.85); font-size: 16px; line-height: 1.6; margin: 0 0 8px 0;">
+            <p style="color: #E8F1F8; font-size: 16px; line-height: 1.6; margin: 0 0 8px 0;">
               Hola <strong>${userName}</strong>,
             </p>
-            <p style="color: rgba(255,255,255,0.6); font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
+            <p style="color: #B8CCDB; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
               Recibimos una solicitud para restablecer tu contraseña. Haz click en el botón para crear una nueva:
             </p>
 
             <!-- CTA Button -->
-            <div style="text-align: center; margin: 24px 0;">
+            <div style="text-align: center; margin: 32px 0;">
               <a href="${resetUrl}"
-                 style="display: inline-block; background: #E8A0BF; color: #1a1a2e; font-weight: 700; font-size: 15px; padding: 14px 36px; border-radius: 12px; text-decoration: none; letter-spacing: 0.3px;">
+                 style="display: inline-block; background: #26658C; color: #ffffff; font-weight: 700; font-size: 15px; padding: 14px 36px; border-radius: 12px; text-decoration: none; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(38, 101, 140, 0.3);">
                 Restablecer contraseña
               </a>
             </div>
 
-            <p style="color: rgba(255,255,255,0.4); font-size: 12px; line-height: 1.5; margin: 24px 0 0 0; text-align: center;">
-              Este enlace expira en <strong style="color: rgba(255,255,255,0.6);">1 hora</strong>.<br/>
+            <p style="color: #7A95AB; font-size: 12px; line-height: 1.5; margin: 24px 0 0 0; text-align: center;">
+              Este enlace expira en <strong style="color: #A7EBF2;">1 hora</strong>.<br/>
               Si no solicitaste este cambio, ignora este correo.
             </p>
           </div>
 
           <!-- Footer -->
-          <div style="padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); text-align: center;">
-            <p style="color: rgba(255,255,255,0.25); font-size: 11px; margin: 0;">
+          <div style="padding: 16px 24px; border-top: 1px solid #1E3A50; background: #0D1B2A; text-align: center;">
+            <p style="color: #7A95AB; font-size: 11px; margin: 0;">
               © Kyboo — Intercambio de libros UDG
             </p>
           </div>
@@ -84,39 +84,39 @@ export async function sendVerificationEmail(
       to,
       subject: "✨ Verifica tu cuenta de Kyboo",
       html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 520px; margin: 0 auto; background: #1a1a2e; border-radius: 16px; overflow: hidden;">
+        <div style="font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 520px; margin: 0 auto; background: #142536; border-radius: 16px; overflow: hidden; border: 1px solid #1E3A50;">
           <!-- Header -->
-          <div style="background: linear-gradient(135deg, #2d1b69, #1a1a2e); padding: 32px 24px; text-align: center;">
-            <h1 style="color: #ffffff; font-size: 28px; margin: 0 0 8px 0; letter-spacing: -0.5px;">Kyboo</h1>
-            <p style="color: rgba(255,255,255,0.5); font-size: 14px; margin: 0;">Verificación de cuenta</p>
+          <div style="background: linear-gradient(135deg, #011C40, #023859); padding: 32px 24px; text-align: center; border-bottom: 2px solid #26658C;">
+            <h1 style="color: #A7EBF2; font-size: 28px; margin: 0 0 8px 0; letter-spacing: -0.5px; font-weight: 800;">Kyboo</h1>
+            <p style="color: #B8CCDB; font-size: 14px; margin: 0;">Verificación de cuenta</p>
           </div>
 
           <!-- Content -->
           <div style="padding: 32px 24px;">
-            <p style="color: rgba(255,255,255,0.85); font-size: 16px; line-height: 1.6; margin: 0 0 8px 0;">
+            <p style="color: #E8F1F8; font-size: 16px; line-height: 1.6; margin: 0 0 8px 0;">
               Hola <strong>${userName}</strong>,
             </p>
-            <p style="color: rgba(255,255,255,0.6); font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
+            <p style="color: #B8CCDB; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
               Gracias por unirte a Kyboo. Por favor, verifica tu cuenta haciendo click en el siguiente botón:
             </p>
 
             <!-- CTA Button -->
-            <div style="text-align: center; margin: 24px 0;">
+            <div style="text-align: center; margin: 32px 0;">
               <a href="${verifyUrl}"
-                 style="display: inline-block; background: #E8A0BF; color: #1a1a2e; font-weight: 700; font-size: 15px; padding: 14px 36px; border-radius: 12px; text-decoration: none; letter-spacing: 0.3px;">
+                 style="display: inline-block; background: #26658C; color: #ffffff; font-weight: 700; font-size: 15px; padding: 14px 36px; border-radius: 12px; text-decoration: none; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(38, 101, 140, 0.3);">
                 Verificar cuenta
               </a>
             </div>
 
-            <p style="color: rgba(255,255,255,0.4); font-size: 12px; line-height: 1.5; margin: 24px 0 0 0; text-align: center;">
-              Este enlace expira en <strong style="color: rgba(255,255,255,0.6);">24 horas</strong>.<br/>
+            <p style="color: #7A95AB; font-size: 12px; line-height: 1.5; margin: 24px 0 0 0; text-align: center;">
+              Este enlace expira en <strong style="color: #A7EBF2;">24 horas</strong>.<br/>
               Si no creaste esta cuenta, ignora este correo.
             </p>
           </div>
 
           <!-- Footer -->
-          <div style="padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); text-align: center;">
-            <p style="color: rgba(255,255,255,0.25); font-size: 11px; margin: 0;">
+          <div style="padding: 16px 24px; border-top: 1px solid #1E3A50; background: #0D1B2A; text-align: center;">
+            <p style="color: #7A95AB; font-size: 11px; margin: 0;">
               © Kyboo — Intercambio de libros UDG
             </p>
           </div>
