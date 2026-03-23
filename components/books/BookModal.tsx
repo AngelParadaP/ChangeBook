@@ -14,6 +14,7 @@ import { encodeBookCardMessage } from "@/lib/utils/bookCardMessage";
 import { deleteBook } from "@/server/actions/books/deleteBook";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Search, X, Trash2, Edit2, MessageSquare, ExternalLink, BookOpen, CircleCheck, CirclePause, CircleX, CheckCircle2 } from "lucide-react";
+import { BookRatingDisplay } from "@/components/reviews/BookRatingDisplay";
 
 interface Book {
   id: string;
@@ -351,9 +352,12 @@ export function BookModal({
                     className="w-full px-4 py-2.5 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-muted text-heading transition-all font-medium"
                   />
                 ) : (
-                  <p className="text-xl font-bold text-heading">
-                    {book.title}
-                  </p>
+                  <div className="flex flex-col items-start gap-1">
+                    <p className="text-xl font-bold text-heading">
+                      {book.title}
+                    </p>
+                    <BookRatingDisplay bookId={book.id} className="mt-1" />
+                  </div>
                 )}
               </div>
 
