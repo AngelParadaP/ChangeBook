@@ -19,6 +19,54 @@ export default function LoginPage() {
   });
   const [isResending, setIsResending] = useState(false);
 
+  // Support modal state
+  const [showSupport, setShowSupport] = useState(false);
+  const [supportType, setSupportType] = useState<"issue" | "appeal" | "other">("issue");
+  const [supportCode, setSupportCode] = useState("");
+  const [supportTitle, setSupportTitle] = useState("");
+  const [supportDesc, setSupportDesc] = useState("");
+  const [supportSending, setSupportSending] = useState(false);
+  const [supportFeedback, setSupportFeedback] = useState<{ type: "error" | "success"; msg: string } | null>(null);
+
+  const handleSupportSubmit = async () => {
+    if (!supportCode.trim()) {
+      setSupportFeedback({ type: "error", msg: "Ingresa tu código de alumno para que podamos identificar tu caso." });
+      return;
+    }
+    if (!supportTitle.trim() || !supportDesc.trim()) {
+      setSupportFeedback({ type: "error", msg: "Por favor completa el asunto y la descripción." });
+      return;
+    }
+    setSupportSending(true);
+    setSupportFeedback(null);
+    try {
+      const res = await fetch("/api/support/guest-ticket", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentCode: supportCode,
+          title: supportTitle,
+          description: supportDesc,
+          type: supportType,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSupportFeedback({ type: "success", msg: "Ticket enviado. El equipo de Kyboo revisará tu caso y dara solucion o rechazara la peticion en los proximos 2 dias habiles." });
+        setSupportCode("");
+        setSupportTitle("");
+        setSupportDesc("");
+        setSupportType("issue");
+      } else {
+        setSupportFeedback({ type: "error", msg: data.error || "Error al enviar el ticket." });
+      }
+    } catch {
+      setSupportFeedback({ type: "error", msg: "Error inesperado. Intenta más tarde." });
+    } finally {
+      setSupportSending(false);
+    }
+  };
+
   const handleResend = async () => {
     if (!form.codigo) {
       setStatus({ type: "error", msg: "Primero ingresa tu código de alumno arriba para reenviar el correo." });
@@ -218,6 +266,20 @@ export default function LoginPage() {
           </Link>
         </div>
 
+        {/* Support button */}
+        <div className="mt-6 w-full flex justify-center">
+          <button
+            type="button"
+            onClick={() => { setShowSupport(true); setSupportFeedback(null); }}
+            className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/60 transition-colors duration-300 group"
+          >
+            <svg className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636a9 9 0 11-12.728 0M12 9v4m0 4h.01" />
+            </svg>
+            ¿Necesitas ayuda o quieres apelar una sanción?
+          </button>
+        </div>
+
         {status.msg && (
           <div
             className={`mt-5 w-full p-3 rounded-xl text-center text-sm font-bold border transition-all ${status.type === "error"
@@ -244,6 +306,122 @@ export default function LoginPage() {
           </div>
         )}
       </div>
+
+      {/* Support Modal */}
+      {showSupport && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#1E1E2E] border border-white/10 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-white/5">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-light-pink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636a9 9 0 11-12.728 0M12 9v4m0 4h.01" />
+                </svg>
+                <h3 className="text-lg font-bold text-white">Centro de Soporte</h3>
+              </div>
+              <button onClick={() => setShowSupport(false)} className="text-white/50 hover:text-white transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto custom-scrollbar space-y-4">
+              <p className="text-xs text-white/50 leading-relaxed">
+                ¿Tienes un problema o deseas apelar una sanción/ban? Ingresa tu <strong className="text-white/70">código de alumno</strong> para que podamos seguimiento a tu caso, aunque no tengas sesión activa.
+              </p>
+
+              {/* Student code */}
+              <div>
+                <label className="block text-xs font-bold text-white/60 mb-1.5">
+                  Código de alumno <span className="text-light-pink">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={supportCode}
+                  onChange={(e) => setSupportCode(e.target.value)}
+                  placeholder="Ej: 215757910"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder-white/30 outline-none focus:ring-1 focus:ring-light-pink focus:border-light-pink"
+                />
+                <p className="text-[10px] text-white/30 mt-1">Necesario para identificar tu caso y darte seguimiento.</p>
+              </div>
+
+              {/* Type */}
+              <div>
+                <label className="block text-xs font-bold text-white/60 mb-1.5">Tipo de solicitud</label>
+                <select
+                  value={supportType}
+                  onChange={(e) => setSupportType(e.target.value as "issue" | "appeal" | "other")}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:ring-1 focus:ring-light-pink focus:border-light-pink"
+                >
+                  <option value="issue">Problema técnico / Bug</option>
+                  <option value="appeal">Apelar sanción o ban</option>
+                  <option value="other">Otro asunto</option>
+                </select>
+              </div>
+
+
+              {/* Title */}
+              <div>
+                <label className="block text-xs font-bold text-white/60 mb-1.5">Asunto</label>
+                <input
+                  type="text"
+                  value={supportTitle}
+                  onChange={(e) => setSupportTitle(e.target.value)}
+                  placeholder="Ej: No puedo acceder a mi cuenta"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder-white/30 outline-none focus:ring-1 focus:ring-light-pink focus:border-light-pink"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-bold text-white/60 mb-1.5">Descripción</label>
+                <textarea
+                  value={supportDesc}
+                  onChange={(e) => setSupportDesc(e.target.value)}
+                  placeholder="Describe detalladamente tu situación..."
+                  rows={4}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder-white/30 outline-none focus:ring-1 focus:ring-light-pink focus:border-light-pink resize-none"
+                />
+              </div>
+
+              {/* Feedback */}
+              {supportFeedback && (
+                <div className={`p-3 rounded-xl text-xs font-bold border ${supportFeedback.type === "error"
+                  ? "bg-red-500/10 border-red-400/30 text-red-300"
+                  : "bg-green-500/10 border-green-400/30 text-green-300"
+                  }`}>
+                  {supportFeedback.msg}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-5 border-t border-white/10 flex justify-end gap-3 bg-white/5">
+              <button
+                type="button"
+                onClick={() => setShowSupport(false)}
+                disabled={supportSending}
+                className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-semibold border border-white/10 text-sm disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleSupportSubmit}
+                disabled={supportSending}
+                className="px-5 py-2.5 bg-light-pink text-dark-purple rounded-xl hover:opacity-90 transition-colors font-bold shadow-lg shadow-light-pink/20 text-sm disabled:opacity-50 flex items-center gap-2"
+              >
+                {supportSending && (
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                )}
+                Enviar Ticket
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

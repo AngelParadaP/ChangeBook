@@ -7,8 +7,7 @@ import { z } from "zod";
 const studentCodeSchema = z
   .string()
   .min(7, "El código es demasiado corto")
-  .max(12, "El código es demasiado largo")
-  .regex(/^\d+$/, "El código solo debe contener números");
+  .max(12, "El código es demasiado largo");
 
 const passwordSchema = z
   .string()

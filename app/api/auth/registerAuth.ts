@@ -23,25 +23,7 @@ export async function registerAction(data: RegisterInput) {
 
   const validatedData = result.data;
 
-  // 1. Validar que los números del correo coinciden con las posiciones 5-8 del código de alumno (índices 4-7)
-  // Para académicos (@academicos.udg.mx) saltamos esta validación ya que sus correos no llevan número ni coinciden con códigos
-  if (validatedData.email.endsWith("@alumnos.udg.mx")) {
-    const emailLocalPart = validatedData.email.split("@")[0];
-    const emailNumbersMatch = emailLocalPart.match(/\d+$/);
-
-    if (!emailNumbersMatch) {
-      return { error: "Tu correo parece estar incorrecto." };
-    }
-
-    const emailNumbers = emailNumbersMatch[0];
-    const codePart = validatedData.code.substring(4, 8);
-
-    if (emailNumbers !== codePart) {
-      return { error: `Tu correo no coincide con tu código de alumno.` };
-    }
-  }
-
-  // 2. Validar contra SIIAU (ahora también intenta obtener el nombre del alumno)
+  // 1. Validar contra SIIAU (ahora también intenta obtener el nombre del alumno)
   const siiau = await validateWithSIIAU(validatedData.code, validatedData.nip);
   if (!siiau.success) return { error: "Código o NIP de SIIAU incorrectos" };
 
