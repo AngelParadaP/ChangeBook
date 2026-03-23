@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { toast } from "@/components/ui/GlobalToast";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { createComment } from "@/server/actions/communities/comments";
+import { createComment, getComments } from "@/server/actions/communities/comments";
 import { deletePost, deleteComment, banUser } from "@/server/actions/communities/moderation";
 import { togglePostLike } from "@/server/actions/communities/togglePostLike";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -173,7 +173,8 @@ const CommentItem = ({ comment, depth = 0, replyingTo, setReplyingTo, replyConte
                                     Cancelar
                                 </button>
                                 <button
-                                    onClick={() => onSubmit(comment.id)}
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); onSubmit(comment.id); }}
                                     disabled={submitting}
                                     className="px-3 py-1.5 text-xs font-medium bg-primary hover:bg-primary-dark text-white rounded-lg disabled:opacity-50 transition-colors"
                                 >
@@ -257,10 +258,35 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
 
         if (result.success && result.comment) {
             toast("Comentario publicado", "success");
+            
+            const newCommentPayload = {
+                id: result.comment.id || Date.now().toString(),
+                content: replyContent,
+                createdAt: result.comment.createdAt ? new Date(result.comment.createdAt) : new Date(),
+                postId: post.id,
+                postContent: post.content,
+                communityId: post.communityId,
+                communityName: post.communityName
+            };
+
+            window.dispatchEvent(new CustomEvent("post-comment-added", { 
+                detail: { 
+                    postId: post.id,
+                    comment: newCommentPayload
+                } 
+            }));
+
             setReplyContent("");
             setReplyingTo(null);
             setShowCommentBox(false);
-            router.refresh();
+            
+            // Re-fetch only comments instead of full page refresh
+            getComments(post.id).then((commentsResponse) => {
+                if (commentsResponse.success && commentsResponse.comments) {
+                    setComments(commentsResponse.comments);
+                }
+            });
+
         } else {
             toast(result.error || "Error al comentar", "error");
         }
@@ -312,6 +338,8 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                     replies: c.replies ? softDelete(c.replies) : [],
                 }));
             setComments(softDelete(comments));
+            // Trigger local event
+            window.dispatchEvent(new CustomEvent("post-comment-deleted", { detail: { postId: post.id, commentId } }));
         } else {
             toast(result.error || "Error al eliminar", "error");
         }
@@ -479,7 +507,8 @@ export default function PostDetailClient({ post, initialComments, currentUserRol
                                     Cancelar
                                 </button>
                                 <button
-                                    onClick={() => handleSubmitComment()}
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); handleSubmitComment(); }}
                                     disabled={submitting || !replyContent.trim()}
                                     className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-medium text-sm disabled:opacity-50 transition-colors"
                                 >

@@ -62,6 +62,7 @@ interface Post {
     communityName: string;
     communityImage: string | null;
     hasLiked?: boolean;
+    commentsCount?: number;
 }
 
 interface Member {
@@ -159,14 +160,38 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
         return () => el.removeEventListener("scroll", handleScroll);
     }, [handleScroll]);
 
-    // Listen for post-deleted events dispatched from the post detail modal
+    // Listen for events from the post detail modal
     useEffect(() => {
         const handlePostDeleted = (e: Event) => {
             const customEvent = e as CustomEvent<{ postId: string }>;
             setPosts(prev => prev.filter(p => p.id !== customEvent.detail.postId));
         };
+        const handlePostCommentAdded = (e: Event) => {
+            const customEvent = e as CustomEvent<{ postId: string, comment: UserComment }>;
+            const { postId, comment } = customEvent.detail;
+            setPosts(prev => prev.map(p => 
+                p.id === postId ? { ...p, commentsCount: (p.commentsCount || 0) + 1 } : p
+            ));
+            setMyComments(prev => [comment, ...prev]);
+        };
+        const handlePostCommentDeleted = (e: Event) => {
+            const customEvent = e as CustomEvent<{ postId: string, commentId?: string }>;
+            const { postId, commentId } = customEvent.detail;
+            setPosts(prev => prev.map(p => 
+                p.id === postId ? { ...p, commentsCount: Math.max(0, (p.commentsCount || 0) - 1) } : p
+            ));
+            if (commentId) {
+                setMyComments(prev => prev.filter(c => c.id !== commentId));
+            }
+        };
         window.addEventListener("post-deleted", handlePostDeleted);
-        return () => window.removeEventListener("post-deleted", handlePostDeleted);
+        window.addEventListener("post-comment-added", handlePostCommentAdded);
+        window.addEventListener("post-comment-deleted", handlePostCommentDeleted);
+        return () => {
+            window.removeEventListener("post-deleted", handlePostDeleted);
+            window.removeEventListener("post-comment-added", handlePostCommentAdded);
+            window.removeEventListener("post-comment-deleted", handlePostCommentDeleted);
+        };
     }, []);
 
     const scrollToTop = () => {

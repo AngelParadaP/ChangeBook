@@ -115,6 +115,40 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
     }
   }, [activeTab]);
 
+  // Listen for events from the post detail modal to update UI optimistically
+  useEffect(() => {
+    const handlePostDeleted = (e: Event) => {
+      const customEvent = e as CustomEvent<{ postId: string }>;
+      setPosts(prev => prev.filter(p => p.id !== customEvent.detail.postId));
+    };
+    const handlePostCommentAdded = (e: Event) => {
+      const customEvent = e as CustomEvent<{ postId: string }>;
+      setPosts(prev => prev.map(p => 
+          p.id === customEvent.detail.postId 
+              ? { ...p, commentsCount: (p.commentsCount || 0) + 1 } 
+              : p
+      ));
+    };
+    const handlePostCommentDeleted = (e: Event) => {
+      const customEvent = e as CustomEvent<{ postId: string }>;
+      setPosts(prev => prev.map(p => 
+          p.id === customEvent.detail.postId 
+              ? { ...p, commentsCount: Math.max(0, (p.commentsCount || 0) - 1) } 
+              : p
+      ));
+    };
+    
+    window.addEventListener("post-deleted", handlePostDeleted);
+    window.addEventListener("post-comment-added", handlePostCommentAdded);
+    window.addEventListener("post-comment-deleted", handlePostCommentDeleted);
+    
+    return () => {
+      window.removeEventListener("post-deleted", handlePostDeleted);
+      window.removeEventListener("post-comment-added", handlePostCommentAdded);
+      window.removeEventListener("post-comment-deleted", handlePostCommentDeleted);
+    };
+  }, []);
+
   // Infinite scroll observer
   useEffect(() => {
     if (!loaderRef.current) return;
