@@ -35,66 +35,70 @@ export async function getPersonalizedFeed({ page = 0, limit = 10 }: FeedParams =
 
     // Check if the user has a vector embedding
     const userVectorResult = await db.execute(
-      sql`SELECT user_id FROM user_vectors WHERE user_id = ${user.id} LIMIT 1`
+      sql`SELECT embedding FROM user_vectors WHERE user_id = ${user.id} LIMIT 1`
     );
     const hasVector = userVectorResult.rows.length > 0;
 
     if (hasVector) {
+      const userEmbedding = userVectorResult.rows[0].embedding;
+      
       // ─── Unified vector + fallback query ──────────────────────────────
-      // LEFT JOIN book_vectors: books WITH vectors get cosine similarity,
-      // books WITHOUT vectors (new) get scored by genre match + recency.
+      // Utiliza búsqueda ANN (Approximate Nearest Neighbor) rápida con el índice HNSW
+      // y une los libros sin vector (nuevos) para hacer fallback por género
       const prefsArray = userPreferences.length > 0
         ? `ARRAY[${userPreferences.map(p => `'${p.replace(/'/g, "''")}'`).join(",")}]::text[]`
         : `ARRAY[]::text[]`;
 
       const vectorResult = await db.execute(sql`
-        SELECT
-          b.id,
-          b.title,
-          b.author,
-          b.publisher,
-          b.year,
-          b.image_url,
-          b.description,
-          b.genres,
-          b.status,
-          b.created_at,
-          b.owner_id,
-          u.username AS owner_username,
-          CASE
-            WHEN bv.embedding IS NOT NULL
-              THEN 1 - (bv.embedding <=> uv.embedding)
-            ELSE NULL
-          END AS similarity_score,
-          (
-            SELECT COUNT(*)
-            FROM unnest(b.genres) AS g
-            WHERE g = ANY(${sql.raw(prefsArray)})
-          ) AS genre_match,
-          CASE WHEN EXISTS(
-            SELECT 1 FROM exchanges e 
-            WHERE e.book_id = b.id AND e.requester_id = ${user.id}
-          ) THEN 1 ELSE 0 END AS has_requested
-        FROM books b
-        JOIN users u ON u.id = b.owner_id
-        LEFT JOIN book_vectors bv ON bv.book_id = b.id
-        CROSS JOIN user_vectors uv
-        WHERE uv.user_id = ${user.id}
-          AND b.owner_id != ${user.id}
-          AND b.status IN ('disponible', 'ocupado')
-          AND u.banned = false
-          AND (u.suspended_until IS NULL OR u.suspended_until < NOW())
+        WITH top_vectors AS (
+          SELECT book_id, embedding <=> ${userEmbedding}::vector AS similarity_score
+          FROM book_vectors
+          ORDER BY embedding <=> ${userEmbedding}::vector
+          LIMIT 150
+        ),
+        ranked_books AS (
+          -- Libros CON vector (Tomando únicamente el Top 150 más similares)
+          SELECT
+            b.id, b.title, b.author, b.publisher, b.year, b.image_url, b.description, b.genres, b.status, b.created_at, b.owner_id,
+            u.username AS owner_username,
+            v.similarity_score,
+            (SELECT COUNT(*) FROM unnest(b.genres) AS g WHERE g = ANY(${sql.raw(prefsArray)})) AS genre_match,
+            CASE WHEN EXISTS(SELECT 1 FROM exchanges e WHERE e.book_id = b.id AND e.requester_id = ${user.id}) THEN 1 ELSE 0 END AS has_requested,
+            0 AS is_fallback
+          FROM top_vectors v
+          JOIN books b ON b.id = v.book_id
+          JOIN users u ON u.id = b.owner_id
+          WHERE b.owner_id != ${user.id}
+            AND b.status IN ('disponible', 'ocupado')
+            AND u.banned = false
+            AND (u.suspended_until IS NULL OR u.suspended_until < NOW())
+
+          UNION ALL
+
+          -- Libros SIN vector (Nuevos libros que aún no han sido vectorizados)
+          SELECT
+            b.id, b.title, b.author, b.publisher, b.year, b.image_url, b.description, b.genres, b.status, b.created_at, b.owner_id,
+            u.username AS owner_username,
+            NULL AS similarity_score,
+            (SELECT COUNT(*) FROM unnest(b.genres) AS g WHERE g = ANY(${sql.raw(prefsArray)})) AS genre_match,
+            CASE WHEN EXISTS(SELECT 1 FROM exchanges e WHERE e.book_id = b.id AND e.requester_id = ${user.id}) THEN 1 ELSE 0 END AS has_requested,
+            1 AS is_fallback
+          FROM books b
+          JOIN users u ON u.id = b.owner_id
+          LEFT JOIN book_vectors bv ON bv.book_id = b.id
+          WHERE bv.book_id IS NULL -- IMPORTANTE: Sólo libros que NO tienen vector para evitar duplicados y carga pasiva
+            AND b.owner_id != ${user.id}
+            AND b.status IN ('disponible', 'ocupado')
+            AND u.banned = false
+            AND (u.suspended_until IS NULL OR u.suspended_until < NOW())
+        )
+        SELECT * FROM ranked_books
         ORDER BY
           has_requested ASC,
-          CASE WHEN bv.embedding IS NOT NULL
-            THEN 0 ELSE 1
-          END ASC,
-          CASE WHEN bv.embedding IS NOT NULL
-            THEN bv.embedding <=> uv.embedding
-            ELSE 2.0
-          END ASC,
+          is_fallback ASC,
+          CASE WHEN is_fallback = 0 THEN similarity_score ELSE 2.0 END ASC,
           genre_match DESC,
-          b.created_at DESC
+          created_at DESC
         LIMIT ${limit}
         OFFSET ${offset}
       `);
