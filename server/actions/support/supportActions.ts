@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { supportTickets, ticketMessages, users } from "@/db/schema";
-import { eq, desc, asc } from "drizzle-orm";
+import { supportTickets, ticketMessages, users, userReports } from "@/db/schema";
+import { eq, desc, asc, and } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -81,6 +81,27 @@ export async function getAdminTickets() {
     return { success: true, tickets };
   } catch (error) {
     return { success: false, error: "Error al cargar tickets" };
+  }
+}
+
+export async function getMyStrikes() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) return { success: false, error: "No autorizado" };
+
+    const misReportes = await db
+      .select({
+        id: userReports.id,
+        reason: userReports.reason,
+        createdAt: userReports.createdAt,
+      })
+      .from(userReports)
+      .where(and(eq(userReports.reportedId, session.user.id), eq(userReports.status, "reviewed")))
+      .orderBy(desc(userReports.createdAt));
+
+    return { success: true, strikes: misReportes };
+  } catch (error) {
+    return { success: false, error: "Error al cargar strikes" };
   }
 }
 
