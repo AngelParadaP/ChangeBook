@@ -201,7 +201,8 @@ export const notifications = pgTable("notifications", {
       "exchange_requested", "exchange_accepted", "exchange_rejected", "exchange_auto_rejected", "exchange_started", "exchange_completed", "exchange_cancelled",
       "exchange_reminder_tomorrow", "exchange_reminder_today",
       "friend_request", "friend_accepted", "friend_declined",
-      "strike_received"
+      "strike_received",
+      "review_request"
     ],
   }).notNull(),
   // Mensaje descriptivo
@@ -218,6 +219,36 @@ export const notifications = pgTable("notifications", {
   return {
     userIdx: index("notification_user_idx").on(table.userId),
     readIdx: index("notification_read_idx").on(table.isRead),
+  };
+});
+
+// ─── Tabla para reseñas de usuarios ─────────────────────────────────────────
+export const userReviews = pgTable("user_reviews", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // Quien deja la reseña
+  reviewerId: uuid("reviewer_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  // Quien recibe la reseña
+  reviewedId: uuid("reviewed_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  // Intercambio asociado
+  exchangeId: uuid("exchange_id")
+    .references(() => exchanges.id, { onDelete: "cascade" })
+    .notNull(),
+  // Calificación de 1 a 5 estrellas
+  rating: integer("rating").notNull(),
+  // Comentario opcional
+  comment: text("comment"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    reviewerIdx: index("review_reviewer_idx").on(table.reviewerId),
+    reviewedIdx: index("review_reviewed_idx").on(table.reviewedId),
+    exchangeIdx: index("review_exchange_idx").on(table.exchangeId),
+    // Un reviewer solo puede dejar una reseña por exchange
+    uniqueReviewIdx: index("review_unique_idx").on(table.reviewerId, table.exchangeId),
   };
 });
 
