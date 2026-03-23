@@ -153,10 +153,39 @@ export default function TicketChatClient({ ticket, initialMessages, currentUserI
                     ? "bg-card border-l-4 border-primary text-heading rounded-bl-none"
                     : "bg-card border border-card-border text-heading rounded-bl-none"
               }`}>
-                {msg.content && <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>}
+                {(() => {
+                  let text = msg.content || "";
+                  let strikeCard: any = null;
+                  
+                  const strikeMatch = text.match(/^::STRIKE_CARD::(\{.*?\})(?:\n\n|\n)?([\s\S]*)$/);
+                  if (strikeMatch) {
+                    try {
+                      strikeCard = JSON.parse(strikeMatch[1]);
+                      text = strikeMatch[2];
+                    } catch (e) {}
+                  }
+
+                  return (
+                    <div className="space-y-2">
+                      {strikeCard && (
+                        <div className="bg-danger/10 border border-danger/30 rounded-xl p-3 text-danger mb-2">
+                          <p className="font-bold text-xs uppercase mb-1 flex items-center gap-1">
+                            <ShieldCheck size={14} /> Apelación a Sanción
+                          </p>
+                          <p className="text-xs opacity-90 mb-1" suppressHydrationWarning>Fecha del Reporte: {new Date(strikeCard.createdAt).toLocaleDateString()}</p>
+                          <p className="text-sm italic border-l-2 border-danger/40 pl-2 opacity-90 text-wrap break-words">
+                            "{strikeCard.reason}"
+                          </p>
+                        </div>
+                      )}
+                      
+                      {text && <p className="text-sm whitespace-pre-wrap break-words">{text}</p>}
+                    </div>
+                  );
+                })()}
                 
                 {msg.imageUrl && (
-                   <div className="mt-2 relative w-full h-40 sm:h-64 rounded-xl overflow-hidden border border-white/20">
+                   <div className="mt-2 relative w-[240px] sm:w-[320px] max-w-full h-40 sm:h-64 rounded-xl overflow-hidden border border-white/20 shrink-0">
                      <Image src={msg.imageUrl} alt="Adjunto" fill className="object-cover" />
                    </div>
                 )}
@@ -178,48 +207,68 @@ export default function TicketChatClient({ ticket, initialMessages, currentUserI
       ) : (
         <div className="p-3 sm:p-4 bg-card border-t border-card-border shrink-0">
           {imageUrl && (
-            <div className="mb-2 relative w-24 h-24 rounded-lg overflow-hidden border border-card-border inline-block">
+            <div className="mb-2 relative w-24 h-24 rounded-lg overflow-hidden border border-card-border inline-block shadow-sm">
               <Image src={imageUrl} alt="Preview" fill className="object-cover" />
               <button 
                 onClick={() => setImageUrl(null)} 
-                className="absolute top-1 right-1 bg-danger text-white rounded-full p-1"
+                type="button"
+                className="absolute top-1 right-1 bg-danger/80 backdrop-blur-sm text-white rounded-full p-1 border border-white/20 hover:bg-danger transition-colors"
               >
                 <X size={12} />
               </button>
             </div>
           )}
 
-          <form onSubmit={handleSendMessage} className="flex gap-2">
-            <div className="relative shrink-0 flex items-center justify-center">
-              <UploadButton
-                endpoint="imageUploader"
-                onUploadBegin={() => setIsUploading(true)}
-                onClientUploadComplete={(res) => {
-                  if (res?.[0]) setImageUrl(res[0].url);
-                  setIsUploading(false);
+          <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
+            
+            <label className={`relative shrink-0 flex items-center justify-center p-2.5 sm:p-3 rounded-xl transition-all cursor-pointer border shadow-sm active:scale-95 ${
+              isUploading 
+                ? "bg-dim border-card-border pointer-events-none" 
+                : "bg-subtle hover:bg-soft border-card-border text-hint hover:text-heading"
+            }`}>
+              {isUploading ? (
+                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <ImageIcon size={20} />
+              )}
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                disabled={isUploading || isSubmitting}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  
+                  setIsUploading(true);
+                  const { uploadFiles } = await import("@/lib/uploadthing");
+                  try {
+                    const res = await uploadFiles("imageUploader", { files: [file] });
+                    if (res && res[0]) {
+                      setImageUrl((res[0] as any).ufsUrl || res[0].url);
+                    }
+                  } catch (err) {
+                    setToast({ message: "Error al subir la imagen", type: "error" });
+                  } finally {
+                    setIsUploading(false);
+                  }
                 }}
-                onUploadError={() => setIsUploading(false)}
-                appearance={{
-                  button: "bg-subtle hover:bg-card-border text-hint p-2 sm:p-3 rounded-xl transition-colors cursor-pointer w-full h-full border border-card-border",
-                  allowedContent: "hidden"
-                }}
-                content={{ button: <ImageIcon size={20} /> }}
               />
-            </div>
+            </label>
             
             <input
               type="text"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Escribe tu mensaje..."
+              placeholder="Escribe un mensaje de soporte..."
               disabled={isSubmitting || isUploading}
-              className="flex-1 bg-subtle border border-card-border rounded-xl px-4 py-2 sm:py-3 text-sm text-heading outline-none focus:ring-1 focus:ring-primary focus:border-primary disabled:opacity-50"
+              className="flex-1 bg-subtle border border-card-border rounded-xl px-4 py-2.5 sm:py-3 text-sm text-heading outline-none focus:ring-1 focus:ring-primary focus:border-primary disabled:opacity-50"
             />
             
             <button
               type="submit"
               disabled={isSubmitting || (!content.trim() && !imageUrl) || isUploading}
-              className="bg-primary hover:bg-primary-dark text-white p-2 sm:p-3 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center shrink-0"
+              className="bg-gradient-to-r from-light-purple to-dark-purple hover:shadow-lg hover:shadow-purple-500/25 text-white p-2.5 sm:p-3 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center shrink-0"
             >
               <Send size={20} />
             </button>

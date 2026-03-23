@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-export default function SupportClient({ initialTickets }: { initialTickets: any[] }) {
+export default function SupportClient({ initialTickets, initialStrikes }: { initialTickets: any[], initialStrikes: any[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [tickets, setTickets] = useState(initialTickets);
@@ -19,6 +19,8 @@ export default function SupportClient({ initialTickets }: { initialTickets: any[
   const [description, setDescription] = useState("");
   const [type, setType] = useState<"issue" | "appeal" | "other">("issue");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [selectedStrikeId, setSelectedStrikeId] = useState<string>("");
 
   useEffect(() => {
     if (searchParams.get("openModal") === "true") {
@@ -31,19 +33,38 @@ export default function SupportClient({ initialTickets }: { initialTickets: any[
       if (queryTitle) {
         setTitle(decodeURIComponent(queryTitle));
       }
+      // Autoselect the latest strike if appealing
+      if (queryType === "appeal" && initialStrikes.length > 0) {
+        setSelectedStrikeId(initialStrikes[0].id);
+      }
       // Remove query params from url after processing
       router.replace("/support", { scroll: false });
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, initialStrikes]);
 
   const handleCreateTicket = async () => {
     if (!title.trim() || !description.trim()) {
       setToast({ message: "Por favor llena los campos", type: "error" });
       return;
     }
+    if (type === "appeal" && !selectedStrikeId && initialStrikes.length > 0) {
+      setToast({ message: "Por favor selecciona el strike a apelar", type: "error" });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const result = await createTicket(title, description, type);
+      let finalDescription = description;
+
+      if (type === "appeal" && selectedStrikeId) {
+        const strike = initialStrikes.find((s) => s.id === selectedStrikeId);
+        if (strike) {
+          const cardPayload = JSON.stringify({ id: strike.id, reason: strike.reason, createdAt: strike.createdAt });
+          finalDescription = `::STRIKE_CARD::${cardPayload}\n\n${description}`;
+        }
+      }
+
+      const result = await createTicket(title, finalDescription, type);
       if (result.success && result.ticket) {
         setToast({ message: "Ticket creado exitosamente", type: "success" });
         setTickets([result.ticket, ...tickets]);
@@ -51,6 +72,7 @@ export default function SupportClient({ initialTickets }: { initialTickets: any[
         setTitle("");
         setDescription("");
         setType("issue");
+        setSelectedStrikeId("");
         router.push(`/support/${result.ticket.id}`);
       } else {
         setToast({ message: result.error || "Algo falló", type: "error" });
@@ -153,6 +175,29 @@ export default function SupportClient({ initialTickets }: { initialTickets: any[
               <option value="appeal">Deseo apelar una Sanción / Ban (Revisión)</option>
               <option value="other">Otro asunto de Administración</option>
             </select>
+
+            {type === "appeal" && initialStrikes.length > 0 && (
+              <>
+                <label className="block text-sm font-bold text-heading mb-1 text-danger">Selecciona el Strike a Apelar</label>
+                <select
+                  value={selectedStrikeId}
+                  onChange={(e) => setSelectedStrikeId(e.target.value)}
+                  className="w-full bg-danger/10 border border-danger/30 text-danger rounded-xl p-3 mb-4 text-sm outline-none focus:ring-1 focus:ring-danger"
+                >
+                  <option value="" disabled>-- Elige una sanción --</option>
+                  {initialStrikes.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      [{new Date(s.createdAt).toLocaleDateString()}] {s.reason.length > 40 ? s.reason.substring(0, 40) + "..." : s.reason}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+            {type === "appeal" && initialStrikes.length === 0 && (
+              <p className="text-xs text-hint mb-4 p-2 bg-subtle rounded-lg border border-card-border">
+                No tienes strikes registrados para apelar.
+              </p>
+            )}
 
             <label className="block text-sm font-bold text-heading mb-1">Asunto</label>
             <input
