@@ -92,6 +92,9 @@ export async function sendFriendRequest(addresseeId: string) {
                 friendRequestId: existing[0].id,
             });
 
+            const { pusherServer } = await import("@/lib/pusher");
+            await pusherServer.trigger(`user-${addresseeId}`, "new-notification", {});
+
             return { success: true };
         }
 
@@ -108,6 +111,9 @@ export async function sendFriendRequest(addresseeId: string) {
             message: `${session.user.name} te ha enviado una solicitud de amistad`,
             friendRequestId: newRequest[0].id,
         });
+
+        const { pusherServer } = await import("@/lib/pusher");
+        await pusherServer.trigger(`user-${addresseeId}`, "new-notification", {});
 
         return { success: true };
     } catch (error) {
@@ -148,6 +154,9 @@ export async function acceptFriendRequest(requestId: string) {
             message: `${session.user.name} ha aceptado tu solicitud de amistad`,
             friendRequestId: requestId,
         });
+
+        const { pusherServer } = await import("@/lib/pusher");
+        await pusherServer.trigger(`user-${req[0].requesterId}`, "new-notification", {});
 
         return { success: true };
     } catch (error) {

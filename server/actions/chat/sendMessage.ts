@@ -23,8 +23,20 @@ export async function sendMessage(roomId: string, content: string): Promise<Send
             return { success: false, error: "El mensaje no puede estar vacío" };
         }
 
-        // TODO: Verificar que el usuario sea participante de la sala
+        // 1. Obtener los participantes de la sala para notificar al receptor
+        const room = await db.query.chatRooms.findFirst({
+            where: (chatRooms, { eq }) => eq(chatRooms.id, roomId),
+        });
 
+        if (!room) {
+            return { success: false, error: "Sala no encontrada" };
+        }
+
+        const recipientId = room.participant1Id === currentUser.id 
+            ? room.participant2Id 
+            : room.participant1Id;
+
+        // 2. Insertar el mensaje
         const newMessage = await db
             .insert(messages)
             .values({
@@ -35,7 +47,19 @@ export async function sendMessage(roomId: string, content: string): Promise<Send
             })
             .returning();
 
-        revalidatePath(`/chat/${roomId}`);
+        const insertedMessage = {
+            ...newMessage[0],
+            createdAt: newMessage[0].createdAt || new Date(),
+        };
+
+        // 3. Importar dinámicamente o directamente pusherServer
+        const { pusherServer } = await import("@/lib/pusher");
+
+        // Notificar al canal de la sala de chat ("room-{roomId}") para que cargue el mensaje en tiempo real
+        await pusherServer.trigger(`room-${roomId}`, "new-message", insertedMessage);
+
+        // Notificar al canal global del usuario receptor ("user-{recipientId}") para encender su globo rojo del Sidebar
+        await pusherServer.trigger(`user-${recipientId}`, "new-message", { roomId });
 
         return { success: true, messageId: newMessage[0].id };
     } catch (error) {

@@ -117,6 +117,10 @@ export async function createExchange(data: CreateExchangeData) {
             exchangeId: newExchange.id,
         });
 
+        // Trigger pusher event for instant notifications update
+        const { pusherServer } = await import("@/lib/pusher");
+        await pusherServer.trigger(`user-${book.ownerId}`, "new-notification", {});
+
         return {
             success: true,
             exchange: newExchange,

@@ -145,6 +145,18 @@ export async function applyStrikeAction(reportId: string, reportedId: string) {
         }));
 
         await db.insert(notifications).values(notificationsToInsert);
+
+        const { pusherServer } = await import("@/lib/pusher");
+        for (const notif of notificationsToInsert) {
+          await pusherServer.trigger(`user-${notif.userId}`, "new-notification", {});
+        }
+        
+        // PATEAR ACTIVAMENTE AL USUARIO BANEADO O SUSPENDIDO DE SU SESIÓN
+        await pusherServer.trigger(`user-${reportedId}`, "user-kicked", {});
+      } else {
+        // En caso de que no tuviera intercambios pero debamos patearlo igual
+        const { pusherServer } = await import("@/lib/pusher");
+        await pusherServer.trigger(`user-${reportedId}`, "user-kicked", {});
       }
     }
 
@@ -159,6 +171,9 @@ export async function applyStrikeAction(reportId: string, reportedId: string) {
       type: "strike_received",
       message: strikeMessage,
     });
+
+    const { pusherServer } = await import("@/lib/pusher");
+    await pusherServer.trigger(`user-${reportedId}`, "new-notification", {});
 
     return {
       success: true,
