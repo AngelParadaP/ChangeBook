@@ -23,6 +23,7 @@ import {
 import { getFriends, FriendProfile } from "@/server/actions/friends/getFriends";
 import { removeFriend } from "@/server/actions/friends";
 import { ProfileSkeleton } from "@/components/ui/skeletons";
+import { UserRatingDisplay } from "@/components/reviews";
 
 export interface UserProfile {
   id: string;
@@ -533,6 +534,11 @@ export default function ProfileClient({ initialProfile, initialBooks }: ProfileC
                   ⚠ {profile.strikes} {profile.strikes === 1 ? "Strike" : "Strikes"}
                 </span>
               ) : null}
+            </div>
+
+            {/* Rating */}
+            <div className="mt-3 flex justify-center sm:justify-start">
+              <UserRatingDisplay userId={profile.id} />
             </div>
           </div>
 
