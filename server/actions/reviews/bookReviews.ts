@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { bookReviews, users } from "@/db/schema";
+import { bookReviews, users, books } from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -40,6 +40,20 @@ export async function createBookReview(
         // Validar rating
         if (rating < 1 || rating > 5) {
             return { success: false, error: "Calificación inválida" };
+        }
+
+        // Verificar si el libro existe y si el reviewer es el dueño
+        const book = await db.query.books.findFirst({
+            where: eq(books.id, bookId),
+            columns: { ownerId: true }
+        });
+
+        if (!book) {
+            return { success: false, error: "Libro no encontrado" };
+        }
+
+        if (book.ownerId === reviewerId) {
+            return { success: false, error: "No puedes reseñar tu propio libro" };
         }
 
         // Check if user already reviewed this book
