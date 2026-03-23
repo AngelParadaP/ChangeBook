@@ -10,8 +10,20 @@ export async function proxy(req: NextRequest) {
   // Get pathname trying to be accessed
   const { pathname } = req.nextUrl;
 
-  const isAuthPage = pathname == "/login" || pathname == "/register" || pathname == "/forgot-password" || pathname == "/reset-password";
+  const isAuthPage =
+    pathname == "/login" ||
+    pathname == "/register" ||
+    pathname == "/forgot-password" ||
+    pathname == "/reset-password" ||
+    pathname == "/verify-email";
+
   const isAuthProtectedPage =
+    pathname === "/" ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/notifications") ||
+    pathname.startsWith("/recommendations") ||
+    pathname.startsWith("/support") ||
+    pathname.startsWith("/user") ||
     pathname.startsWith("/home") ||
     pathname.startsWith("/profile") ||
     pathname.startsWith("/publish") ||
@@ -47,10 +59,16 @@ export async function proxy(req: NextRequest) {
 // Routes for the middleware to watch
 export const config = {
   matcher: [
+    "/",
     "/login",
     "/register",
     "/forgot-password",
     "/reset-password",
+    "/verify-email",
+    "/admin/:path*",
+    "/notifications/:path*",
+    "/recommendations/:path*",
+    "/support/:path*",
     "/home/:path*",
     "/profile/:path*",
     "/publish/:path*",
