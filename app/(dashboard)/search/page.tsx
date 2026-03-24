@@ -867,7 +867,7 @@ function SearchPageContent() {
 
                         {/* Genre results */}
                         {genreTabLoading && (
-                            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                                 {Array.from({ length: 10 }).map((_, i) => (
                                     <BookCardSkeleton key={i} />
                                 ))}
@@ -887,7 +887,7 @@ function SearchPageContent() {
                                         </div>
                                     )}
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                                     {genreBookResults.map((book) => (
                                         <SearchBookCard
                                             key={book.id}
@@ -936,7 +936,7 @@ function SearchPageContent() {
 
                 {/* Loading Skeletons */}
                 {loading && activeTab === "books" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                         {Array.from({ length: 10 }).map((_, i) => (
                             <BookCardSkeleton key={i} />
                         ))}
@@ -967,7 +967,7 @@ function SearchPageContent() {
                                 {bookResults.length} {bookResults.length === 1 ? "resultado" : "resultados"} encontrados
                             </p>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                             {bookResults.map((book) => (
                                 <SearchBookCard key={book.id} book={book} onClick={() => handleBookClick(book)} isFavorite={favoriteIds.has(book.id)} />
                             ))}
