@@ -1,6 +1,6 @@
 # Kyboo 📚
 
-🌐 **Ruta oficial de la aplicación:** [kybooo.vercel.app](https://kybooo.vercel.app)
+🌐 **Ruta oficial de la aplicación:** [kyboo.lat](https://kyboo.lat)
 
 Kyboo es una plataforma moderna centrada en promover una comunidad lectora dentro de la UDG (Universidad de Guadalajara). El objetivo principal de la aplicación es conectar a estudiantes a través de la lectura, permitiendo publicar libros para intercambiar con otros usuarios, además de crear comunidades que se centren en géneros literarios específicos. La plataforma cuenta con chat para comunicación y ofrece recomendaciones altamente personalizadas gracias al análisis de tus interacciones dentro de la app.
 
