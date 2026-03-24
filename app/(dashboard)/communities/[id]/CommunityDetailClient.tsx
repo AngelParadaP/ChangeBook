@@ -538,7 +538,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                 <span className="flex items-center justify-center w-full h-full"><Users size={16} className="text-hint" /></span>
                             )}
                         </div>
-                        <h2 className="font-bold text-heading text-sm truncate flex-1">{community.name}</h2>
+                        <h2 className="font-bold text-heading text-sm sm:text-base break-words line-clamp-2 flex-1 leading-tight">{community.name}</h2>
                         <div className="hidden sm:flex items-center gap-1.5 overflow-x-auto custom-scrollbar">
                             {DETAIL_TABS.map((tab) => (
                                 <button
@@ -574,10 +574,10 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                     <Users size={28} className="text-white/70" />
                                 )}
                             </div>
-                            <div className="flex-1">
-                                <h1 className="text-3xl font-bold">{community.name}</h1>
-                                <p className="opacity-90">{community.memberCount} miembros</p>
-                                {joined && <span className="text-xs bg-green-500/80 text-white px-2 py-0.5 rounded-full mt-1">Miembro</span>}
+                            <div className="flex-1 min-w-0">
+                                <h1 className="text-2xl sm:text-3xl font-bold break-words whitespace-normal leading-tight">{community.name}</h1>
+                                <p className="opacity-90 text-sm mt-1">{community.memberCount} miembros</p>
+                                {joined && <span className="inline-block text-xs bg-green-500/80 text-white px-2 py-0.5 rounded-full mt-1.5">Miembro</span>}
                             </div>
                             {/* Admin Actions */}
                             {isAdmin && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { joinCommunity } from "@/server/actions/communities/actions";
@@ -8,7 +8,9 @@ import { createCommunity } from "@/server/actions/communities/createCommunity";
 import { getCommunities } from "@/server/actions/communities/getCommunities";
 import { getRecommendedCommunities } from "@/server/actions/communities/getRecommendedCommunities";
 import { toast } from "@/components/ui/GlobalToast";
-import { Search, Plus, Users, Compass, PartyPopper, Hand, Sparkles, Crown } from "lucide-react";
+import { Search, Plus, Users, Compass, PartyPopper, Hand, Sparkles, Crown, Camera, Trash2, Upload } from "lucide-react";
+import ImageCropper, { type AspectRatioOption } from "@/components/ui/ImageCropper";
+import { fileToDataUrl, blobToFile } from "@/lib/imageUtils";
 import { BOOK_GENRES } from "@/lib/constants/genres";
 
 interface Community {
@@ -45,6 +47,43 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
   const [creating, setCreating] = useState(false);
   const [newCommunityGenres, setNewCommunityGenres] = useState<string[]>([]);
   const [genreSearch, setGenreSearch] = useState("");
+
+  const [newImageFile, setNewImageFile] = useState<File | null>(null);
+  const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropperSrc, setCropperSrc] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+      if (!validTypes.includes(file.type)) {
+        toast("Tipo de archivo no válido. Solo JPG, PNG y WebP.", "error");
+        return;
+      }
+      const dataUrl = await fileToDataUrl(file);
+      setCropperSrc(dataUrl);
+      setShowCropper(true);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCropComplete = (blob: Blob, previewUrl: string) => {
+    setNewImageFile(blobToFile(blob, "community-cover"));
+    setNewImagePreview(previewUrl);
+    setShowCropper(false);
+    setCropperSrc(null);
+  };
+
+  const removeImage = () => {
+    setNewImageFile(null);
+    if (newImagePreview) {
+      URL.revokeObjectURL(newImagePreview);
+      setNewImagePreview(null);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +165,14 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
   const handleCreate = async () => {
     if (!newCommunityName.trim()) return;
     setCreating(true);
-    const result = await createCommunity({ name: newCommunityName, description: newCommunityDesc, genres: newCommunityGenres });
+    const formData = new FormData();
+    formData.append("name", newCommunityName);
+    formData.append("description", newCommunityDesc);
+    formData.append("genres", JSON.stringify(newCommunityGenres));
+    if (newImageFile) {
+      formData.append("image", newImageFile);
+    }
+    const result = await createCommunity(formData);
     setCreating(false);
 
     if (result.success && result.community) {
@@ -135,6 +181,7 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
       setNewCommunityName("");
       setNewCommunityDesc("");
       setNewCommunityGenres([]);
+      removeImage();
       // Add to my communities (creator is auto-joined as admin)
       const newComm: Community = {
         id: result.community.id,
@@ -352,6 +399,42 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
               onChange={e => setNewCommunityDesc(e.target.value)}
             />
 
+            {/* Cover Image Upload */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-body mb-1.5">Foto de portada (Opcional)</label>
+              <div className="relative h-32 sm:h-40 rounded-xl bg-dim border-2 border-dashed border-card-border overflow-hidden group">
+                  {newImagePreview ? (
+                      <>
+                          <Image src={newImagePreview} alt="Preview" fill className="object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition-colors" title="Cambiar foto">
+                                  <Camera size={20} />
+                              </button>
+                              <button type="button" onClick={removeImage} className="p-2 bg-red-500/80 hover:bg-red-500 rounded-lg text-white transition-colors" title="Quitar foto">
+                                  <Trash2 size={20} />
+                              </button>
+                          </div>
+                      </>
+                  ) : (
+                      <div
+                          onClick={() => fileInputRef.current?.click()}
+                          className="absolute inset-0 flex flex-col items-center justify-center text-hint hover:text-primary hover:bg-soft transition-colors cursor-pointer"
+                      >
+                          <Upload size={24} className="mb-2" />
+                          <span className="text-sm font-medium">Subir portada</span>
+                          <span className="text-xs mt-1 px-4 text-center">Recomendado: 16:9, Max 4MB (JPG, PNG)</span>
+                      </div>
+                  )}
+                  <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleImageChange}
+                  />
+              </div>
+            </div>
+
             {/* Genre Picker */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-body mb-1.5">
@@ -418,6 +501,21 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
             </div>
           </div>
         </div>
+      )}
+
+      {/* Cropper Modal */}
+      {showCropper && cropperSrc && (
+        <ImageCropper
+          onCancel={() => setShowCropper(false)}
+          imageSrc={cropperSrc}
+          onCropComplete={handleCropComplete}
+          aspectRatio={16 / 9}
+          aspectRatios={[
+            { label: "16:9", value: 16 / 9, icon: "landscape" },
+            { label: "1:1", value: 1, icon: "square" },
+            { label: "4:3", value: 4 / 3, icon: "landscape" }
+          ]}
+        />
       )}
     </div>
   );

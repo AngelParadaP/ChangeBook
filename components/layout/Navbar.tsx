@@ -640,7 +640,7 @@ export function Navbar() {
               {isNotificationsOpen && (
                 <div
                   ref={notifRef}
-                  className="absolute right-0 mt-2 w-80 sm:w-96 bg-card border border-card-border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                  className="absolute right-[-20px] sm:right-0 mt-2 w-[calc(100vw-24px)] max-w-[360px] sm:w-96 sm:max-w-none bg-card border border-card-border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
                 >
                   {/* Header del panel */}
                   <div className="px-4 py-3 border-b border-card-border flex items-center justify-between">

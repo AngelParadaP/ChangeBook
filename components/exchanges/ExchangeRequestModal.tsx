@@ -20,7 +20,24 @@ interface ExchangeRequestModalProps {
     onSuccess?: () => void;
 }
 
-
+// Ubicaciones dentro de CUCEI
+const CUCEI_LOCATIONS = [
+    "Biblioteca CUCEI",
+    "Edificio A - Planta baja",
+    "Edificio B - Planta baja",
+    "Edificio C - Planta baja",
+    "Edificio D - Planta baja",
+    "Edificio E - Planta baja",
+    "Módulo de Matemáticas",
+    "Módulo de Computación",
+    "Módulo de Química",
+    "Cafetería Central",
+    "Explanada Principal",
+    "Auditorio A",
+    "Laboratorio de Cómputo",
+    "Estacionamiento Principal",
+    "Entrada Principal CUCEI",
+];
 
 export function ExchangeRequestModal({
     isOpen,
@@ -269,7 +286,7 @@ export function ExchangeRequestModal({
                                 <Mailbox size={20} className="inline mr-1" /> Solicitar Intercambio
                             </h2>
                             <p className="text-sm text-hint mt-1">
-                                <span className="font-medium text-primary dark:text-primary-light">{bookTitle}</span>
+                                <span className="font-medium text-light-purple dark:text-light-pink">{bookTitle}</span>
                                 {" · "}de {ownerName}
                             </p>
                         </div>
@@ -345,9 +362,9 @@ export function ExchangeRequestModal({
                                         ? "bg-red-100 dark:bg-red-900/20 text-red-300 dark:text-red-700 cursor-not-allowed line-through"
                                         : "text-hint cursor-not-allowed";
                                 } else if (isStart || isEnd) {
-                                    className += "bg-primary text-white font-bold shadow-md";
+                                    className += "bg-gradient-to-r from-light-purple to-dark-purple text-white font-bold shadow-md";
                                 } else if (inRange) {
-                                    className += "bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light font-medium";
+                                    className += "bg-light-purple/20 dark:bg-dark-purple/20 text-light-purple dark:text-light-pink font-medium";
                                 } else {
                                     className += "hover:bg-soft text-body cursor-pointer";
                                 }
@@ -373,7 +390,7 @@ export function ExchangeRequestModal({
                                 Ocupado
                             </div>
                             <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 rounded bg-primary" />
+                                <div className="w-3 h-3 rounded bg-gradient-to-r from-light-purple to-dark-purple" />
                                 Tu selección
                             </div>
                         </div>
@@ -381,13 +398,13 @@ export function ExchangeRequestModal({
 
                     {/* Selected dates summary */}
                     {startDate && endDate && (
-                        <div className="bg-primary/5 dark:bg-primary-dark/10 rounded-xl p-3 border border-primary/20 dark:border-primary-dark/30">
+                        <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-3 border border-purple-100 dark:border-purple-800/30">
                             <div className="flex items-center justify-between text-sm">
                                 <div>
                                     <span className="text-hint">Desde:</span>{" "}
                                     <span className="font-semibold text-body">{formatDate(startDate)}</span>
                                 </div>
-                                <span className="text-primary dark:text-primary-light">→</span>
+                                <span className="text-light-purple dark:text-light-pink">→</span>
                                 <div>
                                     <span className="text-hint">Hasta:</span>{" "}
                                     <span className="font-semibold text-body">{formatDate(endDate)}</span>
@@ -402,15 +419,20 @@ export function ExchangeRequestModal({
                     {/* Meeting Location */}
                     <div>
                         <label className="block text-xs font-bold text-hint uppercase tracking-wide mb-2">
-                            <MapPin size={14} className="inline mr-1" /> Lugar de entrega para el intercambio
+                            <MapPin size={14} className="inline mr-1" /> Lugar de entrega en CUCEI
                         </label>
-                        <input
-                            type="text"
+                        <select
                             value={meetingLocation}
                             onChange={(e) => setMeetingLocation(e.target.value)}
-                            placeholder="Ej. Biblioteca central, Centro universitario, etc."
-                            className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-body text-sm"
-                        />
+                            className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm"
+                        >
+                            <option value="">Selecciona un lugar...</option>
+                            {CUCEI_LOCATIONS.map((loc) => (
+                                <option key={loc} value={loc}>
+                                    {loc}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Meeting Time */}
@@ -422,7 +444,7 @@ export function ExchangeRequestModal({
                             type="time"
                             value={meetingTime}
                             onChange={(e) => setMeetingTime(e.target.value)}
-                            className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-body text-sm"
+                            className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm"
                         />
                         <p className="text-[10px] text-hint mt-1">Puedes sugerir una hora para el encuentro</p>
                     </div>
@@ -438,7 +460,7 @@ export function ExchangeRequestModal({
                             placeholder="Ej. ¿Podemos vernos a las 2pm?"
                             rows={2}
                             maxLength={200}
-                            className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-body text-sm resize-none"
+                            className="w-full px-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm resize-none"
                         />
                         <p className="text-right text-[10px] text-hint mt-1">{note.length}/200</p>
                     </div>
@@ -459,7 +481,7 @@ export function ExchangeRequestModal({
                     <button
                         onClick={handleSubmit}
                         disabled={loading || !startDate || !endDate || !meetingLocation}
-                        className="w-full py-3.5 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-all hover:shadow-lg hover:shadow-primary/25 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-2"
+                        className="w-full py-3.5 bg-gradient-to-r from-light-purple to-dark-purple text-white font-bold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-2"
                     >
                         {loading ? (
                             <>
