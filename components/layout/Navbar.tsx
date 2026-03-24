@@ -463,7 +463,7 @@ export function Navbar() {
 
             {/* Resultados de búsqueda */}
             {showResults && searchQuery.length >= 2 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-card-border rounded-2xl shadow-xl overflow-hidden max-h-[450px] overflow-y-auto z-50">
+              <div className="fixed sm:absolute top-[76px] sm:top-full left-1/2 sm:left-0 -translate-x-1/2 sm:translate-x-0 w-[calc(100vw-24px)] sm:w-full sm:mt-2 bg-card border border-card-border rounded-2xl shadow-xl overflow-hidden max-h-[450px] overflow-y-auto z-50">
                 {hasAnyResults ? (
                   <>
                     {/* Book Results Section */}
@@ -640,7 +640,7 @@ export function Navbar() {
               {isNotificationsOpen && (
                 <div
                   ref={notifRef}
-                  className="absolute right-[-20px] sm:right-0 mt-2 w-[calc(100vw-24px)] max-w-[360px] sm:w-96 sm:max-w-none bg-card border border-card-border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                  className="fixed left-1/2 -translate-x-1/2 top-[76px] w-[calc(100vw-24px)] max-w-[400px] sm:absolute sm:left-auto sm:translate-x-0 sm:top-auto sm:right-0 sm:mt-2 sm:w-96 sm:max-w-none bg-card border border-card-border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
                 >
                   {/* Header del panel */}
                   <div className="px-4 py-3 border-b border-card-border flex items-center justify-between">
