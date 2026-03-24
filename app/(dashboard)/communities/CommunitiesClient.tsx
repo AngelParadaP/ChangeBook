@@ -323,7 +323,7 @@ export default function CommunitiesClient({ initialDiscoverCommunities, initialM
                         <Crown size={10} /> Creador
                       </span>
                     )}
-                    {activeTab === "discover" && !community.isMember && community.similarityScore != null && community.similarityScore > 0.1 && (
+                    {activeTab === "discover" && !community.isMember && community.similarityScore != null && community.similarityScore >= 0.5 && (
                       <span className="text-[10px] sm:text-[11px] bg-purple-100/60 text-purple-700 px-2.5 py-0.5 rounded-[6px] dark:bg-purple-900/30 dark:text-purple-400 font-medium flex items-center gap-1">
                         <Sparkles size={10} /> Para ti
                       </span>
