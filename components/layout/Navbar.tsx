@@ -644,7 +644,7 @@ export function Navbar() {
             )}
           </div>
 
-          {/* ── Buscador móvil: solo ícono (oculto en sm+) ── */}
+          {/* ── Buscador móvil: marco pill con ícono (oculto en sm+) ── */}
           <button
             ref={mobileSearchToggleRef}
             onClick={() => {
@@ -654,23 +654,22 @@ export function Navbar() {
                 setShowResults(false);
                 setSearchQuery("");
               } else {
-                // Auto-focus con pequeño delay para que la animación empiece antes
-                setTimeout(() => mobileSearchInputRef.current?.focus(), 150);
+                setTimeout(() => mobileSearchInputRef.current?.focus(), 220);
               }
             }}
-            className={`sm:hidden p-2.5 rounded-full transition-all group ${
+            className={`sm:hidden flex-1 flex items-center gap-2.5 pl-3.5 pr-3 py-2.5 rounded-full border transition-all duration-200 group ${
               isMobileSearchOpen
-                ? "bg-primary/10 dark:bg-primary-dark/20"
-                : "hover:bg-soft"
+                ? "bg-card border-primary/50 dark:border-light-pink/50 ring-2 ring-primary/25 dark:ring-light-pink/20"
+                : "bg-subtle border-card-border hover:border-primary/40 dark:hover:border-light-pink/30 hover:bg-card active:scale-[0.98]"
             }`}
             aria-label="Buscar"
           >
             <SvgIcon
               src="/icons/search.svg"
-              className={`w-5 h-5 transition-colors duration-200 ${
+              className={`w-4 h-4 flex-shrink-0 transition-colors duration-200 ${
                 isMobileSearchOpen
                   ? "bg-primary dark:bg-light-pink"
-                  : "bg-caption group-hover:bg-primary-dark dark:group-hover:bg-light-pink"
+                  : "bg-hint group-hover:bg-primary-dark dark:group-hover:bg-light-pink"
               }`}
             />
           </button>
@@ -934,13 +933,18 @@ export function Navbar() {
       {/* ── Barra de búsqueda colapsable — solo móvil ── */}
       <div
         ref={mobileSearchRef}
-        className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`sm:hidden overflow-hidden ${
           isMobileSearchOpen
-            ? "max-h-[500px] opacity-100"
+            ? "pointer-events-auto"
             : "max-h-0 opacity-0 pointer-events-none"
         }`}
         style={{
-          transitionProperty: "max-height, opacity",
+          maxHeight: isMobileSearchOpen ? "500px" : "0px",
+          opacity: isMobileSearchOpen ? 1 : 0,
+          transform: isMobileSearchOpen ? "translateY(0)" : "translateY(-10px)",
+          transition: isMobileSearchOpen
+            ? "max-height 350ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)"
+            : "max-height 250ms ease-in, opacity 180ms ease-in, transform 200ms ease-in",
         }}
       >
         <div className="px-4 pt-2 pb-3 border-t border-card-border/60">
