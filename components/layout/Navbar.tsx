@@ -145,6 +145,7 @@ export function Navbar() {
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   // Review modal state
   const [reviewModal, setReviewModal] = useState<{
@@ -166,6 +167,9 @@ export function Navbar() {
   const notifButtonRef = useRef<HTMLButtonElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const calendarButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchToggleRef = useRef<HTMLButtonElement>(null);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -405,6 +409,17 @@ export function Navbar() {
       ) {
         setIsCalendarOpen(false);
       }
+
+      // Cerrar búsqueda móvil al hacer clic fuera
+      if (
+        mobileSearchRef.current &&
+        mobileSearchToggleRef.current &&
+        !mobileSearchRef.current.contains(event.target as Node) &&
+        !mobileSearchToggleRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileSearchOpen(false);
+        setShowResults(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -448,9 +463,9 @@ export function Navbar() {
             <ThemeToggle inline />
           </div>
 
-          {/* ── Centro: buscador ── */}
-          <div className="flex-1 max-w-2xl relative" ref={searchRef}>
-            <form onSubmit={handleSearchSubmit}>
+          {/* ── Centro: buscador — solo desktop (sm+) ── */}
+          <div className="hidden sm:flex flex-1 max-w-2xl relative" ref={searchRef}>
+            <form onSubmit={handleSearchSubmit} className="w-full">
               <div className="relative">
                 <SvgIcon
                   src="/icons/search.svg"
@@ -475,9 +490,9 @@ export function Navbar() {
               </div>
             </form>
 
-            {/* Resultados de búsqueda */}
+            {/* Resultados de búsqueda — desktop */}
             {showResults && searchQuery.length >= 2 && (
-              <div className="fixed sm:absolute top-[76px] sm:top-full left-1/2 sm:left-0 -translate-x-1/2 sm:translate-x-0 w-[calc(100vw-24px)] sm:w-full sm:mt-2 bg-card border border-card-border rounded-2xl shadow-xl overflow-hidden max-h-[450px] overflow-y-auto z-50">
+              <div className="absolute top-full left-0 w-full mt-2 bg-card border border-card-border rounded-2xl shadow-xl overflow-hidden max-h-[450px] overflow-y-auto z-50">
                 {hasAnyResults ? (
                   <>
                     {/* Book Results Section */}
@@ -628,6 +643,37 @@ export function Navbar() {
               </div>
             )}
           </div>
+
+          {/* ── Buscador móvil: solo ícono (oculto en sm+) ── */}
+          <button
+            ref={mobileSearchToggleRef}
+            onClick={() => {
+              const willOpen = !isMobileSearchOpen;
+              setIsMobileSearchOpen(willOpen);
+              if (!willOpen) {
+                setShowResults(false);
+                setSearchQuery("");
+              } else {
+                // Auto-focus con pequeño delay para que la animación empiece antes
+                setTimeout(() => mobileSearchInputRef.current?.focus(), 150);
+              }
+            }}
+            className={`sm:hidden p-2.5 rounded-full transition-all group ${
+              isMobileSearchOpen
+                ? "bg-primary/10 dark:bg-primary-dark/20"
+                : "hover:bg-soft"
+            }`}
+            aria-label="Buscar"
+          >
+            <SvgIcon
+              src="/icons/search.svg"
+              className={`w-5 h-5 transition-colors duration-200 ${
+                isMobileSearchOpen
+                  ? "bg-primary dark:bg-light-pink"
+                  : "bg-caption group-hover:bg-primary-dark dark:group-hover:bg-light-pink"
+              }`}
+            />
+          </button>
 
           {/* ── Derecha: admin + calendario + notificaciones + perfil ── */}
           <div className="flex items-center gap-2">
@@ -882,6 +928,175 @@ export function Navbar() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Barra de búsqueda colapsable — solo móvil ── */}
+      <div
+        ref={mobileSearchRef}
+        className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          isMobileSearchOpen
+            ? "max-h-[500px] opacity-100"
+            : "max-h-0 opacity-0 pointer-events-none"
+        }`}
+        style={{
+          transitionProperty: "max-height, opacity",
+        }}
+      >
+        <div className="px-4 pt-2 pb-3 border-t border-card-border/60">
+          <form
+            onSubmit={(e) => {
+              handleSearchSubmit(e);
+              setIsMobileSearchOpen(false);
+            }}
+            className="relative"
+          >
+            <SvgIcon
+              src="/icons/search.svg"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 bg-hint pointer-events-none"
+            />
+            <input
+              ref={mobileSearchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (e.target.value.length >= 2) setShowResults(true);
+                else setShowResults(false);
+              }}
+              onFocus={() => {
+                if (searchQuery.length >= 2) setShowResults(true);
+              }}
+              placeholder="Buscar libros, usuarios, autores..."
+              className="w-full pl-10 pr-10 py-2.5 bg-subtle border border-card-border rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40 dark:focus:ring-dark-pink/40 focus:bg-card transition-all text-sm text-heading font-medium"
+            />
+            {isSearching ? (
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin h-4 w-4 border-2 border-primary dark:border-dark-pink border-t-transparent rounded-full" />
+            ) : searchQuery.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setShowResults(false);
+                  mobileSearchInputRef.current?.focus();
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-hint hover:text-heading transition-colors"
+              >
+                <X size={14} />
+              </button>
+            ) : null}
+          </form>
+
+          {/* Resultados de búsqueda — móvil */}
+          {showResults && searchQuery.length >= 2 && (
+            <div className="mt-2 bg-card border border-card-border rounded-2xl shadow-xl overflow-hidden max-h-[350px] overflow-y-auto z-50">
+              {hasAnyResults ? (
+                <>
+                  {hasBooks && (
+                    <div>
+                      <div className="px-4 py-2 text-xs font-semibold text-hint bg-subtle flex items-center gap-1.5">
+                        <BookOpen size={14} /> LIBROS
+                      </div>
+                      <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                        {bookResults.map((book) => (
+                          <Link
+                            key={book.id}
+                            href={`/books/${book.id}`}
+                            onClick={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); }}
+                            className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
+                          >
+                            <div className="w-10 h-14 relative flex-shrink-0 rounded overflow-hidden bg-dim">
+                              {book.imageUrl ? (
+                                <Image src={book.imageUrl} alt={book.title} fill className="object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <SvgIcon src="/icons/book-open.svg" className="w-5 h-5 bg-hint" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm text-heading truncate">{book.title}</p>
+                              <p className="text-xs text-hint truncate">{book.author} • {book.year || "N/A"}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {hasUsers && (
+                    <div>
+                      <div className="px-4 py-2 text-xs font-semibold text-hint bg-subtle flex items-center gap-1.5">
+                        <User size={14} /> USUARIOS
+                      </div>
+                      <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                        {userResults.map((user) => (
+                          <Link
+                            key={user.id}
+                            href={`/user/${user.username}`}
+                            onClick={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); }}
+                            className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
+                          >
+                            <UserAvatar imageURL={user.imageURL} name={user.name} size="sm" />
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm text-heading truncate">{user.name}</p>
+                              <p className="text-xs text-hint truncate">@{user.username}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {hasCommunities && (
+                    <div>
+                      <div className="px-4 py-2 text-xs font-semibold text-hint bg-subtle flex items-center gap-1.5">
+                        <Users size={14} /> COMUNIDADES
+                      </div>
+                      <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                        {communityResults.map((community) => (
+                          <Link
+                            key={community.id}
+                            href={`/communities/${community.id}`}
+                            onClick={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); }}
+                            className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
+                          >
+                            <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-primary-light to-primary-light dark:from-primary-dark dark:to-primary-dark flex-shrink-0 relative">
+                              {community.imageUrl ? (
+                                <Image src={community.imageUrl} alt={community.name} fill className="object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-lg">
+                                  <Users size={16} className="text-primary-light dark:text-primary" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm text-heading truncate">{community.name}</p>
+                              <p className="text-xs text-hint truncate">
+                                {community.memberCount} miembro{community.memberCount !== 1 ? "s" : ""}
+                                {community.description ? ` · ${community.description}` : ""}
+                              </p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <Link
+                    href={`/search?q=${encodeURIComponent(searchQuery)}`}
+                    onClick={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); }}
+                    className="block px-4 py-3 text-center text-sm font-medium text-primary dark:text-primary-dark hover:bg-primary-soft dark:hover:bg-primary-dark/10 transition-colors border-t border-card-border"
+                  >
+                    Ver todos los resultados →
+                  </Link>
+                </>
+              ) : (
+                !isSearching && (
+                  <div className="p-4 text-center text-hint text-sm">
+                    No se encontraron resultados para &quot;{searchQuery}&quot;
+                  </div>
+                )
+              )}
+            </div>
+          )}
         </div>
       </div>
     </nav>
