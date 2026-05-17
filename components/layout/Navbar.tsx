@@ -24,7 +24,7 @@ import { getFriendUsernameFromRequest } from "@/server/actions/friends/getFriend
 import { getReviewContext } from "@/server/actions/reviews";
 import { ReviewModal } from "@/components/reviews";
 import { ExchangeCalendar } from "@/components/layout/ExchangeCalendar";
-import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X, UserPlus, UserCheck, UserMinus, Calendar, Clock, Star } from "lucide-react";
+import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X, UserPlus, UserCheck, UserMinus, Calendar, Clock, Star, ShieldCheck } from "lucide-react";
 
 interface BookResult {
   id: string;
@@ -629,8 +629,23 @@ export function Navbar() {
             )}
           </div>
 
-          {/* ── Derecha: calendario + notificaciones + perfil ── */}
+          {/* ── Derecha: admin + calendario + notificaciones + perfil ── */}
           <div className="flex items-center gap-2">
+            {/* Botón Admin – solo visible para admins */}
+            {session?.user?.role === "admin" && (
+              <Link
+                href="/admin"
+                title="Panel de administración"
+                className="group relative p-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"
+                aria-label="Panel de administración"
+              >
+                <ShieldCheck
+                  size={18}
+                  className="text-caption group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors duration-200"
+                />
+              </Link>
+            )}
+
             {/* Botón calendario */}
             <div className="relative">
               <button
