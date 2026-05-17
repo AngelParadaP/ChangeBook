@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { sendTicketMessage, closeTicket, getTicketMessages } from "@/server/actions/support/supportActions";
 import { Toast } from "@/components/ui/Toast";
-import { Send, Image as ImageIcon, CheckCircle, ShieldCheck, X } from "lucide-react";
+import { Send, Image as ImageIcon, CheckCircle, ShieldCheck, X, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { UploadButton } from "@/lib/uploadthing";
 
 export default function TicketChatClient({ ticket, initialMessages, currentUserId, currentUserRole }: { ticket: any, initialMessages: any[], currentUserId: string, currentUserRole: string }) {
+  const router = useRouter();
   const [messages, setMessages] = useState(initialMessages);
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -102,18 +104,29 @@ export default function TicketChatClient({ ticket, initialMessages, currentUserI
       
       {/* Header */}
       <div className="bg-card px-4 py-3 sm:px-6 sm:py-4 border-b border-card-border flex items-center justify-between shadow-sm z-10 shrink-0">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold text-heading px-2 py-1 bg-subtle rounded-full border border-card-border uppercase">
-              {ticket.type}
-            </span>
-            <span className={`text-xs font-bold px-2 py-1 rounded-full ${ticketStatus === 'open' ? 'bg-primary/20 text-primary' : ticketStatus === 'closed' ? 'bg-hint/20 text-hint' : 'bg-orange-500/20 text-orange-500'}`}>
-              {ticketStatus.toUpperCase()}
-            </span>
+        <div className="flex items-center gap-3">
+          {/* Botón atrás — solo móvil */}
+          <button
+            onClick={() => router.back()}
+            className="sm:hidden flex items-center justify-center w-9 h-9 rounded-xl bg-subtle hover:bg-soft border border-card-border text-hint hover:text-heading transition-all active:scale-95 shrink-0"
+            aria-label="Volver a tickets"
+          >
+            <ArrowLeft size={18} />
+          </button>
+
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-bold text-heading px-2 py-1 bg-subtle rounded-full border border-card-border uppercase">
+                {ticket.type}
+              </span>
+              <span className={`text-xs font-bold px-2 py-1 rounded-full ${ticketStatus === 'open' ? 'bg-primary/20 text-primary' : ticketStatus === 'closed' ? 'bg-hint/20 text-hint' : 'bg-orange-500/20 text-orange-500'}`}>
+                {ticketStatus.toUpperCase()}
+              </span>
+            </div>
+            <h1 className="text-lg sm:text-xl font-bold text-heading leading-tight truncate max-w-[160px] sm:max-w-md">
+              {ticket.title}
+            </h1>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold text-heading leading-tight truncate max-w-[200px] sm:max-w-md">
-            {ticket.title}
-          </h1>
         </div>
 
         {/* Cierre de ticket, solo botón si es admin, el usuario solo lo usa / lo mira si está abierto o cerrado (visual gap) */}

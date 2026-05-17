@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { dismissReportAction, applyStrikeAction } from "@/server/actions/admin/adminActions";
 import { Toast } from "@/components/ui/Toast";
-import { ShieldCheck, UserX, AlertTriangle, Loader2 } from "lucide-react";
+import { ShieldCheck, UserX, AlertTriangle, Loader2, Headphones } from "lucide-react";
 import Image from "next/image";
 
 import Link from "next/link";
@@ -52,17 +52,35 @@ export default function AdminDashboardClient({ initialReports }: { initialReport
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       <div className="bg-card rounded-2xl shadow-md overflow-hidden mb-6">
-        <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 p-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-heading flex items-center gap-2">
-              <ShieldCheck className="text-danger" size={28} />
+        <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 p-6 flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-heading flex items-center gap-2">
+              <ShieldCheck className="text-danger shrink-0" size={26} />
               Panel de Administración
             </h1>
             <p className="text-sm text-hint mt-1">
               Revisa los reportes y modera a tus usuarios responsablemente.
             </p>
           </div>
-          <Image src="/images/logo_kyboo.png" alt="Kyboo" width={50} height={50} className="drop-shadow-lg opacity-80 mix-blend-screen" />
+
+          {/* Derecha: logo arriba, botón soporte abajo en móvil; en fila en desktop */}
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-3 shrink-0">
+            <Image
+              src="/images/logo_kyboo.png"
+              alt="Kyboo"
+              width={46}
+              height={46}
+              className="drop-shadow-lg opacity-80 mix-blend-screen"
+            />
+            <Link
+              href="/admin/support"
+              title="Ir a Soporte"
+              className="group flex items-center gap-2 bg-card/80 hover:bg-card border border-card-border hover:border-indigo-400/60 text-hint hover:text-indigo-500 dark:hover:text-indigo-400 rounded-xl px-3 py-2 sm:py-2.5 transition-all shadow-sm hover:shadow-md active:scale-95"
+            >
+              <Headphones size={16} className="transition-transform group-hover:scale-110" />
+              <span className="text-xs font-semibold">Soporte</span>
+            </Link>
+          </div>
         </div>
       </div>
 
