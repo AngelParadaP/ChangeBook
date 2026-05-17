@@ -106,7 +106,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
         let pusherClient: any;
 
         // Lo importamos dinámicamente para evitar problemas de SSR si fuera el caso
-        import("@/lib/pusher").then((mod) => {
+        import("@/lib/pusher-client").then((mod) => {
             pusherClient = mod.pusherClient;
 
             const channel = pusherClient.subscribe(channelName);

@@ -49,7 +49,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                 const userId = session?.user?.id;
                 
                 if (userId) {
-                    import("@/lib/pusher").then((mod) => {
+                    import("@/lib/pusher-client").then((mod) => {
                         const { pusherClient } = mod;
                         const channelName = `user-${userId}`;
                         const channel = pusherClient.subscribe(channelName);

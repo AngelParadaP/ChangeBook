@@ -65,7 +65,7 @@ export function Sidebar() {
     let channel: any;
 
     if (session?.user?.id) {
-      import("@/lib/pusher").then((mod) => {
+      import("@/lib/pusher-client").then((mod) => {
         pusherClient = mod.pusherClient;
         const channelName = `user-${session.user.id}`;
         channel = pusherClient.subscribe(channelName);

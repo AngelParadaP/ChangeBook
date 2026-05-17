@@ -31,7 +31,7 @@ export default function TicketChatClient({ ticket, initialMessages, currentUserI
     let channel: any;
     const channelName = `ticket-${ticket.id}`;
 
-    import("@/lib/pusher").then((mod) => {
+    import("@/lib/pusher-client").then((mod) => {
       pusherClient = mod.pusherClient;
       channel = pusherClient.subscribe(channelName);
       
