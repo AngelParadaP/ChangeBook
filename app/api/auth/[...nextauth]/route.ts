@@ -55,31 +55,36 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           username: user.username,
           image: user.imageURL,
+          role: user.role,
         };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user, trigger }) {
+      // Al hacer login por primera vez
       if (user) {
         token.id = user.id;
         // @ts-expect-error username exists on user
         token.username = user.username;
         token.picture = user.image;
+        // @ts-expect-error role exists on user
+        token.role = user.role;
       }
 
-      // Refetch user data when session is updated
-      if (trigger === "update" && token.id) {
-        const [updatedUser] = await db
-          .select()
+      // Siempre sincronizar role desde la BD (cubre sesiones existentes y cambios de rol en tiempo real)
+      if (token.id && (trigger === "update" || !token.role)) {
+        const [dbUser] = await db
+          .select({ name: users.name, username: users.username, imageURL: users.imageURL, role: users.role })
           .from(users)
           .where(eq(users.id, token.id as string))
           .limit(1);
 
-        if (updatedUser) {
-          token.name = updatedUser.name;
-          token.username = updatedUser.username;
-          token.picture = updatedUser.imageURL;
+        if (dbUser) {
+          token.name = dbUser.name;
+          token.username = dbUser.username;
+          token.picture = dbUser.imageURL;
+          token.role = dbUser.role;
         }
       }
 
@@ -91,6 +96,7 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name as string;
         session.user.username = token.username as string;
         session.user.image = token.picture as string | null;
+        session.user.role = token.role as string | undefined;
       }
       return session;
     },

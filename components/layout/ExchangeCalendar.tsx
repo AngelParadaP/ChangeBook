@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
-  BookOpen,
   MapPin,
   Clock,
-  CheckCircle2,
   Loader2,
   CalendarDays,
   ArrowUpRight,
@@ -106,6 +104,8 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [activeFilter, setActiveFilter] = useState<"all" | "active" | "completed">("all");
+  // Mobile: expand inline list instead of navigating
+  const [showAllMobile, setShowAllMobile] = useState(false);
 
   // Load exchanges when panel opens
   useEffect(() => {
@@ -121,6 +121,11 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
     }
   }, [isOpen, loaded]);
 
+  // Reset mobile list toggle when day changes
+  useEffect(() => {
+    setShowAllMobile(false);
+  }, [selectedDay]);
+
   /* ─── Calendar grid ── */
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -131,48 +136,101 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
     ...Array(firstDay).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => new Date(year, month, i + 1)),
   ];
-  // Pad to full weeks
   while (cells.length % 7 !== 0) cells.push(null);
 
-  /* ─── Filter exchanges for selected day ── */
+  /* ─── Filter exchanges ── */
   const filteredExchanges = exchanges.filter((ex) => {
-    if (activeFilter === "active") {
-      return ["pendiente", "aceptado", "en_curso"].includes(ex.status);
-    }
-    if (activeFilter === "completed") {
-      return ["completado", "rechazado", "cancelado"].includes(ex.status);
-    }
+    if (activeFilter === "active") return ["pendiente", "aceptado", "en_curso"].includes(ex.status);
+    if (activeFilter === "completed") return ["completado", "rechazado", "cancelado"].includes(ex.status);
     return true;
   });
 
   const dayExchanges = selectedDay
-    ? filteredExchanges.filter((ex) =>
-        isInRange(selectedDay, ex.startDate, ex.endDate)
-      )
+    ? filteredExchanges.filter((ex) => isInRange(selectedDay, ex.startDate, ex.endDate))
     : [];
 
-  /* ─── Exchanges for a given day cell ── */
   function getExchangesForDay(day: Date) {
     return filteredExchanges.filter((ex) => isInRange(day, ex.startDate, ex.endDate));
   }
 
   /* ─── Navigation ── */
-  const prevMonth = () =>
-    setViewDate(new Date(year, month - 1, 1));
-  const nextMonth = () =>
-    setViewDate(new Date(year, month + 1, 1));
+  const prevMonth = () => setViewDate(new Date(year, month - 1, 1));
+  const nextMonth = () => setViewDate(new Date(year, month + 1, 1));
   const goToday = () => {
     setViewDate(new Date(today.getFullYear(), today.getMonth(), 1));
     setSelectedDay(today);
   };
+
+  /* ─── Exchange card ── */
+  function ExchangeCard({ ex }: { ex: CalendarExchange }) {
+    const meta = STATUS_META[ex.status] ?? { label: ex.status, badge: "bg-soft text-caption" };
+    const startFmt = new Date(ex.startDate).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+    const endFmt = new Date(ex.endDate).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+
+    return (
+      <button
+        onClick={() => {
+          const tab =
+            ex.status === "completado" || ex.status === "rechazado" || ex.status === "cancelado"
+              ? "historial"
+              : ex.status === "pendiente"
+              ? ex.role === "owner" ? "recibidos" : "enviados"
+              : "activos";
+          router.push(`/exchanges?tab=${tab}`);
+          onClose();
+        }}
+        className="w-full text-left"
+      >
+        <div className="flex gap-2.5 p-2.5 rounded-xl hover:bg-subtle transition-colors group border border-transparent hover:border-card-border">
+          <div className={`w-1 rounded-full flex-shrink-0 ${getEventBarColor(ex.status)}`} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-xs font-semibold text-heading truncate leading-tight">{ex.bookTitle}</p>
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${meta.badge}`}>
+                {meta.label}
+              </span>
+            </div>
+            <p className="text-[10px] text-hint truncate mt-0.5">
+              {ex.bookAuthor}
+              {ex.otherUserName && ` · ${ex.role === "owner" ? "Solicitado por" : "De"} ${ex.otherUserName}`}
+            </p>
+            <div className="flex items-center gap-3 mt-1.5">
+              {ex.meetingTime && (
+                <span className="flex items-center gap-0.5 text-[9px] text-caption">
+                  <Clock size={9} /> {ex.meetingTime}
+                </span>
+              )}
+              <span className="flex items-center gap-0.5 text-[9px] text-caption">
+                <Clock size={9} /> {startFmt} – {endFmt}
+              </span>
+              {ex.meetingLocation && (
+                <span className="flex items-center gap-0.5 text-[9px] text-caption truncate">
+                  <MapPin size={9} /> {ex.meetingLocation}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </button>
+    );
+  }
 
   if (!isOpen) return null;
 
   return (
     <div
       ref={panelRef}
-      className="absolute right-0 mt-2 w-[420px] bg-card border border-card-border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
-      style={{ maxHeight: "calc(100vh - 80px)", overflowY: "auto" }}
+      className={[
+        // ── Mobile: fixed, centered, respects viewport
+        "fixed left-1/2 -translate-x-1/2 top-[76px]",
+        "w-[calc(100vw-24px)]",
+        // ── Desktop (sm+): absolute anchored right, fixed width
+        "sm:absolute sm:left-auto sm:translate-x-0 sm:top-auto sm:right-0 sm:mt-2 sm:w-[420px]",
+        // ── Shared
+        "bg-card border border-card-border rounded-2xl shadow-2xl overflow-hidden z-50",
+        "animate-in fade-in slide-in-from-top-2 duration-200",
+      ].join(" ")}
+      style={{ maxHeight: "calc(100dvh - 96px)", overflowY: "auto" }}
     >
       {/* ── Header ── */}
       <div
@@ -184,10 +242,7 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
             <CalendarDays size={16} className="text-primary dark:text-light-pink" />
             <h3 className="font-bold text-sm text-heading">Calendario de Intercambios</h3>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg hover:bg-soft transition-colors text-hint"
-          >
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-soft transition-colors text-hint">
             <X size={14} />
           </button>
         </div>
@@ -218,19 +273,13 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
 
       {/* ── Month navigation ── */}
       <div className="flex items-center justify-between px-4 py-2.5">
-        <button
-          onClick={prevMonth}
-          className="p-1.5 rounded-lg hover:bg-soft transition-colors text-caption hover:text-heading"
-        >
+        <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-soft transition-colors text-caption hover:text-heading">
           <ChevronLeft size={14} />
         </button>
         <span className="text-sm font-semibold text-heading capitalize">
           {MONTHS_ES[month]} {year}
         </span>
-        <button
-          onClick={nextMonth}
-          className="p-1.5 rounded-lg hover:bg-soft transition-colors text-caption hover:text-heading"
-        >
+        <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-soft transition-colors text-caption hover:text-heading">
           <ChevronRight size={14} />
         </button>
       </div>
@@ -247,9 +296,7 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
       {/* ── Calendar grid ── */}
       <div className="grid grid-cols-7 px-3 gap-y-0.5 pb-2">
         {cells.map((day, idx) => {
-          if (!day) {
-            return <div key={`empty-${idx}`} className="h-12" />;
-          }
+          if (!day) return <div key={`empty-${idx}`} className="h-12" />;
 
           const isToday = isSameDay(day, today);
           const isSelected = selectedDay ? isSameDay(day, selectedDay) : false;
@@ -270,16 +317,12 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
               `}
             >
               <span className="leading-none">{day.getDate()}</span>
-
-              {/* Event indicators */}
               {hasEvents && (
                 <div className="flex gap-0.5 mt-1 flex-wrap justify-center max-w-[36px]">
                   {dayExs.slice(0, 3).map((ex) => (
                     <span
                       key={ex.id}
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        isSelected ? "bg-white/80" : getDotColor(ex.status)
-                      }`}
+                      className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white/80" : getDotColor(ex.status)}`}
                     />
                   ))}
                   {dayExs.length > 3 && (
@@ -312,15 +355,30 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
                   : `${dayExchanges.length} intercambio${dayExchanges.length > 1 ? "s" : ""}`}
               </p>
             </div>
-            <button
-              onClick={() => {
-                router.push("/exchanges");
-                onClose();
-              }}
-              className="flex items-center gap-1 text-[11px] text-primary dark:text-light-pink hover:underline font-medium"
-            >
-              Ver todos <ArrowUpRight size={11} />
-            </button>
+
+            {dayExchanges.length > 0 && (
+              <>
+                {/* Mobile: toggle para mostrar/ocultar lista inline */}
+                <button
+                  onClick={() => setShowAllMobile((prev) => !prev)}
+                  className="sm:hidden flex items-center gap-1 text-[11px] text-primary dark:text-light-pink font-medium"
+                >
+                  {showAllMobile ? "Ocultar" : "Ver todos"}
+                  <ArrowUpRight
+                    size={11}
+                    className={`transition-transform duration-200 ${showAllMobile ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {/* Desktop: navegar a intercambios */}
+                <button
+                  onClick={() => { router.push("/exchanges"); onClose(); }}
+                  className="hidden sm:flex items-center gap-1 text-[11px] text-primary dark:text-light-pink hover:underline font-medium"
+                >
+                  Ver todos <ArrowUpRight size={11} />
+                </button>
+              </>
+            )}
           </div>
         )}
 
@@ -336,79 +394,29 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
             </p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-[260px] overflow-y-auto custom-scrollbar pr-0.5">
-            {dayExchanges.map((ex) => {
-              const meta = STATUS_META[ex.status] ?? { label: ex.status, badge: "bg-soft text-caption" };
-              const startFmt = new Date(ex.startDate).toLocaleDateString("es-MX", {
-                day: "numeric",
-                month: "short",
-              });
-              const endFmt = new Date(ex.endDate).toLocaleDateString("es-MX", {
-                day: "numeric",
-                month: "short",
-              });
-
-              return (
+          <>
+            {/* Mobile: muestra preview (primeros 2) o lista expandida */}
+            <div className="sm:hidden space-y-2">
+              {(showAllMobile ? dayExchanges : dayExchanges.slice(0, 2)).map((ex) => (
+                <ExchangeCard key={ex.id} ex={ex} />
+              ))}
+              {!showAllMobile && dayExchanges.length > 2 && (
                 <button
-                  key={ex.id}
-                  onClick={() => {
-                    const tab =
-                      ex.status === "completado" || ex.status === "rechazado" || ex.status === "cancelado"
-                        ? "historial"
-                        : ex.status === "pendiente"
-                        ? ex.role === "owner"
-                          ? "recibidos"
-                          : "enviados"
-                        : "activos";
-                    router.push(`/exchanges?tab=${tab}`);
-                    onClose();
-                  }}
-                  className="w-full text-left"
+                  onClick={() => setShowAllMobile(true)}
+                  className="w-full text-center text-[11px] text-primary dark:text-light-pink font-medium py-1.5 rounded-lg hover:bg-soft transition-colors"
                 >
-                  <div className="flex gap-2.5 p-2.5 rounded-xl hover:bg-subtle transition-colors group border border-transparent hover:border-card-border">
-                    {/* Color bar */}
-                    <div className={`w-1 rounded-full flex-shrink-0 ${getEventBarColor(ex.status)}`} />
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-semibold text-heading truncate leading-tight">
-                          {ex.bookTitle}
-                        </p>
-                        <span
-                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${meta.badge}`}
-                        >
-                          {meta.label}
-                        </span>
-                      </div>
-
-                      <p className="text-[10px] text-hint truncate mt-0.5">
-                        {ex.bookAuthor}
-                        {ex.otherUserName && ` · ${ex.role === "owner" ? "Solicitado por" : "De"} ${ex.otherUserName}`}
-                      </p>
-
-                      <div className="flex items-center gap-3 mt-1.5">
-                        {ex.meetingTime && (
-                          <span className="flex items-center gap-0.5 text-[9px] text-caption">
-                            <Clock size={9} /> {ex.meetingTime}
-                          </span>
-                        )}
-                        <span className="flex items-center gap-0.5 text-[9px] text-caption">
-                          <Clock size={9} />
-                          {startFmt} – {endFmt}
-                        </span>
-                        {ex.meetingLocation && (
-                          <span className="flex items-center gap-0.5 text-[9px] text-caption truncate">
-                            <MapPin size={9} /> {ex.meetingLocation}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  +{dayExchanges.length - 2} más
                 </button>
-              );
-            })}
-          </div>
+              )}
+            </div>
+
+            {/* Desktop: lista scrollable completa */}
+            <div className="hidden sm:block space-y-2 max-h-[260px] overflow-y-auto custom-scrollbar pr-0.5">
+              {dayExchanges.map((ex) => (
+                <ExchangeCard key={ex.id} ex={ex} />
+              ))}
+            </div>
+          </>
         )}
       </div>
 
@@ -425,10 +433,7 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
             ))}
         </div>
         <button
-          onClick={() => {
-            router.push("/exchanges");
-            onClose();
-          }}
+          onClick={() => { router.push("/exchanges"); onClose(); }}
           className="text-[10px] font-medium text-primary dark:text-light-pink hover:underline"
         >
           Ir a intercambios →
