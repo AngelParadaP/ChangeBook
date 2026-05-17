@@ -23,6 +23,7 @@ import {
 import { getFriendUsernameFromRequest } from "@/server/actions/friends/getFriendUsernameFromRequest";
 import { getReviewContext } from "@/server/actions/reviews";
 import { ReviewModal } from "@/components/reviews";
+import { ExchangeCalendar } from "@/components/layout/ExchangeCalendar";
 import { Mailbox, CheckCircle2, XCircle, RefreshCw, Rocket, PartyPopper, Ban, BookOpen, User, Users, Bell, BellOff, Pin, Trash2, X, UserPlus, UserCheck, UserMinus, Calendar, Clock, Star } from "lucide-react";
 
 interface BookResult {
@@ -143,6 +144,7 @@ export function Navbar() {
   const [notificationsList, setNotificationsList] = useState<NotificationItem[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   // Review modal state
   const [reviewModal, setReviewModal] = useState<{
@@ -162,6 +164,8 @@ export function Navbar() {
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const notifButtonRef = useRef<HTMLButtonElement>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const calendarButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -230,6 +234,7 @@ export function Navbar() {
     const willOpen = !isNotificationsOpen;
     setIsNotificationsOpen(willOpen);
     setIsProfileMenuOpen(false);
+    setIsCalendarOpen(false);
     if (willOpen) {
       await loadNotifications();
     }
@@ -390,6 +395,15 @@ export function Navbar() {
         !notifButtonRef.current.contains(event.target as Node)
       ) {
         setIsNotificationsOpen(false);
+      }
+
+      if (
+        calendarRef.current &&
+        calendarButtonRef.current &&
+        !calendarRef.current.contains(event.target as Node) &&
+        !calendarButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsCalendarOpen(false);
       }
     };
 
@@ -615,8 +629,34 @@ export function Navbar() {
             )}
           </div>
 
-          {/* ── Derecha: notificaciones + perfil ── */}
+          {/* ── Derecha: calendario + notificaciones + perfil ── */}
           <div className="flex items-center gap-2">
+            {/* Botón calendario */}
+            <div className="relative">
+              <button
+                ref={calendarButtonRef}
+                onClick={() => {
+                  setIsCalendarOpen((prev) => !prev);
+                  setIsNotificationsOpen(false);
+                  setIsProfileMenuOpen(false);
+                }}
+                className="relative p-2.5 hover:bg-soft rounded-full transition-all group"
+                aria-label="Calendario de intercambios"
+                title="Calendario de intercambios"
+              >
+                <Calendar
+                  size={18}
+                  className="text-caption group-hover:text-light-purple dark:group-hover:text-light-pink transition-colors duration-200"
+                />
+              </button>
+
+              <ExchangeCalendar
+                isOpen={isCalendarOpen}
+                onClose={() => setIsCalendarOpen(false)}
+                panelRef={calendarRef}
+              />
+            </div>
+
             {/* Botón notificaciones */}
             <div className="relative">
               <button
