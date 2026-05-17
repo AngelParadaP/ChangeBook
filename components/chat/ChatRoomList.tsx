@@ -1,14 +1,101 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useChatRooms } from "@/contexts/ChatContext";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { MessageSquare, Loader2, Search, Inbox, Mail, X, Users, EyeOff, Eye } from "lucide-react";
 import { hideChat, unhideChat, getChatRooms } from "@/server/actions/chat";
 import type { ChatRoom } from "@/contexts/ChatContext";
+import { useLongPress } from "@/lib/hooks/useLongPress";
 
 type FilterTab = "all" | "unread" | "friends" | "hidden";
+
+/** Sub-component for each room row — needed so useLongPress hook can be called per-item */
+function RoomItem({
+    room, isActive, hasUnread, query, isMessageMatch, isLast, filterTab,
+    highlightMatch, formatTime, onContextAction, onNavigate,
+}: {
+    room: ChatRoom;
+    isActive: boolean;
+    hasUnread: boolean;
+    query: string;
+    isMessageMatch: boolean;
+    isLast: boolean;
+    filterTab: string;
+    highlightMatch: (text: string, query: string) => React.ReactNode;
+    formatTime: (date: Date) => string;
+    onContextAction: () => void;
+    onNavigate: () => void;
+}) {
+    const longPressHandlers = useLongPress({
+        onLongPress: useCallback(() => onContextAction(), [onContextAction]),
+    });
+
+    return (
+        <div>
+            <button
+                {...longPressHandlers}
+                onClick={onNavigate}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 transition-all duration-200 text-left cursor-pointer relative group select-none ${isActive
+                    ? "bg-primary/8 dark:bg-primary-dark/15 border-l-[3px] border-primary"
+                    : "hover:bg-soft border-l-[3px] border-transparent"
+                    }`}
+            >
+                {/* Avatar with unread indicator */}
+                <div className="relative flex-shrink-0">
+                    <UserAvatar
+                        imageURL={room.otherUser.imageURL}
+                        name={room.otherUser.name}
+                        size="md"
+                        useNextImage={false}
+                    />
+                    {hasUnread && (
+                        <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-danger rounded-full border-2 border-card" />
+                    )}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                        <h3 className={`truncate text-sm ${hasUnread ? "font-bold text-heading" : "font-semibold text-heading"}`}>
+                            {query && !isMessageMatch
+                                ? highlightMatch(room.otherUser.name, query)
+                                : room.otherUser.name}
+                        </h3>
+                        {room.lastMessage && (
+                            <span className={`text-[11px] flex-shrink-0 ${hasUnread ? "text-primary font-semibold" : "text-hint"}`}>
+                                {formatTime(room.lastMessage.createdAt)}
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-xs text-caption truncate mb-0.5">
+                        {query && !isMessageMatch
+                            ? highlightMatch(`@${room.otherUser.username}`, query)
+                            : `@${room.otherUser.username}`}
+                    </p>
+                    {room.lastMessage && (
+                        <p className={`text-xs truncate ${hasUnread ? "text-body font-medium" : "text-hint"}`}>
+                            {isMessageMatch
+                                ? highlightMatch(room.lastMessage.content, query)
+                                : room.lastMessage.content}
+                        </p>
+                    )}
+                </div>
+
+                {/* Unread badge */}
+                {hasUnread && (
+                    <div className="flex-shrink-0 min-w-[22px] h-[22px] bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1.5">
+                        {room.unreadCount > 9 ? "9+" : room.unreadCount}
+                    </div>
+                )}
+            </button>
+
+            {/* Divider */}
+            {!isLast && <div className="mx-4 border-b border-card-border/60" />}
+        </div>
+    );
+}
 
 export function ChatRoomList() {
     const router = useRouter();
@@ -365,81 +452,20 @@ export function ChatRoomList() {
                                 (room.lastMessage?.content?.toLowerCase().includes(query) ?? false);
 
                             return (
-                                <div key={room.id}>
-                                    <button
-                                        onContextMenu={(e) => {
-                                            e.preventDefault();
-                                            setOptionsRoom({ id: room.id, name: room.otherUser.name });
-                                        }}
-                                        onClick={() => router.push(`/chat/${room.id}?tab=${filterTab}`)}
-                                        className={`w-full flex items-center gap-3 px-4 py-3.5 transition-all duration-200 text-left cursor-pointer relative group ${isActive
-                                            ? "bg-primary/8 dark:bg-primary-dark/15 border-l-[3px] border-primary"
-                                            : "hover:bg-soft border-l-[3px] border-transparent"
-                                            }`}
-                                    >
-                                        {/* Avatar with unread indicator */}
-                                        <div className="relative flex-shrink-0">
-                                            <UserAvatar
-                                                imageURL={room.otherUser.imageURL}
-                                                name={room.otherUser.name}
-                                                size="md"
-                                                useNextImage={false}
-                                            />
-                                            {hasUnread && (
-                                                <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-danger rounded-full border-2 border-card" />
-                                            )}
-                                        </div>
-
-                                        {/* Content */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between gap-2">
-                                                <h3 className={`truncate text-sm ${hasUnread
-                                                    ? "font-bold text-heading"
-                                                    : "font-semibold text-heading"
-                                                    }`}>
-                                                    {query && !isMessageMatch
-                                                        ? highlightMatch(room.otherUser.name, query)
-                                                        : room.otherUser.name}
-                                                </h3>
-                                                {room.lastMessage && (
-                                                    <span className={`text-[11px] flex-shrink-0 ${hasUnread
-                                                        ? "text-primary font-semibold"
-                                                        : "text-hint"
-                                                        }`}>
-                                                        {formatTime(room.lastMessage.createdAt)}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <p className="text-xs text-caption truncate mb-0.5">
-                                                {query && !isMessageMatch
-                                                    ? highlightMatch(`@${room.otherUser.username}`, query)
-                                                    : `@${room.otherUser.username}`}
-                                            </p>
-                                            {room.lastMessage && (
-                                                <p className={`text-xs truncate ${hasUnread
-                                                    ? "text-body font-medium"
-                                                    : "text-hint"
-                                                    }`}>
-                                                    {isMessageMatch
-                                                        ? highlightMatch(room.lastMessage.content, query)
-                                                        : room.lastMessage.content}
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        {/* Unread badge */}
-                                        {hasUnread && (
-                                            <div className="flex-shrink-0 min-w-[22px] h-[22px] bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1.5">
-                                                {room.unreadCount > 9 ? "9+" : room.unreadCount}
-                                            </div>
-                                        )}
-                                    </button>
-
-                                    {/* Divider between items */}
-                                    {index < displayRooms.length - 1 && (
-                                        <div className="mx-4 border-b border-card-border/60" />
-                                    )}
-                                </div>
+                                <RoomItem
+                                    key={room.id}
+                                    room={room}
+                                    isActive={isActive}
+                                    hasUnread={hasUnread}
+                                    query={query}
+                                    isMessageMatch={isMessageMatch}
+                                    isLast={index === displayRooms.length - 1}
+                                    filterTab={filterTab}
+                                    highlightMatch={highlightMatch}
+                                    formatTime={formatTime}
+                                    onContextAction={() => setOptionsRoom({ id: room.id, name: room.otherUser.name })}
+                                    onNavigate={() => router.push(`/chat/${room.id}?tab=${filterTab}`)}
+                                />
                             );
                         })}
                     </div>
@@ -449,46 +475,59 @@ export function ChatRoomList() {
             {/* Options Modal */}
             {optionsRoom && (
                 <div
-                    className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200"
+                    className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                     onClick={() => setOptionsRoom(null)}
+                    style={{ animation: 'fadeIn 150ms ease-out' }}
                 >
                     <div
-                        className="bg-card w-full sm:w-96 rounded-2xl shadow-xl overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200"
+                        className="bg-card/95 backdrop-blur-xl w-full sm:w-80 rounded-2xl shadow-2xl overflow-hidden border border-card-border/30"
                         onClick={(e) => e.stopPropagation()}
+                        style={{ animation: 'slideUp 200ms ease-out' }}
                     >
-                        <div className="p-4 border-b border-card-border/60">
-                            <h3 className="font-bold text-heading text-center">Opciones del chat</h3>
-                            <p className="text-xs text-caption text-center mt-0.5">{optionsRoom.name}</p>
+                        {/* Header */}
+                        <div className="px-4 pt-4 pb-3">
+                            <p className="text-[10px] uppercase tracking-wider text-hint font-semibold mb-1">Conversación</p>
+                            <p className="text-sm font-bold text-heading">{optionsRoom.name}</p>
                         </div>
-                        <div className="p-2 flex flex-col">
+
+                        {/* Actions */}
+                        <div className="px-2 pb-2">
                             {isHiddenTab ? (
                                 <button
                                     onClick={() => handleUnhideChat(optionsRoom.id)}
                                     disabled={actionLoading}
-                                    className="flex items-center gap-3 w-full p-3 hover:bg-soft text-heading rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                                    className="flex items-center gap-3 w-full px-3 py-3 hover:bg-primary/8 active:bg-primary/12 text-heading rounded-xl transition-all font-medium text-sm disabled:opacity-50 group"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-soft flex items-center justify-center">
-                                        <Eye size={16} className="text-hint" />
+                                    <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                        <Eye size={16} className="text-primary" />
                                     </div>
-                                    {actionLoading ? "Mostrando..." : "Mostrar chat"}
+                                    <div className="flex flex-col items-start">
+                                        <span>{actionLoading ? "Mostrando..." : "Mostrar chat"}</span>
+                                        <span className="text-[10px] text-hint font-normal">Volver a la lista principal</span>
+                                    </div>
                                 </button>
                             ) : (
                                 <button
                                     onClick={() => handleHideChat(optionsRoom.id)}
                                     disabled={actionLoading}
-                                    className="flex items-center gap-3 w-full p-3 hover:bg-soft text-heading rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                                    className="flex items-center gap-3 w-full px-3 py-3 hover:bg-primary/8 active:bg-primary/12 text-heading rounded-xl transition-all font-medium text-sm disabled:opacity-50 group"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-soft flex items-center justify-center">
-                                        <EyeOff size={16} className="text-hint" />
+                                    <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                        <EyeOff size={16} className="text-primary" />
                                     </div>
-                                    {actionLoading ? "Ocultando..." : "Ocultar chat"}
+                                    <div className="flex flex-col items-start">
+                                        <span>{actionLoading ? "Ocultando..." : "Ocultar chat"}</span>
+                                        <span className="text-[10px] text-hint font-normal">Mover a la pestaña de ocultos</span>
+                                    </div>
                                 </button>
                             )}
                         </div>
-                        <div className="p-2 border-t border-card-border/60">
+
+                        {/* Cancel */}
+                        <div className="px-2 pb-2 pt-0">
                             <button
                                 onClick={() => setOptionsRoom(null)}
-                                className="w-full py-2.5 font-bold text-heading hover:bg-soft rounded-xl transition-colors"
+                                className="w-full py-2.5 font-semibold text-hint hover:text-heading hover:bg-soft/60 rounded-xl transition-all text-sm"
                             >
                                 Cancelar
                             </button>
@@ -496,6 +535,17 @@ export function ChatRoomList() {
                     </div>
                 </div>
             )}
+
+            <style jsx>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+            `}</style>
         </div>
     );
 }

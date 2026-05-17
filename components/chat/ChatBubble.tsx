@@ -1,10 +1,9 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { parseBookCardMessage } from "@/lib/utils/bookCardMessage";
-import { BookOpen, CheckCheck, Check, Edit2, X, Pencil } from "lucide-react";
+import { BookOpen, CheckCheck, Check, Edit2, Pencil } from "lucide-react";
+import { useLongPress } from "@/lib/hooks/useLongPress";
 
 interface ChatBubbleProps {
     id: string;
@@ -106,6 +105,12 @@ export function ChatBubble({
     const isSender = senderId === currentUserId;
     const { hasBookCard, bookCard, textMessage } = parseBookCardMessage(content);
 
+    const longPressHandlers = useLongPress({
+        onLongPress: useCallback(() => {
+            if (isSender && onEdit) setShowOptions(true);
+        }, [isSender, onEdit]),
+    });
+
     const timeStr = new Date(createdAt).toLocaleTimeString("es-MX", {
         hour: "2-digit",
         minute: "2-digit",
@@ -171,11 +176,8 @@ export function ChatBubble({
             ) : (
                 <>
                     <div
-                        onContextMenu={(e) => {
-                            e.preventDefault();
-                            if (isSender && onEdit) setShowOptions(true);
-                        }}
-                        className={`max-w-[72%] px-4 py-2.5 break-words shadow-sm ${isSender
+                        {...longPressHandlers}
+                        className={`max-w-[72%] px-4 py-2.5 break-words shadow-sm select-none ${isSender
                             ? `bg-gradient-to-br from-primary to-primary-dark text-white ${senderRounding}`
                             : `bg-white dark:bg-[#1e2d3d] text-heading ${receiverRounding} border border-card-border/40`
                             }`}
@@ -234,29 +236,44 @@ export function ChatBubble({
             {/* Options Modal for Messages */}
             {showOptions && (
                 <div
-                    className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200"
+                    className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                     onClick={(e) => { e.stopPropagation(); setShowOptions(false); }}
+                    style={{ animation: 'fadeIn 150ms ease-out' }}
                 >
                     <div
-                        className="bg-card w-full sm:w-96 rounded-2xl shadow-xl overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200"
+                        className="bg-card/95 backdrop-blur-xl w-full sm:w-80 rounded-2xl shadow-2xl overflow-hidden border border-card-border/30"
                         onClick={(e) => e.stopPropagation()}
+                        style={{ animation: 'slideUp 200ms ease-out' }}
                     >
-                        <div className="p-4 border-b border-card-border/60">
-                            <h3 className="font-bold text-heading text-center">Opciones del mensaje</h3>
+                        {/* Message preview */}
+                        <div className="px-4 pt-4 pb-3">
+                            <p className="text-[10px] uppercase tracking-wider text-hint font-semibold mb-2">Tu mensaje</p>
+                            <div className="bg-gradient-to-br from-primary/10 to-primary-dark/10 rounded-xl px-3 py-2 border border-primary/15">
+                                <p className="text-xs text-body line-clamp-2 leading-relaxed">{content}</p>
+                            </div>
                         </div>
-                        <div className="p-2 flex flex-col">
+
+                        {/* Actions */}
+                        <div className="px-2 pb-2">
                             <button
                                 onClick={handleStartEdit}
-                                className="flex items-center gap-3 w-full p-3 hover:bg-soft text-heading rounded-xl transition-colors font-medium text-sm"
+                                className="flex items-center gap-3 w-full px-3 py-3 hover:bg-primary/8 active:bg-primary/12 text-heading rounded-xl transition-all font-medium text-sm group"
                             >
-                                <div className="w-8 h-8 rounded-full bg-soft flex items-center justify-center"><Edit2 size={16} className="text-hint" /></div>
-                                Modificar mensaje
+                                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                    <Edit2 size={16} className="text-primary" />
+                                </div>
+                                <div className="flex flex-col items-start">
+                                    <span>Editar mensaje</span>
+                                    <span className="text-[10px] text-hint font-normal">Modifica el contenido</span>
+                                </div>
                             </button>
                         </div>
-                        <div className="p-2 border-t border-card-border/60">
+
+                        {/* Cancel */}
+                        <div className="px-2 pb-2 pt-0">
                             <button
                                 onClick={() => setShowOptions(false)}
-                                className="w-full py-2.5 font-bold text-heading hover:bg-soft rounded-xl transition-colors"
+                                className="w-full py-2.5 font-semibold text-hint hover:text-heading hover:bg-soft/60 rounded-xl transition-all text-sm"
                             >
                                 Cancelar
                             </button>
@@ -264,6 +281,17 @@ export function ChatBubble({
                     </div>
                 </div>
             )}
+
+            <style jsx>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+            `}</style>
         </div>
     );
 }
