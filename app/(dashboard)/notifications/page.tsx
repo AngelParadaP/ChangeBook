@@ -186,7 +186,7 @@ export default function NotificationsPage() {
         },
         exchange_completed: {
             icon: <PartyPopper size={18} />,
-            color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+            color: "bg-primary-soft text-primary dark:bg-primary-dark/30 dark:text-primary-muted",
         },
         exchange_cancelled: {
             icon: <Ban size={18} />,

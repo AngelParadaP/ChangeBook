@@ -107,7 +107,7 @@ const notificationConfig: Record<string, { icon: React.ReactNode; color: string 
   exchange_rejected: { icon: <XCircle size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
   exchange_auto_rejected: { icon: <RefreshCw size={14} />, color: "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400" },
   exchange_started: { icon: <Rocket size={14} />, color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
-  exchange_completed: { icon: <PartyPopper size={14} />, color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400" },
+  exchange_completed: { icon: <PartyPopper size={14} />, color: "bg-primary-soft dark:bg-primary-dark/30 text-primary dark:text-primary-muted" },
   exchange_cancelled: { icon: <Ban size={14} />, color: "bg-soft text-caption" },
   exchange_reminder_tomorrow: { icon: <Calendar size={14} />, color: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" },
   exchange_reminder_today: { icon: <Clock size={14} />, color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" },
@@ -442,7 +442,7 @@ export function Navbar() {
             >
               <SvgIcon
                 src="/icons/menu.svg"
-                className="w-5 h-5 bg-caption group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+                className="w-5 h-5 bg-caption group-hover:bg-primary-dark dark:group-hover:bg-light-pink transition-colors duration-200"
               />
             </button>
             <ThemeToggle inline />
@@ -467,10 +467,10 @@ export function Navbar() {
                     if (searchQuery.length >= 2) setShowResults(true);
                   }}
                   placeholder="Buscar libros, usuarios, autores..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-subtle border border-card-border rounded-full focus:outline-none focus:ring-2 focus:ring-light-purple/40 dark:focus:ring-dark-pink/40 focus:bg-card transition-all text-sm text-heading font-medium"
+                  className="w-full pl-10 pr-4 py-2.5 bg-subtle border border-card-border rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40 dark:focus:ring-dark-pink/40 focus:bg-card transition-all text-sm text-heading font-medium"
                 />
                 {isSearching && (
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin h-4 w-4 border-2 border-light-purple dark:border-dark-pink border-t-transparent rounded-full" />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin h-4 w-4 border-2 border-primary dark:border-dark-pink border-t-transparent rounded-full" />
                 )}
               </div>
             </form>
@@ -580,7 +580,7 @@ export function Navbar() {
                               onClick={() => setShowResults(false)}
                               className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
                             >
-                              <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 flex-shrink-0 relative">
+                              <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-primary-light to-primary-light dark:from-primary-dark dark:to-primary-dark flex-shrink-0 relative">
                                 {community.imageUrl ? (
                                   <Image
                                     src={community.imageUrl}
@@ -590,7 +590,7 @@ export function Navbar() {
                                   />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-lg">
-                                    <Users size={16} className="text-purple-300 dark:text-purple-600" />
+                                    <Users size={16} className="text-primary-light dark:text-primary" />
                                   </div>
                                 )}
                               </div>
@@ -613,7 +613,7 @@ export function Navbar() {
                     <Link
                       href={`/search?q=${encodeURIComponent(searchQuery)}`}
                       onClick={() => setShowResults(false)}
-                      className="block px-4 py-3 text-center text-sm font-medium text-light-purple dark:text-dark-purple hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors border-t border-card-border"
+                      className="block px-4 py-3 text-center text-sm font-medium text-primary dark:text-primary-dark hover:bg-primary-soft dark:hover:bg-primary-dark/10 transition-colors border-t border-card-border"
                     >
                       Ver todos los resultados →
                     </Link>
@@ -646,7 +646,7 @@ export function Navbar() {
               >
                 <Calendar
                   size={18}
-                  className="text-caption group-hover:text-light-purple dark:group-hover:text-light-pink transition-colors duration-200"
+                  className="text-caption group-hover:text-primary dark:group-hover:text-light-pink transition-colors duration-200"
                 />
               </button>
 
@@ -667,7 +667,7 @@ export function Navbar() {
               >
                 <SvgIcon
                   src="/icons/bell.svg"
-                  className="w-5 h-5 bg-caption group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+                  className="w-5 h-5 bg-caption group-hover:bg-primary-dark dark:group-hover:bg-light-pink transition-colors duration-200"
                 />
                 {unreadCount > 0 && (
                   <span className="absolute top-1 right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1 animate-pulse">
@@ -698,7 +698,7 @@ export function Navbar() {
                     {unreadCount > 0 && (
                       <button
                         onClick={handleMarkAllAsRead}
-                        className="text-[11px] font-medium text-light-purple dark:text-light-pink hover:underline"
+                        className="text-[11px] font-medium text-primary dark:text-light-pink hover:underline"
                       >
                         Marcar todo como leído
                       </button>
@@ -709,7 +709,7 @@ export function Navbar() {
                   <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
                     {loadingNotifications ? (
                       <div className="flex items-center justify-center py-8">
-                        <div className="w-5 h-5 border-2 border-light-purple dark:border-light-pink border-t-transparent rounded-full animate-spin" />
+                        <div className="w-5 h-5 border-2 border-primary dark:border-light-pink border-t-transparent rounded-full animate-spin" />
                       </div>
                     ) : notificationsList.length === 0 ? (
                       <div className="py-10 text-center">
@@ -729,7 +729,7 @@ export function Navbar() {
                             <div
                               key={notif.id}
                               className={`relative group w-full text-left px-4 py-3 hover:bg-subtle transition-colors flex items-start gap-3 cursor-pointer ${notif.isRead === 0
-                                ? "bg-purple-50/50 dark:bg-purple-900/5"
+                                ? "bg-primary-soft/50 dark:bg-primary-dark/5"
                                 : ""
                                 }`}
                               onClick={() => handleNotificationClick(notif)}
@@ -755,7 +755,7 @@ export function Navbar() {
                               {/* Indicador no leído o botón eliminar */}
                               <div className="flex-shrink-0 flex items-center gap-1 mt-1">
                                 {notif.isRead === 0 && (
-                                  <span className="w-2 h-2 rounded-full bg-light-purple dark:bg-light-pink group-hover:hidden" />
+                                  <span className="w-2 h-2 rounded-full bg-primary dark:bg-light-pink group-hover:hidden" />
                                 )}
                                 <button
                                   onClick={(e) => handleDeleteNotification(e, notif.id, notif.isRead === 0)}
@@ -778,7 +778,7 @@ export function Navbar() {
                       <Link
                         href="/notifications"
                         onClick={() => setIsNotificationsOpen(false)}
-                        className="px-4 py-2.5 text-center text-xs font-medium text-light-purple dark:text-light-pink hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors"
+                        className="px-4 py-2.5 text-center text-xs font-medium text-primary dark:text-light-pink hover:bg-primary-soft dark:hover:bg-primary-dark/10 transition-colors"
                       >
                         Ver todas
                       </Link>
@@ -802,7 +802,7 @@ export function Navbar() {
                   setIsProfileMenuOpen(!isProfileMenuOpen);
                   setIsNotificationsOpen(false);
                 }}
-                className="flex items-center gap-2 p-1 rounded-full transition-all hover:ring-2 hover:ring-light-purple/30 dark:hover:ring-dark-pink/30"
+                className="flex items-center gap-2 p-1 rounded-full transition-all hover:ring-2 hover:ring-primary/30 dark:hover:ring-dark-pink/30"
                 aria-label="Menú de usuario"
               >
                 <UserAvatar
@@ -840,7 +840,7 @@ export function Navbar() {
                     >
                       <SvgIcon
                         src="/icons/user.svg"
-                        className="w-4 h-4 bg-hint group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors"
+                        className="w-4 h-4 bg-hint group-hover:bg-primary-dark dark:group-hover:bg-light-pink transition-colors"
                       />
                       <span className="text-sm text-body font-medium">
                         Mi Perfil

@@ -40,7 +40,7 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
         aria-label="Cambiar tema"
       >
         <div
-          className="w-5 h-5 bg-caption group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+          className="w-5 h-5 bg-caption group-hover:bg-primary-dark dark:group-hover:bg-light-pink transition-colors duration-200"
           style={{
             maskImage: `url(${iconSrc})`,
             maskRepeat: "no-repeat",
@@ -67,7 +67,7 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
       aria-label="Cambiar tema"
     >
       <div
-        className="w-6 h-6 bg-body group-hover:bg-dark-purple dark:group-hover:bg-light-pink transition-colors duration-200"
+        className="w-6 h-6 bg-body group-hover:bg-primary-dark dark:group-hover:bg-light-pink transition-colors duration-200"
         style={{
           maskImage: `url(${iconSrc})`,
           maskRepeat: "no-repeat",

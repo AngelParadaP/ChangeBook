@@ -182,7 +182,7 @@ export default function FavoritesPage() {
                         </p>
                         <Link
                             href="/home"
-                            className="inline-flex px-6 py-2.5 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25 text-sm"
+                            className="inline-flex px-6 py-2.5 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-primary/25 text-sm"
                         >
                             <Home size={16} className="inline mr-1" /> Explorar libros
                         </Link>
@@ -316,7 +316,7 @@ function FavoriteBookCard({
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                        <BookOpen size={48} className="text-purple-300 dark:text-purple-600" />
+                        <BookOpen size={48} className="text-primary-light dark:text-primary" />
                     </div>
                 )}
 
@@ -417,7 +417,7 @@ function FavoriteBookCard({
                     {canExchange && (
                         <button
                             onClick={handleExchangeClick}
-                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-gradient-to-r from-light-purple to-dark-purple text-white text-xs font-bold rounded-lg hover:shadow-md transition-all"
+                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-gradient-to-r from-primary to-primary-dark text-white text-xs font-bold rounded-lg hover:shadow-md transition-all"
                         >
                             <Mailbox size={12} />
                             <span className="hidden sm:inline">Solicitar</span>

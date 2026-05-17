@@ -286,7 +286,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
             <button
               onClick={() => handleTabChange('books')}
               className={`pb-2 px-1 text-lg font-medium transition-colors relative ${activeTab === 'books'
-                ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple'
+                ? 'text-primary dark:text-primary border-b-2 border-primary'
                 : 'text-hint hover:text-body'
                 }`}
             >
@@ -295,7 +295,7 @@ export default function HomeClient({ initialBooks, initialHasMore }: HomeClientP
             <button
               onClick={() => handleTabChange('communities')}
               className={`pb-2 px-1 text-lg font-medium transition-colors relative ${activeTab === 'communities'
-                ? 'text-light-purple dark:text-light-purple border-b-2 border-light-purple'
+                ? 'text-primary dark:text-primary border-b-2 border-primary'
                 : 'text-hint hover:text-body'
                 }`}
             >

@@ -141,7 +141,7 @@ export default function LoginPage() {
             className="drop-shadow-lg -mr-1"
             priority
           />
-          <span className="text-6xl font-bold text-color-light-purple tracking-tight">
+          <span className="text-6xl font-bold text-color-primary tracking-tight">
             yboo
           </span>
         </div>
@@ -239,7 +239,7 @@ export default function LoginPage() {
             type="submit"
             className="w-full py-3.5 mt-2
               bg-light-pink/90 hover:bg-light-pink
-              text-dark-purple font-bold text-base rounded-xl
+              text-primary-dark font-bold text-base rounded-xl
               shadow-lg shadow-white/10
               transition-all duration-300 active:scale-[0.98] tracking-normal"
           >
@@ -408,7 +408,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleSupportSubmit}
                 disabled={supportSending}
-                className="px-5 py-2.5 bg-light-pink text-dark-purple rounded-xl hover:opacity-90 transition-colors font-bold shadow-lg shadow-light-pink/20 text-sm disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-2.5 bg-light-pink text-primary-dark rounded-xl hover:opacity-90 transition-colors font-bold shadow-lg shadow-light-pink/20 text-sm disabled:opacity-50 flex items-center gap-2"
               >
                 {supportSending && (
                   <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">

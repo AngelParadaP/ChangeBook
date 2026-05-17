@@ -62,7 +62,7 @@ export default function TestRegisterPage() {
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="mb-4 flex justify-center"><BookOpen size={48} className="text-light-purple dark:text-light-pink" /></div>
+            <div className="mb-4 flex justify-center"><BookOpen size={48} className="text-primary dark:text-light-pink" /></div>
             <h1 className="text-3xl font-bold text-heading mb-2">
               Registro de Prueba
             </h1>
@@ -72,7 +72,7 @@ export default function TestRegisterPage() {
           </div>
 
           {/* Form Card */}
-          <div className="bg-card rounded-2xl shadow-lg p-8 border-2 border-light-purple dark:border-dark-purple">
+          <div className="bg-card rounded-2xl shadow-lg p-8 border-2 border-primary dark:border-primary-dark">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Student Code */}
               <div>
@@ -84,7 +84,7 @@ export default function TestRegisterPage() {
                   value={form.studentCode}
                   onChange={(e) => setForm({ ...form, studentCode: e.target.value })}
                   required
-                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
+                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading"
                   placeholder="Ej: 123456789"
                 />
               </div>
@@ -99,7 +99,7 @@ export default function TestRegisterPage() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
-                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
+                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading"
                   placeholder="Ej: Juan Pérez"
                 />
               </div>
@@ -114,7 +114,7 @@ export default function TestRegisterPage() {
                   value={form.username}
                   onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase().replace(/\s/g, "") })}
                   required
-                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
+                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading"
                   placeholder="Ej: juanperez"
                 />
                 <p className="text-xs text-hint mt-1">
@@ -132,7 +132,7 @@ export default function TestRegisterPage() {
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
-                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-heading"
+                  className="w-full px-4 py-3 bg-soft border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-heading"
                   placeholder="Mínimo 6 caracteres"
                 />
               </div>
@@ -155,7 +155,7 @@ export default function TestRegisterPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full px-6 py-3 bg-light-purple hover:bg-dark-purple text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Registrando..." : "Registrar Usuario"}
               </button>
@@ -167,7 +167,7 @@ export default function TestRegisterPage() {
                 ¿Ya tienes cuenta?{" "}
                 <button
                   onClick={() => router.push("/login")}
-                  className="text-light-purple hover:text-dark-purple font-semibold"
+                  className="text-primary hover:text-primary-dark font-semibold"
                 >
                   Inicia sesión
                 </button>

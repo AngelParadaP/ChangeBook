@@ -43,7 +43,7 @@ export default function ExchangesPage() {
     return (
         <Suspense fallback={
             <div className="bg-card rounded-2xl shadow-sm p-6 h-full flex items-center justify-center">
-                <div className="w-6 h-6 border-2 border-light-purple dark:border-light-pink border-t-transparent rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-primary dark:border-light-pink border-t-transparent rounded-full animate-spin" />
             </div>
         }>
             <ExchangesPageContent />
@@ -317,7 +317,7 @@ function ExchangesPageContent() {
                         label: "Completados",
                         icon: <PartyPopper size={14} />,
                         value: allExchanges.filter((e) => e.status === "completado").length,
-                        color: "from-purple-400 to-pink-500",
+                        color: "from-primary-muted to-pink-500",
                     },
                 ].map((stat) => (
                     <div
@@ -350,7 +350,7 @@ function ExchangesPageContent() {
                             {tab.icon}
                             <span>{tab.label}</span>
                             {hasPendingReceived && (
-                                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-light-purple dark:bg-light-pink animate-pulse" />
+                                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary dark:bg-light-pink animate-pulse" />
                             )}
                         </button>
                     );
@@ -366,7 +366,7 @@ function ExchangesPageContent() {
                             <button
                                 onClick={() => { setSearchMode("books"); setSelectedContact(null); setSelectedFriend(null); }}
                                 className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all ${searchMode === "books"
-                                    ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
+                                    ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
                                     : "bg-soft text-caption hover:bg-dim"
                                     }`}
                             >
@@ -375,7 +375,7 @@ function ExchangesPageContent() {
                             <button
                                 onClick={() => { setSearchMode("friends"); setSelectedContact(null); setSelectedFriend(null); }}
                                 className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all ${searchMode === "friends"
-                                    ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
+                                    ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
                                     : "bg-soft text-caption hover:bg-dim"
                                     }`}
                             >
@@ -384,7 +384,7 @@ function ExchangesPageContent() {
                             <button
                                 onClick={() => { setSearchMode("contacts"); setSelectedContact(null); setSelectedFriend(null); }}
                                 className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium transition-all ${searchMode === "contacts"
-                                    ? "bg-gradient-to-r from-light-purple to-dark-purple text-white shadow-md"
+                                    ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
                                     : "bg-soft text-caption hover:bg-dim"
                                     }`}
                             >
@@ -402,7 +402,7 @@ function ExchangesPageContent() {
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder="Buscar por título, autor o usuario..."
-                                        className="w-full pl-11 pr-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple text-body text-sm"
+                                        className="w-full pl-11 pr-4 py-3 bg-subtle border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark text-body text-sm"
                                     />
                                 </div>
 
@@ -462,7 +462,7 @@ function ExchangesPageContent() {
                                             </div>
                                             <div>
                                                 <p className="font-semibold text-sm text-body">{selectedContact.name}</p>
-                                                <p className="text-xs text-light-purple dark:text-light-pink">@{selectedContact.username}</p>
+                                                <p className="text-xs text-primary dark:text-light-pink">@{selectedContact.username}</p>
                                             </div>
                                         </div>
 
@@ -521,7 +521,7 @@ function ExchangesPageContent() {
                                                     />
                                                     <div className="flex-1 min-w-0">
                                                         <p className="font-semibold text-sm text-body truncate">{person.name}</p>
-                                                        <p className="text-xs text-light-purple dark:text-light-pink">@{person.username}</p>
+                                                        <p className="text-xs text-primary dark:text-light-pink">@{person.username}</p>
                                                     </div>
                                                     <ChevronRight size={16} className="text-hint" />
                                                 </button>
@@ -551,7 +551,7 @@ function ExchangesPageContent() {
                                             </div>
                                             <div>
                                                 <p className="font-semibold text-sm text-body">{selectedFriend.name}</p>
-                                                <p className="text-xs text-light-purple dark:text-light-pink">@{selectedFriend.username}</p>
+                                                <p className="text-xs text-primary dark:text-light-pink">@{selectedFriend.username}</p>
                                             </div>
                                         </div>
 
@@ -610,7 +610,7 @@ function ExchangesPageContent() {
                                                     />
                                                     <div className="flex-1 min-w-0">
                                                         <p className="font-semibold text-sm text-body truncate">{person.name}</p>
-                                                        <p className="text-xs text-light-purple dark:text-light-pink">@{person.username}</p>
+                                                        <p className="text-xs text-primary dark:text-light-pink">@{person.username}</p>
                                                     </div>
                                                     <ChevronRight size={16} className="text-hint" />
                                                 </button>
@@ -655,7 +655,7 @@ function ExchangesPageContent() {
                                 {(activeTab === "activos" || activeTab === "enviados") && (
                                     <button
                                         onClick={() => setActiveTab("buscar")}
-                                        className="mt-4 px-6 py-2.5 bg-gradient-to-r from-light-purple to-dark-purple text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25 text-sm"
+                                        className="mt-4 px-6 py-2.5 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-primary/25 text-sm"
                                     >
                                         <Search size={16} className="inline mr-1" /> Buscar libros
                                     </button>
@@ -716,7 +716,7 @@ function BookSearchResult({
         <div className="flex items-center gap-3 p-3 bg-subtle rounded-xl hover:bg-soft/50 transition-colors group">
             {/* Book Image */}
             <Link href={`/books/${book.id}`} className="flex-shrink-0">
-                <div className="w-12 h-[72px] rounded-lg overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 relative shadow-sm">
+                <div className="w-12 h-[72px] rounded-lg overflow-hidden bg-gradient-to-br from-primary-light to-primary-light dark:from-primary-dark dark:to-primary-dark relative shadow-sm">
                     {validImage ? (
                         <Image
                             src={book.imageUrl}
@@ -727,7 +727,7 @@ function BookSearchResult({
                             onError={() => setImgError(true)}
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center"><BookOpen size={20} className="text-purple-400" /></div>
+                        <div className="w-full h-full flex items-center justify-center"><BookOpen size={20} className="text-primary-muted" /></div>
                     )}
                 </div>
             </Link>
@@ -736,13 +736,13 @@ function BookSearchResult({
             <div className="flex-1 min-w-0">
                 <Link
                     href={`/books/${book.id}`}
-                    className="font-semibold text-sm text-heading hover:text-light-purple dark:hover:text-light-pink transition-colors truncate block"
+                    className="font-semibold text-sm text-heading hover:text-primary dark:hover:text-light-pink transition-colors truncate block"
                 >
                     {book.title}
                 </Link>
                 <p className="text-xs text-hint truncate">{book.author}</p>
                 {book.ownerUsername && (
-                    <p className="text-[10px] text-light-purple dark:text-light-pink mt-0.5">
+                    <p className="text-[10px] text-primary dark:text-light-pink mt-0.5">
                         @{book.ownerUsername}
                     </p>
                 )}
@@ -768,7 +768,7 @@ function BookSearchResult({
                 {(book.status === "disponible" || book.status === "ocupado") && (
                     <button
                         onClick={onExchange}
-                        className="px-3 py-1.5 bg-gradient-to-r from-light-purple to-dark-purple text-white text-xs font-bold rounded-lg hover:shadow-md transition-all"
+                        className="px-3 py-1.5 bg-gradient-to-r from-primary to-primary-dark text-white text-xs font-bold rounded-lg hover:shadow-md transition-all"
                     >
                         <Mailbox size={14} className="inline mr-0.5" /> Solicitar
                     </button>

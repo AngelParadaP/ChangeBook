@@ -268,7 +268,7 @@ export default function TicketChatClient({ ticket, initialMessages, currentUserI
             <button
               type="submit"
               disabled={isSubmitting || (!content.trim() && !imageUrl) || isUploading}
-              className="bg-gradient-to-r from-light-purple to-dark-purple hover:shadow-lg hover:shadow-purple-500/25 text-white p-2.5 sm:p-3 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center shrink-0"
+              className="bg-gradient-to-r from-primary to-primary-dark hover:shadow-lg hover:shadow-primary/25 text-white p-2.5 sm:p-3 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center shrink-0"
             >
               <Send size={20} />
             </button>

@@ -158,7 +158,7 @@ function ScoreBadge({ entry }: { entry: { similarityScore: number | null; matchS
   if (entry.strategy === "vector" && entry.similarityScore !== null) {
     return (
       <div>
-        <p className="text-base font-bold text-purple-600 dark:text-purple-400">
+        <p className="text-base font-bold text-primary dark:text-primary-muted">
           {(entry.similarityScore * 100).toFixed(1)}%
         </p>
         <p className="text-[10px] text-hint">similitud</p>
@@ -191,7 +191,7 @@ function StrategyExplanation({ entry, userPrefs }: { entry: CommunityEntry; user
 
   if (isVectorHigh) {
     return (
-      <p className="text-[11px] text-purple-600 dark:text-purple-400 mt-1 flex items-center gap-1">
+      <p className="text-[11px] text-primary dark:text-primary-muted mt-1 flex items-center gap-1">
         <Brain size={10} />
         Usuarios con gustos similares interactúan con esta comunidad
         {matchingGenres.length > 0 && (
@@ -227,7 +227,7 @@ function BookStrategyExplanation({ entry, userPrefs }: { entry: BookEntry; userP
 
   if (isVectorHigh) {
     return (
-      <p className="text-[11px] text-purple-600 dark:text-purple-400 mt-1 flex items-center gap-1">
+      <p className="text-[11px] text-primary dark:text-primary-muted mt-1 flex items-center gap-1">
         <Brain size={10} />
         Usuarios con gustos similares leen este libro
         {matchingGenres.length > 0 && (
@@ -322,7 +322,7 @@ export default function RecommendationLogPage() {
     popular: "Popularidad",
   };
   const strategyColor: Record<string, string> = {
-    vector: "text-purple-500 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800",
+    vector: "text-primary-soft0 bg-primary-soft dark:bg-primary-dark/20 border-primary-light dark:border-primary-dark",
     genre: "text-blue-500 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800",
     recent: "text-gray-500 bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800",
     popular: "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800",
@@ -340,8 +340,8 @@ export default function RecommendationLogPage() {
           <button onClick={() => router.push("/home")} className="p-2 hover:bg-soft rounded-xl transition-all text-hint hover:text-heading">
             <ArrowLeft size={20} />
           </button>
-          <div className="p-2.5 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-xl">
-            <BarChart3 size={24} className="text-purple-600 dark:text-purple-400" />
+          <div className="p-2.5 bg-gradient-to-br from-primary-soft to-blue-100 dark:from-primary-dark/30 dark:to-blue-900/30 rounded-xl">
+            <BarChart3 size={24} className="text-primary dark:text-primary-muted" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-heading">Log de Recomendaciones</h1>
@@ -382,7 +382,7 @@ export default function RecommendationLogPage() {
             <p className="text-lg font-bold">{strategyLabel[currentStrategy]}</p>
           </div>
           {(activeTab === "books" ? bookData?.hasVector : communityData?.hasVector) && (
-            <span className="ml-auto inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded-full text-xs font-semibold">
+            <span className="ml-auto inline-flex items-center gap-1 px-3 py-1 bg-primary-soft dark:bg-primary-dark/40 text-primary-dark dark:text-primary-light rounded-full text-xs font-semibold">
               <Sparkles size={12} /> Vector activo
             </span>
           )}
@@ -409,13 +409,13 @@ export default function RecommendationLogPage() {
           <AffinityChart affinities={bookAffinities} label="Tu afinidad por géneros (libros)" />
           
           {/* Explanation box for books */}
-          <div className="mb-6 bg-purple-50 dark:bg-purple-900/10 rounded-xl border border-purple-200 dark:border-purple-800/30 p-4">
-            <h4 className="text-sm font-semibold text-purple-700 dark:text-purple-400 mb-2 flex items-center gap-2">
+          <div className="mb-6 bg-primary-soft dark:bg-primary-dark/10 rounded-xl border border-primary-light dark:border-primary-dark/30 p-4">
+            <h4 className="text-sm font-semibold text-primary-dark dark:text-primary-muted mb-2 flex items-center gap-2">
               <Sparkles size={14} /> Criterios de Recomendación
             </h4>
-            <ul className="text-xs text-purple-600 dark:text-purple-300 space-y-2 leading-relaxed list-none">
+            <ul className="text-xs text-primary dark:text-primary-light space-y-2 leading-relaxed list-none">
               <li className="flex items-start gap-2">
-                <span className="font-bold text-purple-700 dark:text-purple-400 min-w-[70px]">1. Similitud:</span> 
+                <span className="font-bold text-primary-dark dark:text-primary-muted min-w-[70px]">1. Similitud:</span> 
                 Se usa SVD (vectores) basándose en qué libros leen o intercambian usuarios con tus mismos gustos. A mayor porcentaje, mayor probabilidad te guste.
               </li>
               <li className="flex items-start gap-2">
@@ -491,11 +491,11 @@ export default function RecommendationLogPage() {
           <AffinityChart affinities={communityAffinities} label="Tu afinidad por géneros (comunidades)" />
 
           {/* Explanation box */}
-          <div className="mb-6 bg-purple-50 dark:bg-purple-900/10 rounded-xl border border-purple-200 dark:border-purple-800/30 p-4">
-            <h4 className="text-sm font-semibold text-purple-700 dark:text-purple-400 mb-1 flex items-center gap-2">
+          <div className="mb-6 bg-primary-soft dark:bg-primary-dark/10 rounded-xl border border-primary-light dark:border-primary-dark/30 p-4">
+            <h4 className="text-sm font-semibold text-primary-dark dark:text-primary-muted mb-1 flex items-center gap-2">
               <Brain size={14} /> ¿Cómo se recomiendan las comunidades?
             </h4>
-            <p className="text-xs text-purple-600 dark:text-purple-300 leading-relaxed">
+            <p className="text-xs text-primary dark:text-primary-light leading-relaxed">
               El sistema analiza comunidades donde usuarios con gustos similares a los tuyos participan.
               Se usa <strong>SVD (Descomposición en Valores Singulares)</strong> sobre una matriz de interacciones
               usuario-comunidad, generando vectores de embedding. Las comunidades más cercanas a tu vector

@@ -316,7 +316,7 @@ export default function RegisterPage() {
             type="submit"
             className="w-full py-3.5 mt-2
               bg-light-pink/90 hover:bg-light-pink
-              text-dark-purple font-bold text-base rounded-xl
+              text-primary-dark font-bold text-base rounded-xl
               shadow-lg shadow-black/20
               transition-all duration-300 active:scale-[0.98] tracking-normal"
           >
@@ -413,7 +413,7 @@ export default function RegisterPage() {
                   setTermsAccepted(true);
                   setShowTerms(false);
                 }}
-                className="px-5 py-2.5 bg-light-pink text-dark-purple rounded-xl hover:opacity-90 transition-colors font-bold shadow-lg shadow-light-pink/20"
+                className="px-5 py-2.5 bg-light-pink text-primary-dark rounded-xl hover:opacity-90 transition-colors font-bold shadow-lg shadow-light-pink/20"
               >
                 He leído y acepto
               </button>

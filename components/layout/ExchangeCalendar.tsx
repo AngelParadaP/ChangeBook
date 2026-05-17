@@ -181,7 +181,7 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <CalendarDays size={16} className="text-light-purple dark:text-light-pink" />
+            <CalendarDays size={16} className="text-primary dark:text-light-pink" />
             <h3 className="font-bold text-sm text-heading">Calendario de Intercambios</h3>
           </div>
           <button
@@ -200,7 +200,7 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
               onClick={() => setActiveFilter(f)}
               className={`text-[11px] px-2.5 py-1 rounded-full font-medium transition-all ${
                 activeFilter === f
-                  ? "bg-light-purple dark:bg-light-pink text-white"
+                  ? "bg-primary dark:bg-light-pink text-white"
                   : "bg-soft text-caption hover:text-heading"
               }`}
             >
@@ -262,9 +262,9 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
               onClick={() => setSelectedDay(day)}
               className={`relative h-12 flex flex-col items-center justify-start pt-1 rounded-xl transition-all text-xs font-medium group
                 ${isSelected
-                  ? "bg-light-purple dark:bg-light-pink text-white shadow-sm"
+                  ? "bg-primary dark:bg-light-pink text-white shadow-sm"
                   : isToday
-                  ? "bg-light-purple/10 dark:bg-light-pink/10 text-light-purple dark:text-light-pink font-bold"
+                  ? "bg-primary/10 dark:bg-light-pink/10 text-primary dark:text-light-pink font-bold"
                   : "hover:bg-soft text-body"
                 }
               `}
@@ -317,7 +317,7 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
                 router.push("/exchanges");
                 onClose();
               }}
-              className="flex items-center gap-1 text-[11px] text-light-purple dark:text-light-pink hover:underline font-medium"
+              className="flex items-center gap-1 text-[11px] text-primary dark:text-light-pink hover:underline font-medium"
             >
               Ver todos <ArrowUpRight size={11} />
             </button>
@@ -326,7 +326,7 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
 
         {loading ? (
           <div className="flex items-center justify-center py-6">
-            <Loader2 size={20} className="animate-spin text-light-purple dark:text-light-pink" />
+            <Loader2 size={20} className="animate-spin text-primary dark:text-light-pink" />
           </div>
         ) : dayExchanges.length === 0 ? (
           <div className="py-6 flex flex-col items-center gap-2 text-center">
@@ -429,7 +429,7 @@ export function ExchangeCalendar({ isOpen, onClose, panelRef }: Props) {
             router.push("/exchanges");
             onClose();
           }}
-          className="text-[10px] font-medium text-light-purple dark:text-light-pink hover:underline"
+          className="text-[10px] font-medium text-primary dark:text-light-pink hover:underline"
         >
           Ir a intercambios →
         </button>

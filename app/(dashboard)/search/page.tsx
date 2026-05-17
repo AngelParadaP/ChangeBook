@@ -129,7 +129,7 @@ function SearchBookCard({ book, onClick, matchCount, selectedGenres, isFavorite:
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                        <BookOpen size={48} className="text-purple-300 dark:text-purple-600" />
+                        <BookOpen size={48} className="text-primary-light dark:text-primary" />
                     </div>
                 )}
                 {/* Status badge */}
@@ -316,7 +316,7 @@ function SearchCommunityCard({ community }: { community: CommunityResult }) {
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-2xl">
-                            <Users size={24} className="text-purple-300 dark:text-purple-600" />
+                            <Users size={24} className="text-primary-light dark:text-primary" />
                         </div>
                     )}
                 </div>
@@ -1072,7 +1072,7 @@ export default function SearchPage() {
             fallback={
                 <div className="bg-card rounded-2xl shadow-sm p-6 h-full flex items-center justify-center">
                     <div className="text-center">
-                        <Loader2 size={48} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-4" />
+                        <Loader2 size={48} className="animate-spin text-primary dark:text-light-pink mx-auto mb-4" />
                         <p className="text-caption text-lg">Cargando búsqueda...</p>
                     </div>
                 </div>

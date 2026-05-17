@@ -38,7 +38,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.R
     },
     completado: {
         label: "Completado",
-        color: "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400",
+        color: "bg-primary-soft dark:bg-primary-dark/20 text-primary-dark dark:text-primary-muted",
         icon: <PartyPopper size={10} />,
     },
     cancelado: {
@@ -192,7 +192,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                 <div className="flex gap-4">
                     {/* Book Image */}
                     <Link href={`/books/${exchange.bookId}`} className="flex-shrink-0">
-                        <div className="w-16 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-900 dark:to-purple-800 relative shadow-sm group-hover:shadow-md transition-shadow">
+                        <div className="w-16 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-primary-light to-primary-light dark:from-primary-dark dark:to-primary-dark relative shadow-sm group-hover:shadow-md transition-shadow">
                             {validBookImage ? (
                                 <Image
                                     src={exchange.bookImageUrl}
@@ -203,7 +203,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     onError={() => setImgError(true)}
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center"><BookOpen size={20} className="text-purple-400" /></div>
+                                <div className="w-full h-full flex items-center justify-center"><BookOpen size={20} className="text-primary-muted" /></div>
                             )}
                         </div>
                     </Link>
@@ -214,7 +214,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                             <div className="min-w-0">
                                 <Link
                                     href={`/books/${exchange.bookId}`}
-                                    className="font-bold text-heading hover:text-light-purple dark:hover:text-light-pink transition-colors truncate block text-sm"
+                                    className="font-bold text-heading hover:text-primary dark:hover:text-light-pink transition-colors truncate block text-sm"
                                 >
                                     {exchange.bookTitle}
                                 </Link>
@@ -233,7 +233,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                 {isOwner ? "Solicitado por" : "Dueño"}: {" "}
                                 <Link
                                     href={`/user/${otherUser.username}`}
-                                    className="font-semibold text-light-purple dark:text-light-pink hover:underline"
+                                    className="font-semibold text-primary dark:text-light-pink hover:underline"
                                 >
                                     @{otherUser.username}
                                 </Link>
@@ -275,7 +275,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                             <div className="mt-3">
                                 <div className="h-1.5 bg-soft rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-gradient-to-r from-light-purple to-dark-purple rounded-full transition-all"
+                                        className="h-full bg-gradient-to-r from-primary to-primary-dark rounded-full transition-all"
                                         style={{
                                             width: `${Math.min(100, Math.max(5, ((totalDays - daysLeft) / totalDays) * 100))}%`,
                                         }}
@@ -338,15 +338,15 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     onClick={() =>
                                         openConfirm(
                                             "completado",
-                                            <PartyPopper size={32} className="text-purple-500" />,
+                                            <PartyPopper size={32} className="text-primary-soft0" />,
                                             "¿Completar intercambio?",
                                             `Se marcará como completado el intercambio de "${exchange.bookTitle}". Confirma que el libro ha sido devuelto exitosamente.`,
                                             "Sí, completar",
-                                            "bg-gradient-to-r from-light-purple to-dark-purple hover:shadow-md"
+                                            "bg-gradient-to-r from-primary to-primary-dark hover:shadow-md"
                                         )
                                     }
                                     disabled={loading}
-                                    className="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-light-purple to-dark-purple text-white rounded-lg transition-all hover:shadow-md disabled:opacity-50"
+                                    className="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg transition-all hover:shadow-md disabled:opacity-50"
                                 >
                                     <PartyPopper size={12} className="inline mr-0.5" /> Completar
                                 </button>
@@ -393,7 +393,7 @@ export function ExchangeCard({ exchange, currentUserId, onUpdate }: ExchangeCard
                                     placeholder="Escribe una nota de respuesta..."
                                     rows={2}
                                     maxLength={200}
-                                    className="w-full px-3 py-2 bg-subtle border border-card-border rounded-lg text-xs text-body focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple resize-none"
+                                    className="w-full px-3 py-2 bg-subtle border border-card-border rounded-lg text-xs text-body focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark resize-none"
                                 />
                             </div>
                         )}

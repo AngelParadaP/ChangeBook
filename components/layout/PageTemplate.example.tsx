@@ -26,7 +26,7 @@ function YourPageContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-yellowed-white dark:bg-background">
         <div className="text-center">
-          <Loader2 size={48} className="animate-spin text-light-purple dark:text-light-pink mx-auto mb-4" />
+          <Loader2 size={48} className="animate-spin text-primary dark:text-light-pink mx-auto mb-4" />
           <p className="text-caption text-lg">Cargando...</p>
         </div>
       </div>

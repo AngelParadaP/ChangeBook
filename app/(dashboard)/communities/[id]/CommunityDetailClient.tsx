@@ -760,7 +760,7 @@ export default function CommunityDetailClient({ community: initialCommunity, ini
                                                     } else {
                                                         const comment = item as unknown as UserComment;
                                                         return (
-                                                            <Link href={`/communities/${comment.communityId}/posts/${comment.postId}`} key={`comment-${comment.id}`} className="block bg-subtle border border-card-border rounded-xl p-4 hover:border-light-purple transition-colors shadow-sm mb-4 cursor-pointer group">
+                                                            <Link href={`/communities/${comment.communityId}/posts/${comment.postId}`} key={`comment-${comment.id}`} className="block bg-subtle border border-card-border rounded-xl p-4 hover:border-primary transition-colors shadow-sm mb-4 cursor-pointer group">
                                                                 <div className="flex items-center gap-2 mb-2 text-hint text-xs">
                                                                     <MessageSquare size={14} className="text-primary" />
                                                                     <span className="font-medium text-heading">Comentaste en c/{comment.communityName}</span>

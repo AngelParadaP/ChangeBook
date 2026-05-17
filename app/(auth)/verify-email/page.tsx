@@ -90,7 +90,7 @@ function VerifyEmailContent() {
             href="/login"
             className="w-full py-3.5 mt-4
               bg-light-pink/90 hover:bg-light-pink
-              text-dark-purple font-bold text-base rounded-xl
+              text-primary-dark font-bold text-base rounded-xl
               shadow-lg shadow-white/10
               transition-all duration-300 active:scale-[0.98] tracking-normal inline-block"
           >

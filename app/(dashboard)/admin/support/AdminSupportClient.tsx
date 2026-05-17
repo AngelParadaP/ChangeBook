@@ -29,7 +29,7 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
   return (
     <div className="h-full overflow-y-auto custom-scrollbar p-4 sm:p-6 pb-24">
       
-      <div className="bg-card rounded-2xl shadow-md overflow-hidden mb-6 flex items-center justify-between p-6 bg-gradient-to-r from-blue-500/20 to-purple-500/20">
+      <div className="bg-card rounded-2xl shadow-md overflow-hidden mb-6 flex items-center justify-between p-6 bg-gradient-to-r from-blue-500/20 to-primary/20">
         <div>
           <h1 className="text-2xl font-bold text-heading flex items-center gap-2">
             <ShieldCheck className="text-primary" size={28} />

@@ -112,7 +112,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
                     placeholder="Escribe un mensaje..."
                     disabled={disabled}
                     rows={1}
-                    className="flex-1 px-4 py-2 rounded-xl border border-card-border dark:border-card-border bg-subtle text-heading focus:outline-none focus:ring-2 focus:ring-light-purple dark:focus:ring-dark-purple resize-none max-h-32 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-4 py-2 rounded-xl border border-card-border dark:border-card-border bg-subtle text-heading focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark resize-none max-h-32 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
                         minHeight: "40px",
                         maxHeight: "128px",
@@ -126,7 +126,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
                 <button
                     onClick={handleSend}
                     disabled={(!message.trim() && !bookCard) || disabled}
-                    className="px-6 py-2 bg-light-purple dark:bg-dark-purple text-white font-medium rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 bg-primary dark:bg-primary-dark text-white font-medium rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Enviar
                 </button>
