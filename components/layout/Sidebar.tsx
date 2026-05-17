@@ -42,6 +42,9 @@ export function Sidebar() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [exchangeCount, setExchangeCount] = useState(0);
   const isMobileRef = useRef(false);
+  // Tracks the unread count at the moment the user entered /chat.
+  // Badge only shows when unreadCount rises ABOVE this value (i.e. new messages arrived).
+  const chatDismissedCount = useRef(0);
 
   // Detect mobile on mount and resize
   useEffect(() => {
@@ -163,9 +166,21 @@ export function Sidebar() {
         {/* ── Navigation ── */}
         <nav className="flex-1 py-5 px-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            const isChatWithBadge =
-              item.href === "/chat" && unreadCount > 0;
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+
+            // For chats: once the user visits /chat, dismiss the current count.
+            // The badge only reappears when NEW messages push unreadCount above dismissed.
+            let effectiveBadge = item.badge;
+            if (item.href === "/chat") {
+              if (pathname.startsWith("/chat")) {
+                // User is on chat — save current count as "seen"
+                chatDismissedCount.current = unreadCount;
+                effectiveBadge = 0;
+              } else {
+                // User is elsewhere — only show if count grew beyond what was dismissed
+                effectiveBadge = unreadCount > chatDismissedCount.current ? unreadCount : 0;
+              }
+            }
 
             return (
               <Link
@@ -195,7 +210,7 @@ export function Sidebar() {
                 </span>
 
                 {/* Badge de notificaciones (chats/intercambios) */}
-                {item.badge != null && item.badge > 0 && (
+                {effectiveBadge != null && effectiveBadge > 0 && (
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-light-pink animate-pulse" />
                 )}
               </Link>

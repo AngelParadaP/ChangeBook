@@ -2,7 +2,6 @@
 
 import { db } from "@/db";
 import { messages } from "@/db/schema";
-import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 
 interface SendMessageResult {
@@ -11,7 +10,7 @@ interface SendMessageResult {
     error?: string;
 }
 
-export async function sendMessage(roomId: string, content: string): Promise<SendMessageResult> {
+export async function sendMessage(roomId: string, content: string, imageUrl?: string): Promise<SendMessageResult> {
     try {
         const currentUser = await getCurrentUser();
 
@@ -19,7 +18,7 @@ export async function sendMessage(roomId: string, content: string): Promise<Send
             return { success: false, error: "No autenticado" };
         }
 
-        if (!content.trim()) {
+        if (!content.trim() && !imageUrl) {
             return { success: false, error: "El mensaje no puede estar vacío" };
         }
 
@@ -42,7 +41,8 @@ export async function sendMessage(roomId: string, content: string): Promise<Send
             .values({
                 roomId,
                 senderId: currentUser.id,
-                content: content.trim(),
+                content: content.trim() || (imageUrl ? "📷 Imagen" : ""),
+                imageUrl: imageUrl || null,
                 isRead: 0,
             })
             .returning();
@@ -52,7 +52,7 @@ export async function sendMessage(roomId: string, content: string): Promise<Send
             createdAt: newMessage[0].createdAt || new Date(),
         };
 
-        // 3. Importar dinámicamente o directamente pusherServer
+        // 3. Notificar via Pusher
         const { pusherServer } = await import("@/lib/pusher");
 
         // Notificar al canal de la sala de chat ("room-{roomId}") para que cargue el mensaje en tiempo real

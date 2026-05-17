@@ -1,23 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChatBubble } from "./ChatBubble";
 import { ChatInput } from "./ChatInput";
 import { ChatSkeleton } from "@/components/ui/skeletons";
-import { getMessages, sendMessage, markAsRead, getChatRooms } from "@/server/actions/chat";
+import { getMessages, sendMessage, markAsRead, editMessage, getRoomInfo } from "@/server/actions/chat";
+import type { Message } from "@/server/actions/chat/getMessages";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import Link from "next/link";
-import { User, ExternalLink, MessageSquare } from "lucide-react";
-
-interface Message {
-    id: string;
-    content: string;
-    senderId: string;
-    isRead: number;
-    createdAt: Date;
-}
+import { User, ExternalLink, MessageSquare, ArrowLeft } from "lucide-react";
 
 interface ChatWindowProps {
     roomId: string;
@@ -68,65 +61,92 @@ function dateKey(date: Date): string {
     return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
+/** Returns a key for minute-grouping: sender + minute */
+function minuteGroupKey(msg: Message): string {
+    const d = new Date(msg.createdAt);
+    return `${msg.senderId}-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}-${d.getHours()}-${d.getMinutes()}`;
+}
+
 export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowProps) {
     const { data: session } = useSession();
     const router = useRouter();
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [msgs, setMsgs] = useState<Message[]>([]);
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const [otherUser, setOtherUser] = useState(initialOtherUser);
+    const otherUserReady = !!otherUser;
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const shouldScrollRef = useRef(true);
 
+    // ── Fetch room info if not provided ─────────────────────
     useEffect(() => {
         if (!initialOtherUser && roomId) {
             const fetchRoomInfo = async () => {
-                const result = await getChatRooms();
-                if (result.success && result.rooms) {
-                    const room = result.rooms.find((r) => r.id === roomId);
-                    if (room) {
-                        setOtherUser(room.otherUser);
-                    } else {
-                        router.push("/chat");
-                    }
+                const result = await getRoomInfo(roomId);
+                if (result.success && result.otherUser) {
+                    setOtherUser(result.otherUser);
+                } else {
+                    router.push("/chat");
                 }
             };
             fetchRoomInfo();
         }
     }, [roomId, initialOtherUser, router]);
 
+    // ── Load messages + Pusher subscription ──────────────────
+    // Depends on roomId + otherUserReady (boolean, not object reference)
     useEffect(() => {
-        if (!otherUser) return;
+        if (!otherUserReady) return;
 
-        // Carga inicial
         loadMessages(false);
 
-        // Suscribirse al canal específico del cuarto con Pusher
         const channelName = `room-${roomId}`;
-
         let pusherClient: any;
 
-        // Lo importamos dinámicamente para evitar problemas de SSR si fuera el caso
         import("@/lib/pusher-client").then((mod) => {
             pusherClient = mod.pusherClient;
-
             const channel = pusherClient.subscribe(channelName);
-            channel.bind("new-message", (newMessage: Message) => {
-                // Al recibir mensaje en tiempo real, lo agregamos al arreglo
-                setMessages((prev) => {
-                    // Evitar duplicados por si el poll o el insert ocurrieron al mismo tiempo
-                    const exists = prev.some((msg) => msg.id === newMessage.id);
-                    if (exists) return prev;
+
+            channel.bind("new-message", (newMessage: any) => {
+                setMsgs((prev) => {
+                    const existsByRealId = prev.some((m) => m.id === newMessage.id);
+                    if (existsByRealId) return prev;
+
+                    if (newMessage.senderId === session?.user?.id) {
+                        const tempIdx = prev.findIndex((m) => m.id.startsWith("temp-") && m.senderId === newMessage.senderId);
+                        if (tempIdx !== -1) {
+                            const updated = [...prev];
+                            updated[tempIdx] = {
+                                ...newMessage,
+                                createdAt: new Date(newMessage.createdAt),
+                            };
+                            return updated;
+                        }
+                    }
+
                     return [...prev, {
                         ...newMessage,
-                        // Pusher transfiere fechas como Strings ISO, parsearlo
-                        createdAt: new Date(newMessage.createdAt)
+                        createdAt: new Date(newMessage.createdAt),
                     }];
                 });
 
-                // Si la ventana está visible y el mensaje NO es tuyo, marcamos todo como leído
                 if (!document.hidden && newMessage.senderId !== session?.user?.id) {
                     markAsRead(roomId);
                 }
+            });
+
+            channel.bind("message-edited", (data: { id: string; content: string; isEdited: boolean }) => {
+                setMsgs((prev) =>
+                    prev.map((m) =>
+                        m.id === data.id ? { ...m, content: data.content, isEdited: true } : m
+                    )
+                );
+            });
+
+            channel.bind("messages-read", () => {
+                setMsgs((prev) =>
+                    prev.map((m) => (m.senderId === session?.user?.id ? { ...m, isRead: 1 } : m))
+                );
             });
         });
 
@@ -145,32 +165,75 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
                 pusherClient.unsubscribe(channelName);
             }
         };
-    }, [roomId, otherUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [roomId, otherUserReady]);
 
+    // ── Auto-scroll on new messages ─────────────────────────
     useEffect(() => {
-        if (chatContainerRef.current) {
+        if (chatContainerRef.current && shouldScrollRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
-    }, [messages]);
+    }, [msgs]);
 
-    useEffect(() => {
-        markAsRead(roomId);
-    }, [roomId]);
+    // markAsRead is already handled by getMessages (autoMarkAsRead: true)
 
     const loadMessages = async (silent = false) => {
         if (!silent) setLoading(true);
         const result = await getMessages(roomId);
-        if (result.success && result.messages) setMessages(result.messages);
+        if (result.success && result.messages) setMsgs(result.messages);
         if (!silent) setLoading(false);
     };
 
-    const handleSendMessage = async (content: string) => {
+    // ── Optimistic send ─────────────────────────────────────
+    const handleSendMessage = useCallback(async (content: string, imageUrl?: string) => {
         if (!session?.user?.id) return;
+
+        // Optimistic insert
+        const tempId = `temp-${Date.now()}`;
+        const optimisticMsg: Message = {
+            id: tempId,
+            content: content || (imageUrl ? "📷 Imagen" : ""),
+            imageUrl: imageUrl || null,
+            senderId: session.user.id,
+            isRead: 0,
+            isEdited: false,
+            createdAt: new Date(),
+        };
+        setMsgs((prev) => [...prev, optimisticMsg]);
+        shouldScrollRef.current = true;
+
         setSending(true);
-        const result = await sendMessage(roomId, content);
-        if (result.success) await loadMessages(true);
+        const result = await sendMessage(roomId, content, imageUrl);
+
+        if (result.success && result.messageId) {
+            // Replace temp message with real ID, but only if Pusher hasn't already replaced it
+            setMsgs((prev) => {
+                const tempExists = prev.some((m) => m.id === tempId);
+                if (!tempExists) return prev; // Pusher already replaced it
+                return prev.map((m) => m.id === tempId ? { ...m, id: result.messageId! } : m);
+            });
+        } else if (!result.success) {
+            // Remove optimistic message on failure
+            setMsgs((prev) => prev.filter((m) => m.id !== tempId));
+        }
         setSending(false);
-    };
+    }, [roomId, session?.user?.id]);
+
+    // ── Edit message handler ────────────────────────────────
+    const handleEditMessage = useCallback(async (messageId: string, newContent: string) => {
+        // Optimistic update
+        setMsgs((prev) =>
+            prev.map((m) =>
+                m.id === messageId ? { ...m, content: newContent, isEdited: true } : m
+            )
+        );
+
+        const result = await editMessage(messageId, newContent);
+        if (!result.success) {
+            // Revert on failure
+            loadMessages(true);
+        }
+    }, []);
 
     // ── Loading skeleton ───────────────────────────────────────────────
     if (loading || !otherUser) {
@@ -193,20 +256,30 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
         );
     }
 
-    // ── Build message groups with date separators ──────────────────────
+    // ── Build items with date separators + minute grouping ──
     type RenderedItem =
         | { type: "separator"; key: string; label: string }
-        | { type: "message"; key: string; message: Message };
+        | { type: "message"; key: string; message: Message; showTimestamp: boolean; isGroupTail: boolean };
 
     const items: RenderedItem[] = [];
-    let lastKey = "";
-    for (const msg of messages) {
-        const key = dateKey(new Date(msg.createdAt));
-        if (key !== lastKey) {
-            lastKey = key;
-            items.push({ type: "separator", key: `sep-${key}`, label: formatDateLabel(new Date(msg.createdAt)) });
+    let lastDateKey = "";
+
+    for (let i = 0; i < msgs.length; i++) {
+        const msg = msgs[i];
+        const dKey = dateKey(new Date(msg.createdAt));
+        if (dKey !== lastDateKey) {
+            lastDateKey = dKey;
+            items.push({ type: "separator", key: `sep-${dKey}`, label: formatDateLabel(new Date(msg.createdAt)) });
         }
-        items.push({ type: "message", key: msg.id, message: msg });
+
+        const nextMsg = msgs[i + 1];
+        const thisGroupKey = minuteGroupKey(msg);
+        const nextGroupKey = nextMsg ? minuteGroupKey(nextMsg) : "";
+        const isGroupTail = thisGroupKey !== nextGroupKey;
+        // Show timestamp only on the last message of each minute group
+        const showTimestamp = isGroupTail;
+
+        items.push({ type: "message", key: msg.id, message: msg, showTimestamp, isGroupTail });
     }
 
     return (
@@ -214,6 +287,13 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
 
             {/* ── Header ─────────────────────────────────── */}
             <div className="flex items-center gap-3 px-5 py-3.5 bg-gradient-to-r from-primary-dark to-primary text-white shadow-md flex-shrink-0">
+                <button
+                    onClick={() => router.push("/chat")}
+                    className="lg:hidden p-1.5 -ml-2 rounded-full hover:bg-white/20 transition-colors"
+                    title="Volver a los chats"
+                >
+                    <ArrowLeft size={20} />
+                </button>
                 <Link
                     href={`/user/${otherUser.username}`}
                     className="flex items-center gap-3 flex-1 group min-w-0"
@@ -259,7 +339,7 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
                         scrollbarColor: "var(--color-dim) transparent",
                     }}
                 >
-                    {messages.length === 0 ? (
+                    {msgs.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
                             <div className="w-14 h-14 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
                                 <MessageSquare size={28} className="text-primary/80" />
@@ -283,11 +363,17 @@ export function ChatWindow({ roomId, otherUser: initialOtherUser }: ChatWindowPr
                             return (
                                 <ChatBubble
                                     key={msg.id}
+                                    id={msg.id}
                                     content={msg.content}
+                                    imageUrl={msg.imageUrl}
                                     senderId={msg.senderId}
                                     currentUserId={session?.user?.id || ""}
                                     createdAt={new Date(msg.createdAt)}
                                     isRead={msg.isRead === 1}
+                                    isEdited={msg.isEdited}
+                                    showTimestamp={item.showTimestamp}
+                                    isGroupTail={item.isGroupTail}
+                                    onEdit={handleEditMessage}
                                 />
                             );
                         })

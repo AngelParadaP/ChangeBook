@@ -5,11 +5,13 @@ import { messages } from "@/db/schema";
 import { eq, desc, ne, and } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
-interface Message {
+export interface Message {
     id: string;
     content: string;
+    imageUrl: string | null;
     senderId: string;
     isRead: number;
+    isEdited: boolean;
     createdAt: Date;
 }
 
@@ -31,14 +33,14 @@ export async function getMessages(
             return { success: false, error: "No autenticado" };
         }
 
-        // TODO: Verificar que el usuario sea participante de la sala
-
         const roomMessages = await db
             .select({
                 id: messages.id,
                 content: messages.content,
+                imageUrl: messages.imageUrl,
                 senderId: messages.senderId,
                 isRead: messages.isRead,
+                isEdited: messages.isEdited,
                 createdAt: messages.createdAt,
             })
             .from(messages)
@@ -47,7 +49,6 @@ export async function getMessages(
             .limit(limit);
 
         // Marcar mensajes como leídos automáticamente si está habilitado
-        // Esto reduce las peticiones al servidor al combinar operaciones
         if (autoMarkAsRead && roomMessages.length > 0) {
             await db
                 .update(messages)

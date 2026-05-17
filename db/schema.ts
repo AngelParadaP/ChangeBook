@@ -73,12 +73,29 @@ export const messages = pgTable("messages", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   content: text("content").notNull(),
+  imageUrl: text("image_url"),
   isRead: integer("is_read").default(0).notNull(), // 0 = no leído, 1 = leído
+  isEdited: boolean("is_edited").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => {
   return {
     roomIdx: index("room_idx").on(table.roomId),
     createdAtIdx: index("created_at_idx").on(table.createdAt),
+  };
+});
+
+// Tabla para ocultar chats por usuario
+export const hiddenChatRooms = pgTable("hidden_chat_rooms", {
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  roomId: uuid("room_id")
+    .references(() => chatRooms.id, { onDelete: "cascade" })
+    .notNull(),
+  hiddenAt: timestamp("hidden_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.userId, table.roomId] }),
   };
 });
 

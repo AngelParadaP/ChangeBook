@@ -4,21 +4,27 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useChatRooms } from "@/contexts/ChatContext";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { MessageSquare, Loader2, Search, Inbox, Mail, X, Users } from "lucide-react";
+import { MessageSquare, Loader2, Search, Inbox, Mail, X, Users, EyeOff, Eye } from "lucide-react";
+import { hideChat, unhideChat, getChatRooms } from "@/server/actions/chat";
+import type { ChatRoom } from "@/contexts/ChatContext";
 
-type FilterTab = "all" | "unread" | "friends";
+type FilterTab = "all" | "unread" | "friends" | "hidden";
 
 export function ChatRoomList() {
     const router = useRouter();
     const params = useParams();
     const activeRoomId = params?.roomId as string | undefined;
-    const { rooms, loading, friends, friendsLoading } = useChatRooms();
+    const { rooms, loading, friends, friendsLoading, refreshRooms } = useChatRooms();
     const searchParams = useSearchParams();
     const tabFromUrl = searchParams.get("tab") as FilterTab | null;
-    const [filterTab, setFilterTab] = useState<FilterTab>(tabFromUrl && ["all", "unread", "friends"].includes(tabFromUrl) ? tabFromUrl : "all");
+    const [filterTab, setFilterTab] = useState<FilterTab>(tabFromUrl && ["all", "unread", "friends", "hidden"].includes(tabFromUrl) ? tabFromUrl : "all");
     const [searchQuery, setSearchQuery] = useState("");
     const [searchOpen, setSearchOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const [optionsRoom, setOptionsRoom] = useState<{ id: string; name: string } | null>(null);
+    const [hiddenRooms, setHiddenRooms] = useState<ChatRoom[]>([]);
+    const [hiddenLoading, setHiddenLoading] = useState(false);
+    const [actionLoading, setActionLoading] = useState(false);
 
     // Focus input when search opens
     useEffect(() => {
@@ -26,6 +32,22 @@ export function ChatRoomList() {
             searchInputRef.current.focus();
         }
     }, [searchOpen]);
+
+    // Load hidden rooms when tab switches to "hidden"
+    useEffect(() => {
+        if (filterTab === "hidden") {
+            loadHiddenRooms();
+        }
+    }, [filterTab]);
+
+    const loadHiddenRooms = async () => {
+        setHiddenLoading(true);
+        const result = await getChatRooms(true);
+        if (result.success && result.rooms) {
+            setHiddenRooms(result.rooms);
+        }
+        setHiddenLoading(false);
+    };
 
     const handleToggleSearch = () => {
         if (searchOpen) {
@@ -36,8 +58,29 @@ export function ChatRoomList() {
         }
     };
 
+    const handleHideChat = async (roomId: string) => {
+        setActionLoading(true);
+        const result = await hideChat(roomId);
+        if (result.success) {
+            await refreshRooms();
+        }
+        setOptionsRoom(null);
+        setActionLoading(false);
+    };
+
+    const handleUnhideChat = async (roomId: string) => {
+        setActionLoading(true);
+        const result = await unhideChat(roomId);
+        if (result.success) {
+            await refreshRooms();
+            await loadHiddenRooms();
+        }
+        setOptionsRoom(null);
+        setActionLoading(false);
+    };
+
     const filteredRooms = useMemo(() => {
-        let filtered = rooms;
+        let filtered = filterTab === "hidden" ? hiddenRooms : rooms;
 
         // Filter by tab
         if (filterTab === "unread") {
@@ -58,11 +101,11 @@ export function ChatRoomList() {
         }
 
         return filtered;
-    }, [rooms, filterTab, searchQuery]);
+    }, [rooms, hiddenRooms, filterTab, searchQuery, friends]);
 
     const unreadCount = useMemo(
-        () => rooms.filter((r) => r.unreadCount > 0).length,
-        [rooms]
+        () => rooms.filter((r) => r.unreadCount > 0 && r.id !== activeRoomId).length,
+        [rooms, activeRoomId]
     );
 
     const formatTime = (date: Date) => {
@@ -137,7 +180,7 @@ export function ChatRoomList() {
     }
 
     // Empty state
-    if (rooms.length === 0) {
+    if (rooms.length === 0 && filterTab !== "hidden") {
         return (
             <div className="flex flex-col h-full">
                 {/* Header */}
@@ -158,6 +201,14 @@ export function ChatRoomList() {
             </div>
         );
     }
+
+    const isHiddenTab = filterTab === "hidden";
+    const displayRooms = filteredRooms;
+
+    const changeTab = (tab: FilterTab) => {
+        setFilterTab(tab);
+        router.replace(activeRoomId ? `/chat/${activeRoomId}?tab=${tab}` : `/chat?tab=${tab}`, { scroll: false });
+    };
 
     return (
         <div className="flex flex-col h-full">
@@ -207,13 +258,10 @@ export function ChatRoomList() {
             </div>
 
             {/* Filter tabs */}
-            <div className="flex gap-1 px-4 pb-3">
+            <div className="flex gap-1 px-4 pb-3 overflow-x-auto">
                 <button
-                    onClick={() => {
-                        setFilterTab("all");
-                        router.replace(activeRoomId ? `/chat/${activeRoomId}?tab=all` : `/chat?tab=all`, { scroll: false });
-                    }}
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterTab === "all"
+                    onClick={() => changeTab("all")}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${filterTab === "all"
                         ? "bg-primary text-white shadow-sm"
                         : "text-hint hover:bg-soft hover:text-heading"
                         }`}
@@ -228,11 +276,8 @@ export function ChatRoomList() {
                     </span>
                 </button>
                 <button
-                    onClick={() => {
-                        setFilterTab("unread");
-                        router.replace(activeRoomId ? `/chat/${activeRoomId}?tab=unread` : `/chat?tab=unread`, { scroll: false });
-                    }}
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterTab === "unread"
+                    onClick={() => changeTab("unread")}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${filterTab === "unread"
                         ? "bg-primary text-white shadow-sm"
                         : "text-hint hover:bg-soft hover:text-heading"
                         }`}
@@ -249,11 +294,8 @@ export function ChatRoomList() {
                     )}
                 </button>
                 <button
-                    onClick={() => {
-                        setFilterTab("friends");
-                        router.replace(activeRoomId ? `/chat/${activeRoomId}?tab=friends` : `/chat?tab=friends`, { scroll: false });
-                    }}
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterTab === "friends"
+                    onClick={() => changeTab("friends")}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${filterTab === "friends"
                         ? "bg-primary text-white shadow-sm"
                         : "text-hint hover:bg-soft hover:text-heading"
                         }`}
@@ -261,14 +303,33 @@ export function ChatRoomList() {
                     <Users size={14} />
                     Amigos
                 </button>
+                <button
+                    onClick={() => changeTab("hidden")}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${filterTab === "hidden"
+                        ? "bg-primary text-white shadow-sm"
+                        : "text-hint hover:bg-soft hover:text-heading"
+                        }`}
+                >
+                    <EyeOff size={14} />
+                    Ocultos
+                </button>
             </div>
 
             {/* Room list */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-                {filteredRooms.length === 0 ? (
+                {(isHiddenTab && hiddenLoading) ? (
+                    <div className="flex items-center justify-center py-12">
+                        <Loader2 size={24} className="animate-spin text-hint" />
+                    </div>
+                ) : displayRooms.length === 0 ? (
                     <div className="flex items-center justify-center py-12 px-4">
                         <div className="text-center">
-                            {filterTab === "unread" && !searchQuery ? (
+                            {isHiddenTab ? (
+                                <>
+                                    <EyeOff size={32} className="text-hint mx-auto mb-2" />
+                                    <p className="text-sm text-hint">No tienes chats ocultos</p>
+                                </>
+                            ) : filterTab === "unread" && !searchQuery ? (
                                 <>
                                     <Mail size={32} className="text-hint mx-auto mb-2" />
                                     <p className="text-sm text-hint">No tienes mensajes sin leer</p>
@@ -290,9 +351,10 @@ export function ChatRoomList() {
                     </div>
                 ) : (
                     <div className="py-1">
-                        {filteredRooms.map((room, index) => {
+                        {displayRooms.map((room, index) => {
                             const isActive = activeRoomId === room.id;
-                            const hasUnread = room.unreadCount > 0;
+                            // If this room is currently open, visually treat as read (no refetch needed)
+                            const hasUnread = room.unreadCount > 0 && !isActive;
                             const query = searchQuery.trim().toLowerCase();
 
                             // Determine if this is a message-only match (for visual indicator)
@@ -305,6 +367,10 @@ export function ChatRoomList() {
                             return (
                                 <div key={room.id}>
                                     <button
+                                        onContextMenu={(e) => {
+                                            e.preventDefault();
+                                            setOptionsRoom({ id: room.id, name: room.otherUser.name });
+                                        }}
                                         onClick={() => router.push(`/chat/${room.id}?tab=${filterTab}`)}
                                         className={`w-full flex items-center gap-3 px-4 py-3.5 transition-all duration-200 text-left cursor-pointer relative group ${isActive
                                             ? "bg-primary/8 dark:bg-primary-dark/15 border-l-[3px] border-primary"
@@ -370,7 +436,7 @@ export function ChatRoomList() {
                                     </button>
 
                                     {/* Divider between items */}
-                                    {index < filteredRooms.length - 1 && (
+                                    {index < displayRooms.length - 1 && (
                                         <div className="mx-4 border-b border-card-border/60" />
                                     )}
                                 </div>
@@ -379,6 +445,57 @@ export function ChatRoomList() {
                     </div>
                 )}
             </div>
+
+            {/* Options Modal */}
+            {optionsRoom && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200"
+                    onClick={() => setOptionsRoom(null)}
+                >
+                    <div
+                        className="bg-card w-full sm:w-96 rounded-2xl shadow-xl overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="p-4 border-b border-card-border/60">
+                            <h3 className="font-bold text-heading text-center">Opciones del chat</h3>
+                            <p className="text-xs text-caption text-center mt-0.5">{optionsRoom.name}</p>
+                        </div>
+                        <div className="p-2 flex flex-col">
+                            {isHiddenTab ? (
+                                <button
+                                    onClick={() => handleUnhideChat(optionsRoom.id)}
+                                    disabled={actionLoading}
+                                    className="flex items-center gap-3 w-full p-3 hover:bg-soft text-heading rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-soft flex items-center justify-center">
+                                        <Eye size={16} className="text-hint" />
+                                    </div>
+                                    {actionLoading ? "Mostrando..." : "Mostrar chat"}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => handleHideChat(optionsRoom.id)}
+                                    disabled={actionLoading}
+                                    className="flex items-center gap-3 w-full p-3 hover:bg-soft text-heading rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-soft flex items-center justify-center">
+                                        <EyeOff size={16} className="text-hint" />
+                                    </div>
+                                    {actionLoading ? "Ocultando..." : "Ocultar chat"}
+                                </button>
+                            )}
+                        </div>
+                        <div className="p-2 border-t border-card-border/60">
+                            <button
+                                onClick={() => setOptionsRoom(null)}
+                                className="w-full py-2.5 font-bold text-heading hover:bg-soft rounded-xl transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

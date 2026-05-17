@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { chatRooms, users, messages } from "@/db/schema";
-import { eq, or, and, desc, ne, sql } from "drizzle-orm";
+import { chatRooms, users, messages, hiddenChatRooms } from "@/db/schema";
+import { eq, or, and, desc, ne, sql, notInArray } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
 interface ChatRoom {
@@ -26,7 +26,7 @@ interface GetChatRoomsResult {
     error?: string;
 }
 
-export async function getChatRooms(): Promise<GetChatRoomsResult> {
+export async function getChatRooms(showHidden: boolean = false): Promise<GetChatRoomsResult> {
     try {
         const currentUser = await getCurrentUser();
 
@@ -36,8 +36,16 @@ export async function getChatRooms(): Promise<GetChatRoomsResult> {
 
         const currentUserId = currentUser.id;
 
+        // Get hidden room IDs for this user
+        const hiddenRows = await db
+            .select({ roomId: hiddenChatRooms.roomId })
+            .from(hiddenChatRooms)
+            .where(eq(hiddenChatRooms.userId, currentUserId));
+
+        const hiddenRoomIds = hiddenRows.map(r => r.roomId);
+
         // Obtener todas las salas donde el usuario es participante
-        const userRooms = await db
+        let userRooms = await db
             .select()
             .from(chatRooms)
             .where(
@@ -46,6 +54,13 @@ export async function getChatRooms(): Promise<GetChatRoomsResult> {
                     eq(chatRooms.participant2Id, currentUserId)
                 )
             );
+
+        // Filter by hidden status
+        if (showHidden) {
+            userRooms = userRooms.filter(room => hiddenRoomIds.includes(room.id));
+        } else {
+            userRooms = userRooms.filter(room => !hiddenRoomIds.includes(room.id));
+        }
 
         // Para cada sala, obtener información del otro usuario y último mensaje
         const roomsWithDetails = await Promise.all(
