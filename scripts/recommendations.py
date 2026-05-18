@@ -68,7 +68,9 @@ def train_and_extract_vectors():
     print(f"Ejecutando SVD Truncado con {n_factors} factores...")
     
     # 2. OPTIMIZACIÓN: svds solo calcula los factores necesarios (muy rápido y poca RAM)
-    U_k, sigma_k, Vt_k = svds(R_sparse, k=n_factors, random_state=42)
+    np.random.seed(42)
+    v0_k = np.random.rand(min(R_sparse.shape))
+    U_k, sigma_k, Vt_k = svds(R_sparse, k=n_factors, v0=v0_k)
     
     # svds no ordena los resultados por defecto, los ordenamos
     idx = np.argsort(sigma_k)[::-1]
@@ -187,7 +189,9 @@ def train_and_extract_vectors():
             print(f"Ejecutando SVD Truncado con {n_comm_factors} factores...")
             
             # 2. SVD Truncado
-            U_c, sigma_c, Vt_c = svds(RC_sparse, k=n_comm_factors, random_state=42)
+            np.random.seed(42)
+            v0_c = np.random.rand(min(RC_sparse.shape))
+            U_c, sigma_c, Vt_c = svds(RC_sparse, k=n_comm_factors, v0=v0_c)
             
             idx_c = np.argsort(sigma_c)[::-1]
             U_c = U_c[:, idx_c]
