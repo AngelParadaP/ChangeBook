@@ -24,15 +24,15 @@ def train_and_extract_vectors():
     
     query = """
     WITH interactions AS (
-        SELECT user_id, book_id, 3 AS weight FROM favorites
+        SELECT user_id, book_id, 5 AS weight FROM favorites
         UNION ALL
-        SELECT requester_id AS user_id, book_id, 5 AS weight FROM exchanges WHERE status IN ('completado', 'en_curso')
+        SELECT requester_id AS user_id, book_id, 10 AS weight FROM exchanges WHERE status IN ('completado', 'en_curso')
         UNION ALL
-        SELECT requester_id AS user_id, book_id, 4 AS weight FROM exchanges WHERE status IN ('pendiente', 'aceptado')
+        SELECT requester_id AS user_id, book_id, 8 AS weight FROM exchanges WHERE status IN ('pendiente', 'aceptado')
         UNION ALL
-        SELECT u.id AS user_id, b.id AS book_id, 2 AS weight FROM users u CROSS JOIN books b WHERE u.preferences && b.genres
+        SELECT u.id AS user_id, b.id AS book_id, 15 AS weight FROM users u CROSS JOIN books b WHERE u.preferences && b.genres
         UNION ALL
-        SELECT cm.user_id, b.id AS book_id, 1 AS weight FROM community_members cm JOIN communities c ON cm.community_id = c.id CROSS JOIN books b WHERE c.genres && b.genres
+        SELECT cm.user_id, b.id AS book_id, 2 AS weight FROM community_members cm JOIN communities c ON cm.community_id = c.id CROSS JOIN books b WHERE c.genres && b.genres
     )
     SELECT CAST(user_id AS VARCHAR) AS user_id, CAST(book_id AS VARCHAR) AS book_id, SUM(weight) as rating
     FROM interactions
@@ -44,8 +44,8 @@ def train_and_extract_vectors():
         print("No hay suficientes datos.")
         return
 
-    user_ids = df['user_id'].unique()
-    book_ids = df['book_id'].unique()
+    user_ids = np.sort(df['user_id'].unique())
+    book_ids = np.sort(df['book_id'].unique())
     
     user_to_idx = {uid: i for i, uid in enumerate(user_ids)}
     book_to_idx = {bid: i for i, bid in enumerate(book_ids)}
@@ -68,7 +68,7 @@ def train_and_extract_vectors():
     print(f"Ejecutando SVD Truncado con {n_factors} factores...")
     
     # 2. OPTIMIZACIÓN: svds solo calcula los factores necesarios (muy rápido y poca RAM)
-    U_k, sigma_k, Vt_k = svds(R_sparse, k=n_factors)
+    U_k, sigma_k, Vt_k = svds(R_sparse, k=n_factors, random_state=42)
     
     # svds no ordena los resultados por defecto, los ordenamos
     idx = np.argsort(sigma_k)[::-1]
@@ -140,14 +140,14 @@ def train_and_extract_vectors():
     
     comm_query = """
     WITH comm_interactions AS (
-        SELECT cm.user_id, cm.community_id, 5 AS weight
+        SELECT cm.user_id, cm.community_id, 8 AS weight
         FROM community_members cm
         WHERE cm.status = 'active'
         UNION ALL
-        SELECT p.user_id, p.community_id, 3 AS weight
+        SELECT p.user_id, p.community_id, 4 AS weight
         FROM posts p
         UNION ALL
-        SELECT u.id AS user_id, c.id AS community_id, 2 AS weight
+        SELECT u.id AS user_id, c.id AS community_id, 15 AS weight
         FROM users u CROSS JOIN communities c
         WHERE u.preferences && c.genres
     )
@@ -163,8 +163,8 @@ def train_and_extract_vectors():
     else:
         print(f"Se encontraron {len(comm_df)} interacciones usuario-comunidad.")
         
-        comm_user_ids = comm_df['user_id'].unique()
-        comm_ids = comm_df['community_id'].unique()
+        comm_user_ids = np.sort(comm_df['user_id'].unique())
+        comm_ids = np.sort(comm_df['community_id'].unique())
         
         comm_user_to_idx = {uid: i for i, uid in enumerate(comm_user_ids)}
         comm_to_idx = {cid: i for i, cid in enumerate(comm_ids)}
@@ -187,7 +187,7 @@ def train_and_extract_vectors():
             print(f"Ejecutando SVD Truncado con {n_comm_factors} factores...")
             
             # 2. SVD Truncado
-            U_c, sigma_c, Vt_c = svds(RC_sparse, k=n_comm_factors)
+            U_c, sigma_c, Vt_c = svds(RC_sparse, k=n_comm_factors, random_state=42)
             
             idx_c = np.argsort(sigma_c)[::-1]
             U_c = U_c[:, idx_c]
