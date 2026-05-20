@@ -503,11 +503,15 @@ export function Navbar() {
                         </div>
                         <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                           {bookResults.map((book) => (
-                            <Link
+                            <div
                               key={book.id}
-                              href={`/books/${book.id}`}
-                              onClick={() => setShowResults(false)}
-                              className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
+                              onMouseDown={() => {
+                                setShowResults(false);
+                                setIsMobileSearchOpen(false);
+                                setSearchQuery("");
+                                router.push(`/books/${book.id}`);
+                              }}
+                              className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors cursor-pointer"
                             >
                               <div className="w-10 h-14 relative flex-shrink-0 rounded overflow-hidden bg-dim">
                                 {book.imageUrl ? (
@@ -539,7 +543,7 @@ export function Navbar() {
                                   Intercambiado
                                 </span>
                               )}
-                            </Link>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -553,11 +557,15 @@ export function Navbar() {
                         </div>
                         <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                           {userResults.map((user) => (
-                            <Link
+                            <div
                               key={user.id}
-                              href={`/user/${user.username}`}
-                              onClick={() => setShowResults(false)}
-                              className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
+                              onMouseDown={() => {
+                                setShowResults(false);
+                                setIsMobileSearchOpen(false);
+                                setSearchQuery("");
+                                router.push(`/user/${user.username}`);
+                              }}
+                              className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors cursor-pointer"
                             >
                               <UserAvatar
                                 imageURL={user.imageURL}
@@ -575,7 +583,7 @@ export function Navbar() {
                               <span className="text-[11px] bg-soft text-caption px-2 py-0.5 rounded-full whitespace-nowrap font-mono">
                                 {user.studentCode}
                               </span>
-                            </Link>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -589,11 +597,15 @@ export function Navbar() {
                         </div>
                         <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                           {communityResults.map((community) => (
-                            <Link
+                            <div
                               key={community.id}
-                              href={`/communities/${community.id}`}
-                              onClick={() => setShowResults(false)}
-                              className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
+                              onMouseDown={() => {
+                                setShowResults(false);
+                                setIsMobileSearchOpen(false);
+                                setSearchQuery("");
+                                router.push(`/communities/${community.id}`);
+                              }}
+                              className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors cursor-pointer"
                             >
                               <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-primary-light to-primary-light dark:from-primary-dark dark:to-primary-dark flex-shrink-0 relative">
                                 {community.imageUrl ? (
@@ -618,20 +630,22 @@ export function Navbar() {
                                   {community.description ? ` · ${community.description}` : ""}
                                 </p>
                               </div>
-                            </Link>
+                            </div>
                           ))}
                         </div>
                       </div>
                     )}
 
                     {/* Link to full search page */}
-                    <Link
-                      href={`/search?q=${encodeURIComponent(searchQuery)}`}
-                      onClick={() => setShowResults(false)}
-                      className="block px-4 py-3 text-center text-sm font-medium text-primary dark:text-primary-dark hover:bg-primary-soft dark:hover:bg-primary-dark/10 transition-colors border-t border-card-border"
+                    <div
+                      onMouseDown={() => {
+                        setShowResults(false);
+                        router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+                      }}
+                      className="block px-4 py-3 text-center text-sm font-medium text-primary dark:text-primary-dark hover:bg-primary-soft dark:hover:bg-primary-dark/10 transition-colors border-t border-card-border cursor-pointer"
                     >
                       Ver todos los resultados →
-                    </Link>
+                    </div>
                   </>
                 ) : (
                   !isSearching && (
@@ -1003,11 +1017,10 @@ export function Navbar() {
                       </div>
                       <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                         {bookResults.map((book) => (
-                          <Link
+                          <div
                             key={book.id}
-                            href={`/books/${book.id}`}
-                            onClick={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); }}
-                            className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
+                            onMouseDown={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); router.push(`/books/${book.id}`); }}
+                            className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors cursor-pointer"
                           >
                             <div className="w-10 h-14 relative flex-shrink-0 rounded overflow-hidden bg-dim">
                               {book.imageUrl ? (
@@ -1022,7 +1035,7 @@ export function Navbar() {
                               <p className="font-medium text-sm text-heading truncate">{book.title}</p>
                               <p className="text-xs text-hint truncate">{book.author} • {book.year || "N/A"}</p>
                             </div>
-                          </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -1034,18 +1047,17 @@ export function Navbar() {
                       </div>
                       <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                         {userResults.map((user) => (
-                          <Link
+                          <div
                             key={user.id}
-                            href={`/user/${user.username}`}
-                            onClick={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); }}
-                            className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
+                            onMouseDown={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); router.push(`/user/${user.username}`); }}
+                            className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors cursor-pointer"
                           >
                             <UserAvatar imageURL={user.imageURL} name={user.name} size="sm" />
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-sm text-heading truncate">{user.name}</p>
                               <p className="text-xs text-hint truncate">@{user.username}</p>
                             </div>
-                          </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -1057,11 +1069,10 @@ export function Navbar() {
                       </div>
                       <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                         {communityResults.map((community) => (
-                          <Link
+                          <div
                             key={community.id}
-                            href={`/communities/${community.id}`}
-                            onClick={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); }}
-                            className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors"
+                            onMouseDown={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); router.push(`/communities/${community.id}`); }}
+                            className="flex items-center gap-3 p-3 hover:bg-subtle transition-colors cursor-pointer"
                           >
                             <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-primary-light to-primary-light dark:from-primary-dark dark:to-primary-dark flex-shrink-0 relative">
                               {community.imageUrl ? (
@@ -1079,18 +1090,17 @@ export function Navbar() {
                                 {community.description ? ` · ${community.description}` : ""}
                               </p>
                             </div>
-                          </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
                   )}
-                  <Link
-                    href={`/search?q=${encodeURIComponent(searchQuery)}`}
-                    onClick={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); }}
-                    className="block px-4 py-3 text-center text-sm font-medium text-primary dark:text-primary-dark hover:bg-primary-soft dark:hover:bg-primary-dark/10 transition-colors border-t border-card-border"
+                  <div
+                    onMouseDown={() => { setShowResults(false); setIsMobileSearchOpen(false); setSearchQuery(""); router.push(`/search?q=${encodeURIComponent(searchQuery)}`); }}
+                    className="block px-4 py-3 text-center text-sm font-medium text-primary dark:text-primary-dark hover:bg-primary-soft dark:hover:bg-primary-dark/10 transition-colors border-t border-card-border cursor-pointer"
                   >
                     Ver todos los resultados →
-                  </Link>
+                  </div>
                 </>
               ) : (
                 !isSearching && (
